@@ -415,8 +415,10 @@ def run_pipeline(
     note = ""
     if not marker_idx:
         note = (
-            "No tumor-marker genes supplied; largest cluster assumed tumor. "
-            "Pass --tumor-markers GENE1,GENE2 for accurate selection."
+            "WARNING: no tumor-marker genes supplied; the largest cluster was "
+            "assumed to be tumor. Pass --tumor-markers GENE1,GENE2 for "
+            "accurate selection. The downstream peptide list may contain "
+            "many false positives."
         )
 
     return PipelineReport(

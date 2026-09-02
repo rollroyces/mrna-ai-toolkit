@@ -132,7 +132,11 @@ def _check_trial_dense_retriever() -> tuple[bool, str]:
             title="INTerpath-001: Personalized mRNA-4157 + Pembrolizumab in Resected Melanoma",
             condition="Stage IIB-IV melanoma",
             phase="3",
-            inclusion=["Completely resected stage IIB-IV melanoma", "ECOG 0 or 1", "No prior systemic therapy"],
+            inclusion=[
+                "Completely resected stage IIB-IV melanoma",
+                "ECOG 0 or 1",
+                "No prior systemic therapy",
+            ],
             exclusion=["Active autoimmune disease", "Prior treatment with anti-PD-1"],
             biomarkers=["BRAF V600E", "BRAF V600K"],
         ),

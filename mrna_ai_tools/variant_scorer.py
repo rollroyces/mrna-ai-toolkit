@@ -510,14 +510,27 @@ def score_variant(
     *,
     protein_length: int | None = None,
     driver_genes: set[str] | None = None,
-) -> VariantScore:
+    strict: bool = False,
+) -> VariantScore | None:
     """Score a single missense variant.
 
     Higher ``normalized_score`` = higher priority for downstream analysis.
+    Returns ``None`` for unknown amino acids (silent-mode default) or raises
+    ``ValueError`` when ``strict=True``.
     """
     wt_aa = wt_aa.upper()
     mut_aa = mut_aa.upper()
     driver_genes = driver_genes if driver_genes is not None else DRIVER_GENES
+
+    # Validate amino acids — silent default returns None rather than
+    # silently maxing the BLOSUM penalty, which would inflate the score.
+    if wt_aa not in HYDROPHOBICITY or mut_aa not in HYDROPHOBICITY:
+        if strict:
+            raise ValueError(
+                f"unknown amino acid(s): wt={wt_aa!r}, mut={mut_aa!r}; "
+                "expected standard 20-letter amino acid codes"
+            )
+        return None
 
     # ---- 1. substitution severity (BLOSUM62) ----
     blosum = BLOSUM62.get((wt_aa, mut_aa), -4)  # unknown substitutions get a strong penalty
@@ -597,25 +610,28 @@ def filter_variants(
     top_fraction: float = 0.20,
     min_score: float = 0.4,
     protein_lengths: dict[str, int] | None = None,
+    strict: bool = False,
 ) -> list[VariantScore]:
     """Score and filter a list of variants to the top ``top_fraction``.
 
     Returns a list of ``VariantScore`` sorted by ``normalized_score`` descending.
+    Variants with unknown amino acids are skipped (or raise if ``strict=True``).
     """
     scored: list[VariantScore] = []
     for v in variants:
         prot_len = None
         if protein_lengths and v.get("gene") in protein_lengths:
             prot_len = protein_lengths[v["gene"]]
-        scored.append(
-            score_variant(
-                gene=v["gene"],
-                position=v["position"],
-                wt_aa=v["wt_aa"],
-                mut_aa=v["mut_aa"],
-                protein_length=prot_len,
-            )
+        result = score_variant(
+            gene=v["gene"],
+            position=v["position"],
+            wt_aa=v["wt_aa"],
+            mut_aa=v["mut_aa"],
+            protein_length=prot_len,
+            strict=strict,
         )
+        if result is not None:
+            scored.append(result)
     scored.sort(key=lambda s: -s.normalized_score)
 
     n_keep = max(1, int(len(scored) * top_fraction))
