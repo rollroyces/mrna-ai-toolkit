@@ -1,0 +1,73 @@
+{
+  "new_cds": "ATGGATAAGAAATACAGCATCGGCCTGGATATCGGCACCAATAGCGTGGGCTGGGCCGTGATCACCGATGAATATAAGGTGCCCAGCAAAAAGTTCAAGGTGCTGGGCAATACCGACCGGCACAGCATCAAAAAAAATCTGATCGGCGCCCTGCTGTTTGACAGCGGCGAGACCGCCGAAGCCACCAGGCTGAAACGGACCGCCAGGAGAAGGTATACCAGGCGGAAGAATAGGATTTGTTATCTGCAGGAGATTTTTAGCAATGAGATGGCCAAAGTGGATGATAGCTTCTTTCATAGGCTGGAAGAGAGCTTTCTGGTGGAAGAAGACAAGAAGCATGAAAGGCATCCCATTTTTGGCAATATCGTGGATGAAGTGGCCTATCATGAGAAATATCCCACCATCTATCATCTGAGGAAAAAACTGGCCGATAGCACCGATAAAGCCGATCTGCGGCTGATCTATCTGGCCCTGGCCCATATGATTAAGTTTAGGGGCCATTTTCTGATTGAGGGCGATCTGAATCCCGATAATAGCGATGTGGACAAACTGTTTATCCAGCTGGTGCAGATCTACAATCAGCTGTTTGAAGAAAACCCCATTTACGCCAGCATCAGGGGCCTGAGAAATCA",
+  "before": {
+    "n_codons": 210,
+    "cai": 0.6954,
+    "gc_percent": 37.3,
+    "rare_codon_fraction": 0.0429,
+    "cpg_obs_exp": 1.1331,
+    "most_common_codons": [
+      [
+        "GAT",
+        12
+      ],
+      [
+        "AAA",
+        11
+      ],
+      [
+        "AAT",
+        10
+      ],
+      [
+        "GAA",
+        9
+      ],
+      [
+        "TTT",
+        9
+      ]
+    ],
+    "rare_codons": [
+      "CTA",
+      "TTA"
+    ],
+    "gc_window_stddev": 4.75
+  },
+  "after": {
+    "n_codons": 210,
+    "cai": 0.9254,
+    "gc_percent": 48.57,
+    "rare_codon_fraction": 0.0,
+    "cpg_obs_exp": 0.6803,
+    "most_common_codons": [
+      [
+        "CTG",
+        21
+      ],
+      [
+        "GAT",
+        12
+      ],
+      [
+        "GCC",
+        12
+      ],
+      [
+        "AAA",
+        11
+      ],
+      [
+        "AGC",
+        11
+      ]
+    ],
+    "rare_codons": [],
+    "gc_window_stddev": 5.16
+  },
+  "changes": 85,
+  "target_gc_band": [
+    45.0,
+    60.0
+  ]
+}

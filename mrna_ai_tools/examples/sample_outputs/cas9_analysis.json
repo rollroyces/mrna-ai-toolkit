@@ -1,0 +1,34 @@
+{
+  "n_codons": 210,
+  "cai": 0.6954,
+  "gc_percent": 37.3,
+  "rare_codon_fraction": 0.0429,
+  "cpg_obs_exp": 1.1331,
+  "most_common_codons": [
+    [
+      "GAT",
+      12
+    ],
+    [
+      "AAA",
+      11
+    ],
+    [
+      "AAT",
+      10
+    ],
+    [
+      "GAA",
+      9
+    ],
+    [
+      "TTT",
+      9
+    ]
+  ],
+  "rare_codons": [
+    "CTA",
+    "TTA"
+  ],
+  "gc_window_stddev": 4.75
+}

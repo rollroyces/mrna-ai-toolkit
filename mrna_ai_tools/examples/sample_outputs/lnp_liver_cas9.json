@@ -1,0 +1,51 @@
+{
+  "cargo": "cas9",
+  "target": "liver",
+  "intent": "gene editing",
+  "shortlist": [
+    {
+      "name": "C12-200 (hepatocyte)",
+      "ionizable_lipid": "C12-200",
+      "helper_lipid": "DOPE",
+      "cholesterol_pct": 28.0,
+      "peg_lipid": "DMG-PEG2000",
+      "peg_mol_pct": 1.5,
+      "ionizable_mol_pct": 50.0,
+      "helper_mol_pct": 10.0,
+      "n_p_ratio": 4.5,
+      "source": "Love et al. PNAS 2010 / numerous reviews",
+      "notes": "Strong hepatocyte uptake; widely used for hepatic gene editing."
+    },
+    {
+      "name": "SM-102 (Moderna)",
+      "ionizable_lipid": "SM-102",
+      "helper_lipid": "DSPC",
+      "cholesterol_pct": 38.5,
+      "peg_lipid": "DMG-PEG2000",
+      "peg_mol_pct": 1.5,
+      "ionizable_mol_pct": 50.0,
+      "helper_mol_pct": 10.0,
+      "n_p_ratio": 6.0,
+      "source": "Hou et al. 2021 / Spikevax FDA label",
+      "notes": "Clinical benchmark for mRNA vaccines; hepatic + splenic delivery."
+    },
+    {
+      "name": "ALC-0315 (Pfizer/BioNTech)",
+      "ionizable_lipid": "ALC-0315",
+      "helper_lipid": "DSPC",
+      "cholesterol_pct": 42.7,
+      "peg_lipid": "ALC-0159",
+      "peg_mol_pct": 1.5,
+      "ionizable_mol_pct": 46.3,
+      "helper_mol_pct": 9.4,
+      "n_p_ratio": 6.0,
+      "source": "Hou et al. 2021 / Comirnaty EMA EPAR",
+      "notes": "Clinical benchmark; broader tropism than SM-102 in some tissues."
+    }
+  ],
+  "notes": [
+    "Liver is the natural sink for systemically administered LNPs.",
+    "Cas9 mRNA + sgRNA co-delivery: C12-200 or similar hepatotropic LNPs.",
+    "Gene editing needs high transfection + minimal double-stranded RNA contaminants."
+  ]
+}

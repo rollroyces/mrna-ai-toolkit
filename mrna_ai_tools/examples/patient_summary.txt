@@ -1,0 +1,5 @@
+62-year-old male with stage IIIC BRAF V600E melanoma, surgically resected.
+ECOG 0. No prior systemic therapy. HLA-A*02:01 positive. PD-L1 CPS 35.
+No autoimmune disease. Adequate organ function (ANC >1500, plt >100k, Cr <1.5).
+Looking for adjuvant immunotherapy trials, particularly mRNA neoantigen vaccine
+combinations or combinations with checkpoint inhibitors.

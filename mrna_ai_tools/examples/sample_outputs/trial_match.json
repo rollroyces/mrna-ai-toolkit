@@ -1,0 +1,68 @@
+{
+  "ranked": [
+    {
+      "nct_id": "NCT05933577",
+      "title": "INTerpath-001: Personalized mRNA-4157 + Pembrolizumab vs Pembrolizumab in Resected Melanoma",
+      "score": 1.0,
+      "eligibility_pct": 100.0,
+      "n_met": 4,
+      "n_total": 4,
+      "reasons": [
+        "Completely resected stage IIB-IV melanoma",
+        "ECOG 0 or 1",
+        "Adequate organ function"
+      ]
+    },
+    {
+      "nct_id": "NCT04526899",
+      "title": "GRT-C901/GRT-R902: Personalized Neoantigen Vaccine + Nivolumab + Ipilimumab in NSCLC",
+      "score": 1.0,
+      "eligibility_pct": 100.0,
+      "n_met": 4,
+      "n_total": 4,
+      "reasons": [
+        "Stage IV NSCLC",
+        "Progression on anti-PD-1/PD-L1",
+        "ECOG 0 or 1"
+      ]
+    },
+    {
+      "nct_id": "NCT04161755",
+      "title": "BNT122 (autogene cevumeran) +/- Nivolumab in Pancreatic Cancer",
+      "score": 1.0,
+      "eligibility_pct": 100.0,
+      "n_met": 3,
+      "n_total": 3,
+      "reasons": [
+        "Resected PDAC",
+        "Adjuvant chemotherapy completed",
+        "ECOG 0 or 1"
+      ]
+    },
+    {
+      "nct_id": "NCT03313778",
+      "title": "RO7198457 (BNT122) in Locally Advanced or Metastatic Solid Tumors",
+      "score": 0.667,
+      "eligibility_pct": 66.7,
+      "n_met": 2,
+      "n_total": 3,
+      "reasons": [
+        "At least one prior line of therapy",
+        "ECOG 0 or 1"
+      ]
+    },
+    {
+      "nct_id": "NCT03897881",
+      "title": "mRNA-5671 (KRAS-targeting) +/- Pembrolizumab in KRAS-mutant tumors",
+      "score": 0.667,
+      "eligibility_pct": 66.7,
+      "n_met": 2,
+      "n_total": 3,
+      "reasons": [
+        "Measurable disease",
+        "ECOG 0 or 1"
+      ]
+    }
+  ],
+  "n_candidates_screened": 5
+}

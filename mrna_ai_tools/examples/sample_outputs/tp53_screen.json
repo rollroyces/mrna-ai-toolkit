@@ -1,0 +1,52 @@
+{
+  "hla": [
+    "HLA-A*02:01"
+  ],
+  "candidates": [
+    {
+      "peptide": "HMTEVVRRC",
+      "hla": "HLA-A*02:01",
+      "binding_affinity_nM": 3298.8,
+      "binder": false,
+      "immunogenicity_score": 0.05,
+      "rationale": "R175H: heuristic HLA-A*02:01 anchor matrix",
+      "source": "heuristic"
+    },
+    {
+      "peptide": "QMNRRPGMT",
+      "hla": "HLA-A*02:01",
+      "binding_affinity_nM": 1767.8,
+      "binder": false,
+      "immunogenicity_score": 0.05,
+      "rationale": "R248Q: heuristic HLA-A*02:01 anchor matrix",
+      "source": "heuristic"
+    },
+    {
+      "peptide": "HLEFSEHPS",
+      "hla": "HLA-A*02:01",
+      "binding_affinity_nM": 2176.4,
+      "binder": false,
+      "immunogenicity_score": 0.05,
+      "rationale": "R273H: heuristic HLA-A*02:01 anchor matrix",
+      "source": "heuristic"
+    },
+    {
+      "peptide": "CPRTFRELV",
+      "hla": "HLA-A*02:01",
+      "binding_affinity_nM": 2679.4,
+      "binder": false,
+      "immunogenicity_score": 0.05,
+      "rationale": "R273C: heuristic HLA-A*02:01 anchor matrix",
+      "source": "heuristic"
+    },
+    {
+      "peptide": "SQSTSRHKK",
+      "hla": "HLA-A*02:01",
+      "binding_affinity_nM": 11487.0,
+      "binder": false,
+      "immunogenicity_score": 0.05,
+      "rationale": "G245S: heuristic HLA-A*02:01 anchor matrix",
+      "source": "heuristic"
+    }
+  ]
+}
