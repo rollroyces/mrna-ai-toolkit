@@ -110,6 +110,42 @@ def _check_trial_keyword() -> tuple[bool, str]:
     return ok, f"top score={ranked[0].score}"
 
 
+@register("trial.dense_retriever")
+def _check_trial_dense_retriever() -> tuple[bool, str]:
+    """Semantic retriever must still rank the correct trial on top with lay terms."""
+    from .trial_matcher import Trial, match
+    trials = [
+        Trial(
+            nct_id="NCT05933577",
+            title="INTerpath-001: Personalized mRNA-4157 + Pembrolizumab in Resected Melanoma",
+            condition="Stage IIB-IV melanoma",
+            phase="3",
+            inclusion=["Completely resected stage IIB-IV melanoma", "ECOG 0 or 1"],
+            exclusion=["Active autoimmune disease"],
+            biomarkers=["BRAF V600E"],
+        ),
+        Trial(
+            nct_id="NCT04526899",
+            title="GRT-C901/GRT-R902: Neoantigen Vaccine + Nivolumab + Ipilimumab in NSCLC",
+            condition="Non-small cell lung cancer",
+            phase="1/2",
+            inclusion=["Stage IV NSCLC", "ECOG 0 or 1"],
+            exclusion=["Active autoimmune disease"],
+            biomarkers=[],
+        ),
+    ]
+    # Patient uses lay terms — keyword retriever would under-match on "skin cancer" → "melanoma"
+    lay_patient = (
+        "62-year-old man with stage 3 skin cancer, BRAF V600E positive. "
+        "Had surgery to remove the tumor. No prior treatment. "
+        "Looking for adjuvant therapy or a shot to prevent recurrence."
+    )
+    ranked, _ = match(lay_patient, trials, top_k=2, backend="mock", retriever="dense")
+    top = ranked[0]
+    ok = top.nct_id == "NCT05933577"
+    return ok, f"dense retriever top trial on lay-terms patient = {top.nct_id} (must be NCT05933577)"
+
+
 # ---------- lnp backend ---------------------------------------------------
 
 @register("lnp.recommend")
