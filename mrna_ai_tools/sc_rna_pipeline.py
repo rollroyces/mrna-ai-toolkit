@@ -362,6 +362,8 @@ def run_pipeline(
             top_fraction=variant_filter_top_fraction,
             min_score=variant_filter_min_score,
             protein_lengths={g: len(p) for g, p in proteins.items()},
+            protein_sequences=proteins,
+            strict=False,
         )
         keep_keys = {(s.gene, s.position, s.wt_aa, s.mut_aa) for s in scored}
         variants = [v for v in variants if (v.gene, v.position, v.wt_aa, v.mut_aa) in keep_keys]

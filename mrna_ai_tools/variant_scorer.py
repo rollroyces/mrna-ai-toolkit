@@ -489,6 +489,55 @@ HYDROPHOBICITY: dict[str, float] = {
     "V": 4.2,
 }
 
+# Chou-Fasman helix/strand propensity (P_alpha, P_beta). Higher = more
+# likely to be in that secondary structure. From Chou & Fasman (1978),
+# normalized to ~[0.4, 1.7].
+HELIX_PROPENSITY: dict[str, float] = {
+    "A": 1.42,
+    "R": 0.98,
+    "N": 0.67,
+    "D": 1.01,
+    "C": 0.70,
+    "Q": 1.11,
+    "E": 1.51,
+    "G": 0.57,
+    "H": 1.00,
+    "I": 1.08,
+    "L": 1.21,
+    "K": 1.16,
+    "M": 1.45,
+    "F": 1.13,
+    "P": 0.57,
+    "S": 0.77,
+    "T": 0.83,
+    "W": 1.08,
+    "Y": 0.69,
+    "V": 1.06,
+}
+
+STRAND_PROPENSITY: dict[str, float] = {
+    "A": 0.83,
+    "R": 0.93,
+    "N": 0.89,
+    "D": 0.54,
+    "C": 1.19,
+    "Q": 1.10,
+    "E": 0.37,
+    "G": 0.75,
+    "H": 0.87,
+    "I": 1.60,
+    "L": 1.30,
+    "K": 0.74,
+    "M": 1.05,
+    "F": 1.38,
+    "P": 0.55,
+    "S": 0.75,
+    "T": 1.19,
+    "W": 1.37,
+    "Y": 1.47,
+    "V": 1.70,
+}
+
 
 @dataclass
 class VariantScore:
@@ -509,6 +558,7 @@ def score_variant(
     mut_aa: str,
     *,
     protein_length: int | None = None,
+    protein_sequence: str | None = None,
     driver_genes: set[str] | None = None,
     strict: bool = False,
 ) -> VariantScore | None:
@@ -517,6 +567,10 @@ def score_variant(
     Higher ``normalized_score`` = higher priority for downstream analysis.
     Returns ``None`` for unknown amino acids (silent-mode default) or raises
     ``ValueError`` when ``strict=True``.
+
+    If ``protein_sequence`` is supplied, the score includes a
+    Chou-Fasman structural-disruption component (alpha-helix / beta-strand
+    breakers in structured regions score higher).
     """
     wt_aa = wt_aa.upper()
     mut_aa = mut_aa.upper()
@@ -557,19 +611,20 @@ def score_variant(
     # Normalize to [0, 1] (max delta is ~9 for R→I)
     hydro_norm = min(1.0, dh / 9.0)
 
+    # ---- 5. structural disruption (Chou-Fasman) ----
+    struct_penalty = 0.0
+    if protein_sequence is not None and len(protein_sequence) >= position:
+        struct_penalty = structural_disruption_penalty(protein_sequence, position, wt_aa, mut_aa)
+
+    # ---- 6. weighted combination ----
+    # Component weights. The struct_penalty gets a non-trivial share since
+    # variants in structured regions are ~3× more damaging on average
+    # (Kucukkal et al., *Hum Mutat* 2015).
     raw = (
-        0.40 * blosum_norm + 0.25 * driver_boost / 0.2
-        if driver_boost
-        else 0.25 * blosum_norm * 0.5
-        + 0.20 * hydro_norm
-        + 0.15 * (1.0 if position_penalty == 0 else 0.0)
-        + position_penalty
-    )
-    # The above is awkward — recompute cleanly:
-    raw = (
-        0.45 * blosum_norm
-        + 0.25 * (driver_boost / 0.2 if driver_boost > 0 else 0.0)
-        + 0.20 * hydro_norm
+        0.35 * blosum_norm
+        + 0.20 * (driver_boost / 0.2 if driver_boost > 0 else 0.0)
+        + 0.15 * hydro_norm
+        + 0.20 * struct_penalty
         + 0.10 * (1.0 if position_penalty == 0 else 0.0)
         + position_penalty
     )
@@ -581,6 +636,7 @@ def score_variant(
         "driver_gene": gene in driver_genes,
         "hydrophobicity_delta": round(dh, 2),
         "position_penalty": position_penalty,
+        "structural_disruption": struct_penalty,
     }
 
     rationale_parts = [
@@ -604,30 +660,94 @@ def score_variant(
     )
 
 
+def predict_secondary_structure(protein: str, *, window: int = 6) -> dict[int, str]:
+    """Chou-Fasman secondary-structure prediction.
+
+    Returns ``{position_1based: 'H'|'E'|'C'}`` where H = helix, E = strand,
+    C = coil. Per-residue prediction averaged over a sliding window.
+
+    Reference: Chou PY, Fasman GD. "Prediction of the secondary structure of
+    proteins from their amino acid sequence." Adv Enzymol Relat Areas Mol
+    Biol 47, 45–148 (1978).
+    """
+    if not protein:
+        return {}
+    pred: dict[int, str] = {}
+    n = len(protein)
+    half = window // 2
+    for i in range(n):
+        lo = max(0, i - half)
+        hi = min(n, i + half + 1)
+        sub = protein[lo:hi]
+        helix_score = sum(HELIX_PROPENSITY.get(a, 1.0) for a in sub) / max(1, len(sub))
+        strand_score = sum(STRAND_PROPENSITY.get(a, 1.0) for a in sub) / max(1, len(sub))
+        if helix_score >= 1.03 and helix_score > strand_score:
+            pred[i + 1] = "H"
+        elif strand_score >= 1.05 and strand_score > helix_score:
+            pred[i + 1] = "E"
+        else:
+            pred[i + 1] = "C"
+    return pred
+
+
+def structural_disruption_penalty(
+    protein: str,
+    position: int,
+    wt_aa: str,
+    mut_aa: str,
+) -> float:
+    """Score how much a substitution would disrupt local secondary structure.
+
+    Returns a value in [0, 1]. 0 = predicted loop region. 1 = strong
+    helix-breaker or beta-sheet disruptor in a structured region.
+    """
+    if not protein or position < 1 or position > len(protein):
+        return 0.0
+    pred = predict_secondary_structure(protein, window=6)
+    local = pred.get(position, "C")
+    if local == "C":
+        return 0.0
+    if local == "H":
+        delta = HELIX_PROPENSITY.get(wt_aa, 1.0) - HELIX_PROPENSITY.get(mut_aa, 1.0)
+    else:
+        delta = STRAND_PROPENSITY.get(wt_aa, 1.0) - STRAND_PROPENSITY.get(mut_aa, 1.0)
+    return round(max(0.0, min(1.0, delta / 0.8)), 4)
+
+
 def filter_variants(
     variants: list[dict],
     *,
     top_fraction: float = 0.20,
     min_score: float = 0.4,
     protein_lengths: dict[str, int] | None = None,
+    protein_sequences: dict[str, str] | None = None,
     strict: bool = False,
 ) -> list[VariantScore]:
     """Score and filter a list of variants to the top ``top_fraction``.
 
     Returns a list of ``VariantScore`` sorted by ``normalized_score`` descending.
     Variants with unknown amino acids are skipped (or raise if ``strict=True``).
+
+    If ``protein_sequences`` is provided, the scorer also computes a
+    Chou-Fasman structural-disruption component.
     """
     scored: list[VariantScore] = []
     for v in variants:
         prot_len = None
-        if protein_lengths and v.get("gene") in protein_lengths:
-            prot_len = protein_lengths[v["gene"]]
+        prot_seq = None
+        gene = v.get("gene")
+        if gene:
+            if protein_lengths and gene in protein_lengths:
+                prot_len = protein_lengths[gene]
+            if protein_sequences and gene in protein_sequences:
+                prot_seq = protein_sequences[gene]
         result = score_variant(
-            gene=v["gene"],
+            gene=gene,
             position=v["position"],
             wt_aa=v["wt_aa"],
             mut_aa=v["mut_aa"],
             protein_length=prot_len,
+            protein_sequence=prot_seq,
             strict=strict,
         )
         if result is not None:

@@ -28,29 +28,26 @@ Do, C. & Woods, D. LinearDesign: a Toolkit for Full-length Stable mRNA
 Design. *Nature* (2024). The simplified DP here is the same family of
 algorithm but with a polynomial-time secondary-structure proxy.
 """
+
 from __future__ import annotations
 
 import math
-from collections import Counter
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 from .codon_optimizer import (
+    _AA_MAX_FREQ,
     CODON_TO_AA,
     HUMAN_CODON_FREQ,
-    _AA_MAX_FREQ,
-    _gc_content,
-    _gc_window_stddev,
     analyze_cds,
 )
-
 
 # Default bi-criterion weights. Higher α = prefer translation; higher β =
 # prefer structural stability. (1-α, 1-β) are the trade-off.
 DEFAULT_WEIGHTS: dict[str, float] = {
-    "translation_weight": 0.7,   # α
-    "structure_weight": 0.3,    # β
-    "gc_window_size": 30,        # base-pairing window size
-    "min_stem_length": 3,        # require this many contiguous pairs
+    "translation_weight": 0.7,  # α
+    "structure_weight": 0.3,  # β
+    "gc_window_size": 30,  # base-pairing window size
+    "min_stem_length": 3,  # require this many contiguous pairs
 }
 
 
@@ -60,8 +57,8 @@ class LinearDesignResult:
     before: dict
     after: dict
     changes: int
-    translation_score: float    # final translation efficiency (log-domain)
-    structure_score: float       # final MFE-proxy score (more-negative = more stable)
+    translation_score: float  # final translation efficiency (log-domain)
+    structure_score: float  # final MFE-proxy score (more-negative = more stable)
     weights: dict[str, float]
 
     def to_dict(self) -> dict:
@@ -157,8 +154,7 @@ def optimize_lineardesign(
     for i, c in enumerate(codons):
         if CODON_TO_AA.get(c) == "*":
             raise ValueError(
-                f"internal stop codon at position {i + 1} (codon {c!r}); "
-                "refusing to optimize."
+                f"internal stop codon at position {i + 1} (codon {c!r}); refusing to optimize."
             )
 
     before = analyze_cds(cds).to_dict()
@@ -187,7 +183,6 @@ def optimize_lineardesign(
         return keep
 
     states = [("", "", 0.0, 0.0, "")]
-    n_aa = len(codons)
     win = weights["gc_window_size"]
     msl = weights["min_stem_length"]
     for i, codon in enumerate(codons):
@@ -195,8 +190,11 @@ def optimize_lineardesign(
         if aa is None or aa == "*":
             continue
         new_states: list[tuple] = []
-        syns = sorted(HUMAN_CODON_FREQ[aa], key=lambda c: -HUMAN_CODON_FREQ[aa][c]) \
-            if aa not in ("M", "W") else [codon]
+        syns = (
+            sorted(HUMAN_CODON_FREQ[aa], key=lambda c: -HUMAN_CODON_FREQ[aa][c])
+            if aa not in ("M", "W")
+            else [codon]
+        )
         for prev_codon, prev_rna, prev_t, prev_m, prev_aa in states:
             for cand in syns:
                 cand_rna = prev_rna + cand
@@ -217,7 +215,9 @@ def optimize_lineardesign(
     new_cds = best[1]
 
     after = analyze_cds(new_cds).to_dict()
-    changes = sum(1 for a, b in zip(codons, [new_cds[i : i + 3] for i in range(0, len(new_cds), 3)]) if a != b)
+    changes = sum(
+        1 for a, b in zip(codons, [new_cds[i : i + 3] for i in range(0, len(new_cds), 3)]) if a != b
+    )
 
     return LinearDesignResult(
         new_cds=new_cds,
