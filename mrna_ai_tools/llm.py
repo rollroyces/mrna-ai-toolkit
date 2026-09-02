@@ -16,13 +16,13 @@ Two backends, selected at runtime:
 
 The CLI lets the caller pick a backend with ``--backend {mock,openai,hermes}``.
 """
+
 from __future__ import annotations
 
 import json
 import os
-import sys
-import urllib.request
 import urllib.error
+import urllib.request
 from typing import Any
 
 BACKEND = os.environ.get("MRNA_AI_LLM_BACKEND", "auto").lower()
@@ -80,6 +80,7 @@ def llm_complete(
 
 # ---------- mock backend ----------------------------------------------------
 
+
 def _mock_complete(prompt: str, *, system: str = "", json_mode: bool = False) -> str:
     """Deterministic stub. Parses the prompt for obvious structured fields."""
     text = prompt.lower()
@@ -121,6 +122,7 @@ def _mock_complete(prompt: str, *, system: str = "", json_mode: bool = False) ->
 
 # ---------- openai backend --------------------------------------------------
 
+
 def _openai_complete(
     prompt: str,
     *,
@@ -135,9 +137,8 @@ def _openai_complete(
 
     body: dict[str, Any] = {
         "model": model,
-        "messages": (
-            [{"role": "system", "content": system}] if system else []
-        ) + [{"role": "user", "content": prompt}],
+        "messages": ([{"role": "system", "content": system}] if system else [])
+        + [{"role": "user", "content": prompt}],
         "temperature": temperature,
         "max_tokens": max_tokens,
     }

@@ -22,23 +22,24 @@ References
 scGPT: Cui et al. *Nat Methods* 21, 1480–1491 (2024).
 TrambaHLApan / DeepNeo / NetMHCpan (neoantigen scoring).
 """
+
 from __future__ import annotations
 
 import csv
 import json
 import math
 import random
-from collections import Counter
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
 # ---------- IO ------------------------------------------------------------
 
+
 @dataclass
 class Variant:
     gene: str
-    position: int   # 1-indexed AA position in the protein
+    position: int  # 1-indexed AA position in the protein
     wt_aa: str
     mut_aa: str
 
@@ -82,6 +83,7 @@ def load_protein_fasta(path: str | Path) -> dict[str, str]:
 
 # ---------- peptide enumeration -------------------------------------------
 
+
 def mutant_peptides(
     protein: str,
     position_1based: int,
@@ -113,6 +115,7 @@ def mutant_peptides(
 
 # ---------- k-medoids clustering (stdlib) ---------------------------------
 
+
 def kmedoids(
     matrix: list[list[float]],
     k: int,
@@ -133,16 +136,17 @@ def kmedoids(
     medoids = rng.sample(range(n), min(k, n))
     for _ in range(max_iter):
         # Assign each point to nearest medoid
-        new_labels = [min(range(len(medoids)),
-                          key=lambda m: _euclid2(matrix[i], matrix[medoids[m]]))
-                      for i in range(n)]
+        new_labels = [
+            min(range(len(medoids)), key=lambda m: _euclid2(matrix[i], matrix[medoids[m]]))
+            for i in range(n)
+        ]
         if new_labels == labels:
             break
         labels = new_labels
         # Update medoids: pick the point with min total distance in each cluster
         new_medoids: list[int] = []
         for m_id in range(len(medoids)):
-            members = [i for i, l in enumerate(labels) if l == m_id]
+            members = [i for i, lbl in enumerate(labels) if lbl == m_id]
             if not members:
                 new_medoids.append(medoids[m_id])
                 continue
@@ -162,6 +166,7 @@ def _euclid2(a: list[float], b: list[float]) -> float:
 
 # ---------- AnnData loader with graceful fallback -------------------------
 
+
 def load_expression(path: str | Path) -> tuple[list[str], list[str], list[list[float]]]:
     """Load a tiny CSV/TSV of (cells × genes) expression.
 
@@ -175,7 +180,7 @@ def load_expression(path: str | Path) -> tuple[list[str], list[str], list[list[f
     text = p.read_text()
     # try CSV/TSV with first row = gene names
     sep = "\t" if "\t" in text.splitlines()[0] else ","
-    lines = [l for l in text.splitlines() if l.strip()]
+    lines = [ln for ln in text.splitlines() if ln.strip()]
     if len(lines) < 2:
         return _synthetic()
     header = lines[0].split(sep)
@@ -213,6 +218,7 @@ def _synthetic() -> tuple[list[str], list[str], list[list[float]]]:
 
 # ---------- scanpy upgrade path (optional) --------------------------------
 
+
 def cluster_with_scanpy(
     matrix: list[list[float]],
     cell_ids: list[str],
@@ -232,8 +238,8 @@ def cluster_with_scanpy(
         labels = kmedoids(matrix, k=4, seed=seed)
         return labels, [f"cluster_{i}" for i in sorted(set(labels))]
 
-    import numpy as np
     import anndata as ad
+    import numpy as np
     import scanpy as sc
 
     adata = ad.AnnData(X=np.array(matrix, dtype=np.float32))
@@ -244,13 +250,20 @@ def cluster_with_scanpy(
     sc.pp.highly_variable_genes(adata, n_top_genes=min(n_top_genes, adata.n_vars))
     sc.tl.pca(adata, n_comps=min(n_pcs, adata.n_vars - 1, adata.n_obs - 1))
     sc.pp.neighbors(adata, random_state=seed)
-    sc.tl.leiden(adata, resolution=resolution, random_state=seed, flavor="igraph",
-                 n_iterations=2, directed=False)
+    sc.tl.leiden(
+        adata,
+        resolution=resolution,
+        random_state=seed,
+        flavor="igraph",
+        n_iterations=2,
+        directed=False,
+    )
     labels = [int(x) for x in adata.obs["leiden"]]
     return labels, [f"cluster_{i}" for i in sorted(set(labels))]
 
 
 # ---------- scGPT hook (optional) ------------------------------------------
+
 
 def embed_with_foundation_model(matrix: list[list[float]]) -> list[list[float]]:
     """Plug point for scGPT / Geneformer / UNI-RNA embeddings.
@@ -274,6 +287,7 @@ def embed_with_foundation_model(matrix: list[list[float]]) -> list[list[float]]:
 
 
 # ---------- main pipeline --------------------------------------------------
+
 
 @dataclass
 class TumorPeptide:
@@ -319,29 +333,27 @@ def run_pipeline(
     variants = load_variants(variants_path)
     proteins = load_protein_fasta(proteins_path)
 
-    labels, cluster_names = cluster_with_scanpy(
-        matrix, cell_ids, gene_names, seed=42
-    )
+    labels, cluster_names = cluster_with_scanpy(matrix, cell_ids, gene_names, seed=42)
     labels = [int(x) for x in labels]  # numpy strings or ints → uniform Python ints
 
     # Marker score = mean expression of tumor markers per cluster
-    marker_idx = [gene_names.index(g) for g in (tumor_marker_genes or [])
-                  if g in gene_names]
+    marker_idx = [gene_names.index(g) for g in (tumor_marker_genes or []) if g in gene_names]
     cluster_scores: dict[int, float] = {}
     for c in set(labels):
-        cells = [matrix[i] for i, l in enumerate(labels) if l == c]
+        cells = [matrix[i] for i, lbl in enumerate(labels) if lbl == c]
         if marker_idx and cells:
-            cluster_scores[c] = sum(sum(row[i] for i in marker_idx) / len(marker_idx)
-                                    for row in cells) / len(cells)
+            cluster_scores[c] = sum(
+                sum(row[i] for i in marker_idx) / len(marker_idx) for row in cells
+            ) / len(cells)
         else:
             cluster_scores[c] = float(len(cells))
-    tumor_cluster = max(cluster_scores, key=lambda k: cluster_scores[k]) \
-        if cluster_scores else 0
+    tumor_cluster = max(cluster_scores, key=lambda k: cluster_scores[k]) if cluster_scores else 0
 
     # Build peptide candidates for tumor-cluster-expressed variants
     gene_expr_by_cluster = _gene_means_per_cluster(matrix, labels, gene_names)
-    tumor_expressed_genes = {g for g, v in gene_expr_by_cluster.get(tumor_cluster, {}).items()
-                             if v > 0.5}
+    tumor_expressed_genes = {
+        g for g, v in gene_expr_by_cluster.get(tumor_cluster, {}).items() if v > 0.5
+    }
 
     peptides: list[TumorPeptide] = []
     for v in variants:
@@ -349,8 +361,7 @@ def run_pipeline(
             continue
         if v.gene not in tumor_expressed_genes:
             continue
-        for pep in mutant_peptides(proteins[v.gene], v.position, v.mut_aa,
-                                   lengths=peptide_lengths):
+        for pep in mutant_peptides(proteins[v.gene], v.position, v.mut_aa, lengths=peptide_lengths):
             peptides.append(
                 TumorPeptide(
                     cell_cluster=tumor_cluster,
@@ -366,8 +377,10 @@ def run_pipeline(
 
     note = ""
     if not marker_idx:
-        note = ("No tumor-marker genes supplied; largest cluster assumed tumor. "
-                "Pass --tumor-markers GENE1,GENE2 for accurate selection.")
+        note = (
+            "No tumor-marker genes supplied; largest cluster assumed tumor. "
+            "Pass --tumor-markers GENE1,GENE2 for accurate selection."
+        )
 
     return PipelineReport(
         n_cells=len(cell_ids),
@@ -389,28 +402,39 @@ def _gene_means_per_cluster(
 ) -> dict[int, dict[str, float]]:
     out: dict[int, dict[str, float]] = {}
     for c in set(labels):
-        cells = [matrix[i] for i, l in enumerate(labels) if l == c]
+        cells = [matrix[i] for i, lbl in enumerate(labels) if lbl == c]
         if not cells:
             continue
-        out[c] = {gene_names[j]: sum(row[j] for row in cells) / len(cells)
-                  for j in range(len(gene_names))}
+        out[c] = {
+            gene_names[j]: sum(row[j] for row in cells) / len(cells) for j in range(len(gene_names))
+        }
     return out
 
 
 # ---------- CLI ------------------------------------------------------------
 
+
 def _run_cli(argv: list[str]) -> int:
     import argparse
 
     p = argparse.ArgumentParser(prog="mrna_ai scrna")
-    p.add_argument("--expression", required=True,
-                   help="h5ad file (or CSV/TSV cells × genes) — synthetic fallback if missing")
+    p.add_argument(
+        "--expression",
+        required=True,
+        help="h5ad file (or CSV/TSV cells × genes) — synthetic fallback if missing",
+    )
     p.add_argument("--variants", required=True, help="CSV of coding-region SNVs")
     p.add_argument("--proteins", required=True, help="FASTA of protein sequences")
-    p.add_argument("--tumor-markers", default="",
-                   help="comma-separated gene symbols overexpressed in tumor cells")
-    p.add_argument("--peptide-lengths", default="9,10,11",
-                   help="comma-separated HLA-peptide lengths to enumerate")
+    p.add_argument(
+        "--tumor-markers",
+        default="",
+        help="comma-separated gene symbols overexpressed in tumor cells",
+    )
+    p.add_argument(
+        "--peptide-lengths",
+        default="9,10,11",
+        help="comma-separated HLA-peptide lengths to enumerate",
+    )
     p.add_argument("--out")
     args = p.parse_args(argv)
 
@@ -434,4 +458,5 @@ def _run_cli(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(_run_cli(sys.argv[1:]))

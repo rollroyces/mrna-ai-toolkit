@@ -1,19 +1,21 @@
 """Unified CLI: `python -m mrna_ai_tools.cli <tool> ...`"""
+
 from __future__ import annotations
 
 import argparse
 import sys
 
 from .codon_optimizer import _run_cli as codon_run
-from .neoantigen_screener import _run_cli as neo_run
-from .trial_matcher import _run_cli as trial_run
 from .lnp_advisor import _run_cli as lnp_run
+from .neoantigen_screener import _run_cli as neo_run
 from .sc_rna_pipeline import _run_cli as scrna_run
+from .trial_matcher import _run_cli as trial_run
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(prog="mrna_ai",
-                                description="mRNA × AI toolkit (codon / neoantigen / trial / lnp / scrna)")
+    p = argparse.ArgumentParser(
+        prog="mrna_ai", description="mRNA × AI toolkit (codon / neoantigen / trial / lnp / scrna)"
+    )
     sub = p.add_subparsers(dest="tool", required=True)
 
     sub.add_parser("codon", help="codon-usage analysis & greedy optimization")

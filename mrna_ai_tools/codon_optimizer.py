@@ -20,14 +20,14 @@ CodonBERT: https://academic.oup.com/bioinformatics/article/40/7/btae330
 RiboDecode: https://www.nature.com/articles/s41467-025-64894-x
 mRNABERT:  https://www.nature.com/articles/s41467-025-65340-8
 """
+
 from __future__ import annotations
 
 import math
 import re
 from collections import Counter
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional
 
 # Reference: human codon usage frequencies (frequencies per AA, summing to 1.0
 # across synonymous codons). Source: codon usage database, canonical human table
@@ -65,9 +65,7 @@ CODON_TO_AA: dict[str, str] = {
 # (approximated from the codon table itself so we don't need an external DB).
 # For CAI we actually only need the per-AA max frequency, which we compute
 # directly below.
-_AA_MAX_FREQ: dict[str, float] = {
-    aa: max(freqs.values()) for aa, freqs in HUMAN_CODON_FREQ.items()
-}
+_AA_MAX_FREQ: dict[str, float] = {aa: max(freqs.values()) for aa, freqs in HUMAN_CODON_FREQ.items()}
 
 
 @dataclass
@@ -79,7 +77,7 @@ class CodonReport:
     cpg_obs_exp: float
     most_common_codons: list[tuple[str, int]]
     rare_codons: list[str]
-    gc_window_stddev: float          # rolling GC stddev across 30-codon windows
+    gc_window_stddev: float  # rolling GC stddev across 30-codon windows
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -246,10 +244,10 @@ def optimize_basic(
 
 # ---------- CLI entry -------------------------------------------------------
 
+
 def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
-    import sys
 
     p = argparse.ArgumentParser(prog="mrna_ai codon")
     p.add_argument("--sequence", required=True, help="FASTA file or raw CDS string")
@@ -278,4 +276,5 @@ def _run_cli(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(_run_cli(sys.argv[1:]))

@@ -15,13 +15,12 @@ DeepNeo:      https://pmc.ncbi.nlm.nih.gov/articles/PMC10320182/
 DeepHLApan:   Wu et al. Front Immunol 2019
 NetMHCpan:    Reynisson et al. NAR 2020
 """
+
 from __future__ import annotations
 
 import csv
-import json
 import os
-import re
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
@@ -29,8 +28,11 @@ from typing import Iterable
 
 # Classical HLA-A*02:01 anchor matrix: P2 = L/M, P9 = V/L/I.
 # Position-specific weights (rough log-affinity) from IEDB / SYFPEITHI motifs.
-A0201_ANCHORS = {2: {"L": 1.0, "M": 0.9, "I": 0.5, "V": 0.4},
-                 9: {"V": 1.0, "L": 0.9, "I": 0.8, "A": 0.4, "M": 0.4}}
+A0201_ANCHORS = {
+    2: {"L": 1.0, "M": 0.9, "I": 0.5, "V": 0.4},
+    9: {"V": 1.0, "L": 0.9, "I": 0.8, "A": 0.4, "M": 0.4},
+}
+
 
 # Hydrophobicity at secondary anchors (P1, P3) helps. Crude penalty for charged.
 def _heuristic_a0201(peptide: str) -> tuple[float, bool, str]:
@@ -143,8 +145,9 @@ def screen_peptide_llm(
 
     if backend == "openai":
         from .llm import llm_json
+
         prompt = (
-            f'peptide={peptide} hla={hla}\n\n'
+            f"peptide={peptide} hla={hla}\n\n"
             'Return JSON: {"peptide":..,"hla":..,"binding_affinity_nM":..,'
             '"binder":..,"immunogenicity_score":..,"rationale":..}'
         )
@@ -164,6 +167,7 @@ def screen_peptide_llm(
 
 def _openai_available() -> bool:
     import os
+
     return bool(os.environ.get("OPENAI_API_KEY"))
 
 
@@ -179,6 +183,7 @@ def _mhcflurry_available() -> bool:
     if _MHCFLURRY_AVAILABLE is None:
         try:
             import mhcflurry  # noqa: F401
+
             _MHCFLURRY_AVAILABLE = True
         except Exception:
             _MHCFLURRY_AVAILABLE = False
@@ -189,6 +194,7 @@ def _get_mhcflurry_predictor():
     global _MHCFLURRY_PREDICTOR
     if _MHCFLURRY_PREDICTOR is None:
         from mhcflurry import Class1PresentationPredictor
+
         _MHCFLURRY_PREDICTOR = Class1PresentationPredictor.load()
     return _MHCFLURRY_PREDICTOR
 
@@ -215,8 +221,7 @@ def _screen_peptide_mhcflurry(peptide: str, hla: str) -> NeoantigenCall:
         binder=binder,
         immunogenicity_score=round(min(1.0, presentation), 3),
         rationale=(
-            f"mhcflurry predicted presentation_score={presentation:.3f}, "
-            f"affinity={affinity:.0f} nM"
+            f"mhcflurry predicted presentation_score={presentation:.3f}, affinity={affinity:.0f} nM"
         ),
         source="mhcflurry",
     )
@@ -250,6 +255,7 @@ def screen_csv(
 
 # ---------- CLI ------------------------------------------------------------
 
+
 def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
@@ -272,4 +278,5 @@ def _run_cli(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(_run_cli(sys.argv[1:]))

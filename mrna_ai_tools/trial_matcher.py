@@ -16,15 +16,16 @@ References
 TrialGPT:           https://www.nature.com/articles/s41467-024-53081-z
 Biomarker LLM match: https://www.nature.com/articles/s41746-025-01673-4
 """
+
 from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Iterable
 
 # ---------- data shapes -----------------------------------------------------
+
 
 @dataclass
 class Trial:
@@ -62,11 +63,15 @@ class RankedTrial:
 
 # ---------- stage 1: retrieval ---------------------------------------------
 
-STOPWORDS = set("a an the of for with to and or in on at is are was were be been patient patients".split())
+STOPWORDS = set(
+    "a an the of for with to and or in on at is are was were be been patient patients".split()
+)
 
 
 def _tokenize(s: str) -> list[str]:
-    return [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z0-9*-]+", s) if w.lower() not in STOPWORDS]
+    return [
+        w.lower() for w in re.findall(r"[A-Za-z][A-Za-z0-9*-]+", s) if w.lower() not in STOPWORDS
+    ]
 
 
 def retrieve_candidates(
@@ -118,6 +123,7 @@ def _match_one(
     backend: str | None = None,
 ) -> tuple[dict, list[str]]:
     from .llm import llm_json
+
     prompt = _MATCH_PROMPT.format(
         patient=patient_text,
         nct=trial.nct_id,
@@ -147,10 +153,11 @@ def _match_one(
         for c in trial.inclusion:
             t = set(_tokenize(c))
             verdict = "met" if (t & patient_tokens) else "uncertain"
-            inc.append({"criterion": c, "verdict": verdict,
-                        "evidence": "keyword overlap fallback"})
-        exc = [{"criterion": c, "verdict": "uncertain",
-                "evidence": "no LLM/fallback signal"} for c in trial.exclusion]
+            inc.append({"criterion": c, "verdict": verdict, "evidence": "keyword overlap fallback"})
+        exc = [
+            {"criterion": c, "verdict": "uncertain", "evidence": "no LLM/fallback signal"}
+            for c in trial.exclusion
+        ]
         out = {"inclusion": inc, "exclusion": exc}
         if not notes:
             notes.append("keyword fallback")
@@ -202,6 +209,7 @@ def match(
 
 # ---------- IO --------------------------------------------------------------
 
+
 def load_trials_jsonl(path: str | Path) -> list[Trial]:
     trials: list[Trial] = []
     with open(path) as f:
@@ -214,6 +222,7 @@ def load_trials_jsonl(path: str | Path) -> list[Trial]:
 
 
 # ---------- CLI ------------------------------------------------------------
+
 
 def _run_cli(argv: list[str]) -> int:
     import argparse
@@ -241,4 +250,5 @@ def _run_cli(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(_run_cli(sys.argv[1:]))

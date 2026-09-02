@@ -19,12 +19,13 @@ Witten et al. 2025 (AI LNP for lung):    https://www.nature.com/articles/s41587-
 Li et al. 2024 (combinatorial+ML):        https://www.nature.com/articles/s41563-024-01833-5
 Hou et al. 2021 (LNP review):             Nat Rev Mater 6, 1078
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict, field
-from typing import Optional
+from dataclasses import asdict, dataclass, field
 
 # ---------- curated table of published LNP formulations ---------------------
+
 
 @dataclass
 class LNPPreset:
@@ -36,7 +37,7 @@ class LNPPreset:
     peg_mol_pct: float
     ionizable_mol_pct: float
     helper_mol_pct: float
-    n_p_ratio: float                # N/P ratio
+    n_p_ratio: float  # N/P ratio
     source: str
     notes: str
 
@@ -146,6 +147,7 @@ PRESETS: dict[str, LNPPreset] = {
 
 # ---------- decision matrix -------------------------------------------------
 
+
 @dataclass
 class LNPAdvice:
     cargo: str
@@ -171,7 +173,9 @@ def recommend(
     # ---- shortlist per target ----
     if target in {"lung", "pulmonary", "airway"}:
         pool = ["FO-32", "FO-35"]
-        notes.append("Pulmonary delivery benefits from ML-discovered biodegradable lipids (Witten 2025).")
+        notes.append(
+            "Pulmonary delivery benefits from ML-discovered biodegradable lipids (Witten 2025)."
+        )
     elif target in {"liver", "hepatic"}:
         pool = ["C12-200", "SM-102", "ALC-0315"]
         notes.append("Liver is the natural sink for systemically administered LNPs.")
@@ -208,11 +212,15 @@ def recommend(
 
     # ---- intent-specific ----
     if intent in {"cancer vaccine", "vaccine"}:
-        notes.append("For cancer vaccines, MHC-I presentation of encoded antigen is the priority — clinical SM-102/ALC-0315 work well.")
+        notes.append(
+            "For cancer vaccines, MHC-I presentation of encoded antigen is the priority — clinical SM-102/ALC-0315 work well."
+        )
     elif intent in {"gene editing", "crispr", "knock-in", "knock-out"}:
         if "C12-200" not in pool:
             pool.insert(0, "C12-200")
-        notes.append("Gene editing needs high transfection + minimal double-stranded RNA contaminants.")
+        notes.append(
+            "Gene editing needs high transfection + minimal double-stranded RNA contaminants."
+        )
     elif intent in {"protein replacement", "enzyme", "missing protein"}:
         notes.append("Protein-replacement mRNAs need high translation; codon-optimize + high dose.")
 
@@ -222,16 +230,17 @@ def recommend(
 
 # ---------- CLI ------------------------------------------------------------
 
+
 def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
     from pathlib import Path as _Path
 
     p = argparse.ArgumentParser(prog="mrna_ai lnp")
-    p.add_argument("--target", default="liver",
-                   help="liver | lung | spleen | muscle | tumor | dendritic")
-    p.add_argument("--cargo", default="mRNA",
-                   help="mRNA | saRNA | circRNA | siRNA | Cas9")
+    p.add_argument(
+        "--target", default="liver", help="liver | lung | spleen | muscle | tumor | dendritic"
+    )
+    p.add_argument("--cargo", default="mRNA", help="mRNA | saRNA | circRNA | siRNA | Cas9")
     p.add_argument("--intent", default="cancer vaccine")
     p.add_argument("--n", type=int, default=3)
     p.add_argument("--out")
@@ -247,4 +256,5 @@ def _run_cli(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     import sys
+
     sys.exit(_run_cli(sys.argv[1:]))

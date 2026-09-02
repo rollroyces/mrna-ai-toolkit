@@ -1,7 +1,12 @@
 __pycache__/
 *.pyc
+.venv*/
+dist/
+build/
+site/
+.eggs/
+*.egg-info/
 outputs/*.json
 outputs/*.csv
 outputs/*.txt
-.venv/
 .env
