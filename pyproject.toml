@@ -62,8 +62,19 @@ mrna-ai = "mrna_ai_tools.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["mrna_ai_tools"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"mrna_ai_tools/examples" = "mrna_ai_tools/examples"
+[tool.hatch.build.targets.sdist]
+include = [
+  "mrna_ai_tools",
+  "README.md",
+  "CHANGELOG.md",
+  "LICENSE",
+  "LICENSE-AGPL",
+  "mkdocs.yml",
+  "docs",
+  "scripts",
+  ".github",
+  "pyproject.toml",
+]
 
 [tool.hatch.version]
 path = "mrna_ai_tools/__init__.py"

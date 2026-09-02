@@ -22,6 +22,7 @@ Each tool runs as a CLI subcommand and also imports cleanly as a Python module.
 ```bash
 git clone https://github.com/rollroyces/mrna-ai-toolkit.git
 cd mrna-ai-toolkit
+pip install -e .                   # stdlib-only core
 
 # 1. Codon analysis
 python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta
@@ -40,9 +41,59 @@ python -m mrna_ai_tools.cli trial \
 # 4. LNP composition advice
 python -m mrna_ai_tools.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
 python -m mrna_ai_tools.cli lnp --target liver --cargo Cas9 --intent "gene editing"
+
+# 5. scRNA-seq → neoantigen handoff
+python -m mrna_ai_tools.cli scrna \
+    --expression mrna_ai_tools/examples/cells.csv \
+    --variants mrna_ai_tools/examples/variants_coding.csv \
+    --proteins mrna_ai_tools/examples/proteins.fasta \
+    --tumor-markers TP53,KRAS,BRAF
 ```
 
-Sample outputs for all four tools are committed under `examples/sample_outputs/`.
+After `pip install -e .`, the same CLI is also installed as the console
+script `mrna-ai`:
+
+```bash
+mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta
+mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv --hla HLA-A*02:01
+mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt --trials mrna_ai_tools/examples/trials.jsonl
+mrna-ai lnp --target lung --cargo saRNA
+mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv --variants mrna_ai_tools/examples/variants_coding.csv --proteins mrna_ai_tools/examples/proteins.fasta --tumor-markers TP53,KRAS,BRAF
+```
+
+Sample outputs for all five tools are committed under `examples/sample_outputs/`.
+
+## Optional extras
+
+```bash
+pip install -e ".[llm]"                       # OpenAI-compatible LLM client
+pip install -e ".[neoantigen-mhcflurry]"       # mhcflurry>=2.0 pandas
+pip install -e ".[scrna]"                     # scanpy / anndata for clustering
+pip install -e ".[all]"                       # everything
+```
+
+Then activate the real backend:
+
+```bash
+export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-4o-mini               # default
+python -m mrna_ai_tools.cli neoantigen \
+    --variants mrna_ai_tools/examples/tp53_variants.csv \
+    --hla HLA-A*02:01 --backend openai
+```
+
+Auto-detection order: `mhcflurry` (if installed) → `openai` (if `OPENAI_API_KEY` set) → `mock`.
+
+## Documentation
+
+Full MkDocs site: <https://rollroyces.github.io/mrna-ai-toolkit/>
+
+Local preview:
+
+```bash
+pip install -e ".[docs]"
+mkdocs serve
+```
 
 ## Wiring a real LLM
 
@@ -103,6 +154,26 @@ bash scripts/smoke.sh
 Dual-licensed. See `LICENSE` for the dual-license summary and `LICENSE-AGPL`
 for the AGPL-3.0-or-later terms. A commercial license is available on
 request — open an issue on the GitHub repo.
+
+## Publishing to PyPI
+
+The wheel and sdist are pre-built and attached to every GitHub release.
+
+To publish a new version:
+
+```bash
+# 1. Bump version in mrna_ai_tools/__init__.py
+# 2. Build
+python -m pip install --upgrade build twine
+python -m build --sdist --wheel
+# 3. Upload (Test PyPI first, then real)
+python -m twine upload --repository testpypi dist/*
+python -m twine upload dist/*
+```
+
+You'll need a PyPI token — generate one at
+<https://pypi.org/manage/account/token/> and either pass it via
+`TWINE_PASSWORD` (with `TWINE_USERNAME=__token__`) or store it in `~/.pypirc`.
 
 ## Contributing
 

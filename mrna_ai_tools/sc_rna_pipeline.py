@@ -321,9 +321,8 @@ def run_pipeline(
 
     labels, cluster_names = cluster_with_scanpy(
         matrix, cell_ids, gene_names, seed=42
-    ) if any(g in gene_names for g in (tumor_marker_genes or [])) \
-       else kmedoids(matrix, k=n_clusters, seed=42), \
-       [f"cluster_{i}" for i in sorted(set(kmedoids(matrix, k=n_clusters, seed=42)))]
+    )
+    labels = [int(x) for x in labels]  # numpy strings or ints → uniform Python ints
 
     # Marker score = mean expression of tumor markers per cluster
     marker_idx = [gene_names.index(g) for g in (tumor_marker_genes or [])

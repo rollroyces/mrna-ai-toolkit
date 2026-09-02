@@ -26,7 +26,7 @@ jobs:
       - name: CLI help (sanity)
         run: |
           python -m mrna_ai_tools.cli --help
-          for tool in codon neoantigen trial lnp; do
+          for tool in codon neoantigen trial lnp scrna; do
             python -m mrna_ai_tools.cli $tool --help
           done
 
@@ -69,3 +69,13 @@ jobs:
               --intent "cancer vaccine" --out /tmp/lnp_$target.json
           done
           python -c "import json; d=json.load(open('/tmp/lnp_lung.json')); assert d['shortlist']; print('lnp OK:', len(d['shortlist']),'candidates')"
+
+      - name: scRNA pipeline
+        run: |
+          python -m mrna_ai_tools.cli scrna \
+            --expression mrna_ai_tools/examples/cells.csv \
+            --variants mrna_ai_tools/examples/variants_coding.csv \
+            --proteins mrna_ai_tools/examples/proteins.fasta \
+            --tumor-markers TP53,KRAS,BRAF \
+            --out /tmp/scrna.json
+          python -c "import json; d=json.load(open('/tmp/scrna.json')); assert d['n_cells']>0; assert d['n_candidate_peptides']>0; assert 'tumor_cluster' in d; print('scrna OK:', d['n_candidate_peptides'],'peptides from cluster', d['tumor_cluster'])"
