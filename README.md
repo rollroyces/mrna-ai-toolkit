@@ -88,6 +88,10 @@ Auto-detection order: `mhcflurry` (if installed) → `openai` (if `OPENAI_API_KE
 
 Full MkDocs site: <https://rollroyces.github.io/mrna-ai-toolkit/>
 
+> **To enable GitHub Pages for the first time:** go to the repo's
+> **Settings → Pages**, set **Source** to **GitHub Actions**, and save.
+> Subsequent pushes to `main` deploy automatically.
+
 Local preview:
 
 ```bash
