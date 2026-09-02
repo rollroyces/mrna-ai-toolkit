@@ -239,6 +239,8 @@ def _run_cli(argv: list[str]) -> int:
     patient_text = Path(args.patient).read_text() if Path(args.patient).exists() else args.patient
     trials = load_trials_jsonl(args.trials)
     backend = None if args.backend == "auto" else args.backend
+    if backend is None and os.environ.get("MRNA_AI_FORCE_MOCK") == "1":
+        backend = "mock"
     ranked, debug = match(patient_text, trials, top_k=args.top_k, backend=backend)
     out_obj = {"ranked": [asdict(r) for r in ranked], "n_candidates_screened": len(debug)}
     out_text = _json.dumps(out_obj, indent=2)

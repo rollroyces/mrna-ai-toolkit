@@ -267,7 +267,13 @@ def _run_cli(argv: list[str]) -> int:
     p.add_argument("--out")
     args = p.parse_args(argv)
 
+    # In CI / sandboxed environments, mhcflurry is unavailable and we want
+    # the deterministic mock path. Honor MRNA_AI_FORCE_MOCK=1 to override
+    # the auto-detect preference for mhcflurry.
     backend = None if args.backend == "auto" else args.backend
+    if backend is None and os.environ.get("MRNA_AI_FORCE_MOCK") == "1":
+        backend = "mock"
+
     rep = screen_csv(args.variants, hla_alleles=args.hla, backend=backend)
     out_text = _json.dumps(rep.to_dict(), indent=2)
     if args.out:

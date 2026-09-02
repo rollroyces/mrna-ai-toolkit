@@ -79,3 +79,19 @@ jobs:
             --tumor-markers TP53,KRAS,BRAF \
             --out /tmp/scrna.json
           python -c "import json; d=json.load(open('/tmp/scrna.json')); assert d['n_cells']>0; assert d['n_candidate_peptides']>0; assert 'tumor_cluster' in d; print('scrna OK:', d['n_candidate_peptides'],'peptides from cluster', d['tumor_cluster'])"
+
+      - name: Backend integrity check (network-free)
+        env:
+          MRNA_AI_FORCE_MOCK: "1"
+        run: |
+          python -m mrna_ai_tools.backends --check-all
+          # Also install-validate each optional extra's import path (without invoking models).
+          python -c "
+          # Stdlib-only core must work
+          from mrna_ai_tools import codon_optimizer, neoantigen_screener, trial_matcher, lnp_advisor, sc_rna_pipeline, llm, backends
+          print('core imports: OK')
+
+          # Optional: confirm mhcflurry is callable as a function even when not installed
+          from mrna_ai_tools.neoantigen_screener import _mhcflurry_available
+          print('mhcflurry_available():', _mhcflurry_available())
+          "
