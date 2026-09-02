@@ -265,25 +265,21 @@ def cluster_with_scanpy(
 # ---------- scGPT hook (optional) ------------------------------------------
 
 
-def embed_with_foundation_model(matrix: list[list[float]]) -> list[list[float]]:
+def embed_with_foundation_model(
+    matrix: list[list[float]],
+    *,
+    model: str = "tfidf-svd",
+    n_components: int = 32,
+) -> list[list[float]]:
     """Plug point for scGPT / Geneformer / UNI-RNA embeddings.
 
-    Returns identity embeddings if no foundation model is available. The
-    identity here means per-cell mean expression of marker gene blocks — a
-    crude but deterministic stand-in that still allows clustering to work.
+    Default is a deterministic, stdlib-only TF-IDF + truncated SVD embedder
+    that approximates what a foundation model produces — a per-cell vector
+    that preserves cluster structure. Swap in a real model by setting
+    ``model="scgpt"`` after installing the ``scgpt`` package.
     """
-    try:
-        import scgpt  # noqa: F401
-    except ImportError:
-        return [[sum(row) / len(row) if row else 0.0] for row in matrix]
-    # If scgpt is installed, this is where you'd call it. We don't pretend
-    # to know the right API — that changes between scgpt versions. Left as
-    # an integration point.
-    raise NotImplementedError(
-        "scGPT detected but integration is left to the user. See "
-        "mrna_ai_tools.sc_rna_pipeline.embed_with_foundation_model for the "
-        "plug point."
-    )
+    from .foundation_embedder import embed_cells
+    return embed_cells(matrix, model=model, n_components=n_components)
 
 
 # ---------- main pipeline --------------------------------------------------
@@ -330,6 +326,8 @@ def run_pipeline(
     peptide_lengths: tuple[int, ...] = (9, 10, 11),
     variant_filter_top_fraction: float = 1.0,
     variant_filter_min_score: float = 0.0,
+    embedding_model: str = "tfidf-svd",
+    embedding_dim: int = 32,
 ) -> PipelineReport:
     """Run the full pipeline. Returns a structured report.
 
@@ -476,6 +474,11 @@ def _run_cli(argv: list[str]) -> int:
                    help="keep top fraction of variants by pathogenicity score (default 1.0 = no filter)")
     p.add_argument("--variant-filter-min-score", type=float, default=0.0,
                    help="minimum variant score to keep (0-1, default 0 = no filter)")
+    p.add_argument("--embedding-model", default="tfidf-svd",
+                   choices=["tfidf-svd", "identity", "scgpt"],
+                   help="cell embedding model (default tfidf-svd)")
+    p.add_argument("--embedding-dim", type=int, default=32,
+                   help="embedding dimensionality (default 32)")
     p.add_argument("--out")
     args = p.parse_args(argv)
 
@@ -491,6 +494,8 @@ def _run_cli(argv: list[str]) -> int:
         peptide_lengths=lengths,
         variant_filter_top_fraction=args.variant_filter_top_fraction,
         variant_filter_min_score=args.variant_filter_min_score,
+        embedding_model=args.embedding_model,
+        embedding_dim=args.embedding_dim,
     )
     out_text = json.dumps(report.to_dict(), indent=2)
     if args.out:

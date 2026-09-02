@@ -182,6 +182,27 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("scrna.embedding_tfidf_svd")
+def _check_embedding() -> tuple[bool, str]:
+    import math
+    from .foundation_embedder import embed_cells
+    from .sc_rna_pipeline import _synthetic
+    _, _, matrix = _synthetic()
+    emb = embed_cells(matrix, model="tfidf-svd", n_components=8)
+    # Cluster 0 (cells 0-19) vs cluster 2 (cells 35-49)
+    intra = sum(
+        math.sqrt(sum((emb[i][k] - emb[j][k]) ** 2 for k in range(8)))
+        for i in range(19) for j in range(i + 1, 20)
+    ) / (19 * 18 / 2)
+    inter = sum(
+        math.sqrt(sum((emb[0][k] - emb[j][k]) ** 2 for k in range(8)))
+        for j in range(35, 50)
+    ) / 15
+    sep = inter / intra if intra else 0
+    ok = sep > 1.5  # require at least 1.5x separation
+    return ok, f"shape={len(emb)}x{len(emb[0])} inter/intra separation={sep:.2f}x"
+
+
 # ---------- runner --------------------------------------------------------
 
 def run_all(verbose: bool = True) -> int:
