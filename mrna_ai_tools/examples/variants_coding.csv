@@ -1,0 +1,8 @@
+gene,position,wt_aa,mut_aa
+TP53,175,R,H
+TP53,248,R,Q
+TP53,273,R,H
+TP53,273,R,C
+TP53,245,G,S
+BRAF,600,V,E
+KRAS,12,G,D

@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mrna-ai-toolkit"
+version = "0.2.0"
+description = "Practical Python tools for the AI-leverage layers in mRNA cancer therapy."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-or-later" }
+authors = [
+  { name = "rollroyces" }
+]
+keywords = [
+  "mrna",
+  "cancer-immunotherapy",
+  "neoantigen",
+  "codon-optimization",
+  "lipid-nanoparticles",
+  "clinical-trials",
+  "biotechnology",
+  "foundation-models",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+dependencies = []  # core: stdlib-only
+
+[project.optional-dependencies]
+llm = ["openai>=1.40"]
+neoantigen-mhcflurry = ["mhcflurry>=2.0", "pandas"]
+scrna = ["scanpy>=1.10", "anndata>=0.10", "numpy", "scipy"]
+docs = [
+  "mkdocs>=1.6",
+  "mkdocs-material>=9.5",
+  "mkdocstrings[python]>=0.25",
+  "pymdown-extensions>=10.7",
+]
+all = ["openai>=1.40", "mhcflurry>=2.0", "pandas", "scanpy>=1.10", "anndata>=0.10", "numpy", "scipy"]
+dev = ["build>=1.0", "twine>=5.0", "pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/rollroyces/mrna-ai-toolkit"
+Repository = "https://github.com/rollroyces/mrna-ai-toolkit.git"
+Issues = "https://github.com/rollroyces/mrna-ai-toolkit/issues"
+Changelog = "https://github.com/rollroyces/mrna-ai-toolkit/blob/main/CHANGELOG.md"
+
+[project.scripts]
+mrna-ai = "mrna_ai_tools.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mrna_ai_tools"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"mrna_ai_tools/examples" = "mrna_ai_tools/examples"
+
+[tool.hatch.version]
+path = "mrna_ai_tools/__init__.py"
+
+# ---------- Linting (lightweight) ------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]  # we keep some long lines for readability
+
+[tool.ruff.format]
+quote-style = "double"

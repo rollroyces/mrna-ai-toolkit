@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -109,7 +110,22 @@ def screen_peptide_llm(
     """Screen one peptide × one HLA via LLM (or fallback)."""
     peptide = peptide.upper().strip()
     hla = hla.strip()
-    if backend == "mock" or backend is None and not _openai_available():
+
+    # Backend resolution: explicit > MRNA_AI_LLM_BACKEND > auto
+    if backend is None:
+        backend = os.environ.get("MRNA_AI_LLM_BACKEND", "auto").lower()
+        if backend == "auto":
+            if _mhcflurry_available():
+                backend = "mhcflurry"
+            elif _openai_available():
+                backend = "openai"
+            else:
+                backend = "mock"
+
+    if backend == "mhcflurry":
+        return _screen_peptide_mhcflurry(peptide, hla)
+
+    if backend == "mock" or backend is None:
         # heuristic
         if hla.startswith("HLA-A*02"):
             aff, binder, rat = _heuristic_a0201(peptide)
@@ -125,27 +141,85 @@ def screen_peptide_llm(
             source="heuristic",
         )
 
-    from .llm import llm_json
-    prompt = (
-        f'peptide={peptide} hla={hla}\n\n'
-        'Return JSON: {"peptide":..,"hla":..,"binding_affinity_nM":..,'
-        '"binder":..,"immunogenicity_score":..,"rationale":..}'
-    )
-    data = llm_json(prompt, backend=backend)
-    return NeoantigenCall(
-        peptide=peptide,
-        hla=hla,
-        binding_affinity_nM=float(data.get("binding_affinity_nM", 9999)),
-        binder=bool(data.get("binder", False)),
-        immunogenicity_score=float(data.get("immunogenicity_score", 0.0)),
-        rationale=str(data.get("rationale", "")),
-        source="llm",
-    )
+    if backend == "openai":
+        from .llm import llm_json
+        prompt = (
+            f'peptide={peptide} hla={hla}\n\n'
+            'Return JSON: {"peptide":..,"hla":..,"binding_affinity_nM":..,'
+            '"binder":..,"immunogenicity_score":..,"rationale":..}'
+        )
+        data = llm_json(prompt, backend="openai")
+        return NeoantigenCall(
+            peptide=peptide,
+            hla=hla,
+            binding_affinity_nM=float(data.get("binding_affinity_nM", 9999)),
+            binder=bool(data.get("binder", False)),
+            immunogenicity_score=float(data.get("immunogenicity_score", 0.0)),
+            rationale=str(data.get("rationale", "")),
+            source="openai",
+        )
+
+    raise ValueError(f"unknown backend: {backend!r}")
 
 
 def _openai_available() -> bool:
     import os
     return bool(os.environ.get("OPENAI_API_KEY"))
+
+
+# ---------- mhcflurry backend (optional) -----------------------------------
+
+_MHCFLURRY_PREDICTOR = None
+_MHCFLURRY_AVAILABLE: bool | None = None
+
+
+def _mhcflurry_available() -> bool:
+    """Return True iff ``mhcflurry`` is importable (downloads models on first use)."""
+    global _MHCFLURRY_AVAILABLE
+    if _MHCFLURRY_AVAILABLE is None:
+        try:
+            import mhcflurry  # noqa: F401
+            _MHCFLURRY_AVAILABLE = True
+        except Exception:
+            _MHCFLURRY_AVAILABLE = False
+    return _MHCFLURRY_AVAILABLE
+
+
+def _get_mhcflurry_predictor():
+    global _MHCFLURRY_PREDICTOR
+    if _MHCFLURRY_PREDICTOR is None:
+        from mhcflurry import Class1PresentationPredictor
+        _MHCFLURRY_PREDICTOR = Class1PresentationPredictor.load()
+    return _MHCFLURRY_PREDICTOR
+
+
+def _screen_peptide_mhcflurry(peptide: str, hla: str) -> NeoantigenCall:
+    """Real binding-affinity prediction via mhcflurry Class1PresentationPredictor."""
+    if not _mhcflurry_available():
+        raise RuntimeError("mhcflurry not installed")
+    predictor = _get_mhcflurry_predictor()
+    # Class1PresentationPredictor returns a DataFrame with `affinity` and `presentation_score`.
+    df = predictor.predict(
+        peptides=[peptide],
+        alleles=[hla],
+        verbose=0,
+    )
+    row = df.iloc[0]
+    affinity = float(row["affinity"])
+    presentation = float(row.get("presentation_score", 0.0))
+    binder = affinity < 500
+    return NeoantigenCall(
+        peptide=peptide,
+        hla=hla,
+        binding_affinity_nM=round(affinity, 1),
+        binder=binder,
+        immunogenicity_score=round(min(1.0, presentation), 3),
+        rationale=(
+            f"mhcflurry predicted presentation_score={presentation:.3f}, "
+            f"affinity={affinity:.0f} nM"
+        ),
+        source="mhcflurry",
+    )
 
 
 def screen_csv(
@@ -183,7 +257,7 @@ def _run_cli(argv: list[str]) -> int:
     p = argparse.ArgumentParser(prog="mrna_ai neoantigen")
     p.add_argument("--variants", required=True, help="CSV with a 'peptide' column")
     p.add_argument("--hla", action="append", required=True, help="repeatable, e.g. HLA-A*02:01")
-    p.add_argument("--backend", choices=["auto", "mock", "openai"], default="auto")
+    p.add_argument("--backend", choices=["auto", "mock", "openai", "mhcflurry"], default="auto")
     p.add_argument("--out")
     args = p.parse_args(argv)
 
