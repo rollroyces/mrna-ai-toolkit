@@ -20,6 +20,7 @@ Reference
 Jin et al., MedCPT: Contrastive Pre-trained Transformers for large-scale
 zero-shot biomedical information retrieval. *Nat Commun* 15, 1785 (2024).
 """
+
 from __future__ import annotations
 
 import math
@@ -67,6 +68,7 @@ SYNONYMS: dict[str, list[str]] = {
     "rash": ["dermatitis", "erythema"],
 }
 
+
 def _tokenize(s: str) -> list[str]:
     """Lowercase + alphanumeric tokenization."""
     return [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z0-9*-]+", s)]
@@ -101,6 +103,7 @@ def expand_tokens(tokens: list[str]) -> list[str]:
 
 
 # ---------- TF-IDF + cosine similarity ------------------------------------
+
 
 def _tfidf(documents: list[list[str]]) -> tuple[list[list[float]], dict[str, int]]:
     """Compute TF-IDF vectors for a list of tokenized documents.

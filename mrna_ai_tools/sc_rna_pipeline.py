@@ -279,6 +279,7 @@ def embed_with_foundation_model(
     ``model="scgpt"`` after installing the ``scgpt`` package.
     """
     from .foundation_embedder import embed_cells
+
     return embed_cells(matrix, model=model, n_components=n_components)
 
 
@@ -351,6 +352,7 @@ def run_pipeline(
     filter_scores: dict[str, float] = {}
     if variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
         from .variant_scorer import filter_variants
+
         v_dicts = [
             {"gene": v.gene, "position": v.position, "wt_aa": v.wt_aa, "mut_aa": v.mut_aa}
             for v in variants
@@ -364,7 +366,9 @@ def run_pipeline(
         keep_keys = {(s.gene, s.position, s.wt_aa, s.mut_aa) for s in scored}
         variants = [v for v in variants if (v.gene, v.position, v.wt_aa, v.mut_aa) in keep_keys]
         filtered_count = len(variants)
-        filter_scores = {f"{s.gene}.{s.position}{s.wt_aa}>{s.mut_aa}": s.normalized_score for s in scored}
+        filter_scores = {
+            f"{s.gene}.{s.position}{s.wt_aa}>{s.mut_aa}": s.normalized_score for s in scored
+        }
 
     labels, cluster_names = cluster_with_scanpy(matrix, cell_ids, gene_names, seed=42)
     labels = [int(x) for x in labels]  # numpy strings or ints → uniform Python ints
@@ -470,15 +474,27 @@ def _run_cli(argv: list[str]) -> int:
         default="9,10,11",
         help="comma-separated HLA-peptide lengths to enumerate",
     )
-    p.add_argument("--variant-filter-top-fraction", type=float, default=1.0,
-                   help="keep top fraction of variants by pathogenicity score (default 1.0 = no filter)")
-    p.add_argument("--variant-filter-min-score", type=float, default=0.0,
-                   help="minimum variant score to keep (0-1, default 0 = no filter)")
-    p.add_argument("--embedding-model", default="tfidf-svd",
-                   choices=["tfidf-svd", "identity", "scgpt"],
-                   help="cell embedding model (default tfidf-svd)")
-    p.add_argument("--embedding-dim", type=int, default=32,
-                   help="embedding dimensionality (default 32)")
+    p.add_argument(
+        "--variant-filter-top-fraction",
+        type=float,
+        default=1.0,
+        help="keep top fraction of variants by pathogenicity score (default 1.0 = no filter)",
+    )
+    p.add_argument(
+        "--variant-filter-min-score",
+        type=float,
+        default=0.0,
+        help="minimum variant score to keep (0-1, default 0 = no filter)",
+    )
+    p.add_argument(
+        "--embedding-model",
+        default="tfidf-svd",
+        choices=["tfidf-svd", "identity", "scgpt"],
+        help="cell embedding model (default tfidf-svd)",
+    )
+    p.add_argument(
+        "--embedding-dim", type=int, default=32, help="embedding dimensionality (default 32)"
+    )
     p.add_argument("--out")
     args = p.parse_args(argv)
 

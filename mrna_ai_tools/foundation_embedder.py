@@ -12,13 +12,14 @@ References
 Cui et al., scGPT: toward building a foundation model for single-cell
 multi-omics. *Nat Methods* 21, 1480–1491 (2024).
 """
+
 from __future__ import annotations
 
 import math
-from collections import Counter
 from typing import Callable
 
 # ---------- stdlib TF-IDF + SVD embedder ------------------------------------
+
 
 def _tfidf_svd_embed(
     matrix: list[list[float]],
@@ -49,14 +50,8 @@ def _tfidf_svd_embed(
     #    to 0 first (gauss-distributed synthetic data can dip below zero).
     cell_totals = [max(1e-9, sum(max(0.0, v) for v in row)) for row in matrix]
     scale = 1e4
-    norm = [
-        [max(0.0, v) / cell_totals[i] * scale for v in row]
-        for i, row in enumerate(matrix)
-    ]
-    norm = [
-        [math.log1p(v) for v in row]
-        for row in norm
-    ]
+    norm = [[max(0.0, v) / cell_totals[i] * scale for v in row] for i, row in enumerate(matrix)]
+    norm = [[math.log1p(v) for v in row] for row in norm]
 
     # 2. IDF: fraction of cells expressing each gene
     df = [0] * n_genes
@@ -147,8 +142,7 @@ def embed_cells(
             )
         except ImportError:
             raise RuntimeError(
-                "scgpt is not installed. Use --model tfidf-svd (default) "
-                "or pip install scgpt."
+                "scgpt is not installed. Use --model tfidf-svd (default) or pip install scgpt."
             )
     if model == "identity":
         return [[sum(row) / len(row) if row else 0.0] for row in matrix]

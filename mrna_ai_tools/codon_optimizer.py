@@ -272,9 +272,10 @@ def _run_cli(argv: list[str]) -> int:
     if args.optimize:
         if args.backend == "ribodecode":
             from .codon_ribodecode import optimize_ribodecode
+
             ribo_weights = None
             if args.ribo_weights:
-                ribo_weights = json.loads(Path(args.ribo_weights).read_text())
+                ribo_weights = _json.loads(Path(args.ribo_weights).read_text())
             result = optimize_ribodecode(cds, ribo_weights=ribo_weights).to_dict()
         else:
             result = optimize_basic(cds)

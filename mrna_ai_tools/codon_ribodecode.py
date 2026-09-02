@@ -23,34 +23,30 @@ References
 Fu et al., *Deep generative optimization of mRNA codon sequences for enhanced
 mRNA translation and therapeutic efficacy*, Nat Commun 16, 9957 (2025).
 """
+
 from __future__ import annotations
 
 import math
-import random
-from collections import Counter
+import random  # noqa: F401  — kept for downstream code that may import from this module
 from dataclasses import dataclass, field
-from typing import Callable
 
 from .codon_optimizer import (
+    _AA_MAX_FREQ,
     CODON_TO_AA,
     HUMAN_CODON_FREQ,
-    _AA_MAX_FREQ,
-    _gc_content,
-    _read_fasta,
-    analyze_cds,
     _gc_window_stddev,
+    analyze_cds,
 )
-
 
 # Default penalty weights (tuned heuristically — the values don't need to be
 # perfect, they just need to bias the optimizer away from pathological
 # patterns the basic greedy swap allows).
 DEFAULT_WEIGHTS: dict[str, float] = {
-    "rare_run_threshold": 0.30,   # codons below this usage count as "rare"
-    "rare_run_max_length": 3,      # > this many rare codons in a row = penalty
-    "rare_run_penalty": 0.15,      # additive penalty per codon over the threshold
-    "rare_pair_penalty": 0.05,     # penalty for each (rare, rare) adjacent pair
-    "gc_window_stddev_max": 6.0,   # penalty kicks in above this stddev
+    "rare_run_threshold": 0.30,  # codons below this usage count as "rare"
+    "rare_run_max_length": 3,  # > this many rare codons in a row = penalty
+    "rare_run_penalty": 0.15,  # additive penalty per codon over the threshold
+    "rare_pair_penalty": 0.05,  # penalty for each (rare, rare) adjacent pair
+    "gc_window_stddev_max": 6.0,  # penalty kicks in above this stddev
     "gc_window_stddev_penalty": 0.02,  # per unit of stddev over the threshold
 }
 
@@ -158,10 +154,11 @@ def _optimize_with_score(
     rare_run_pen = weights.get("rare_run_penalty", DEFAULT_WEIGHTS["rare_run_penalty"])
     rare_pair_pen = weights.get("rare_pair_penalty", DEFAULT_WEIGHTS["rare_pair_penalty"])
     gc_std_max = weights.get("gc_window_stddev_max", DEFAULT_WEIGHTS["gc_window_stddev_max"])
-    gc_std_pen = weights.get("gc_window_stddev_penalty", DEFAULT_WEIGHTS["gc_window_stddev_penalty"])
+    gc_std_pen = weights.get(
+        "gc_window_stddev_penalty", DEFAULT_WEIGHTS["gc_window_stddev_penalty"]
+    )
 
     codons = [cds[i : i + 3] for i in range(0, len(cds), 3)]
-    rng = random.Random(seed)
 
     def score(codons: list[str]) -> float:
         # sum of per-codon scores
@@ -248,7 +245,6 @@ def optimize_ribodecode(
     codons_before = [working[i : i + 3] for i in range(0, len(working), 3)]
     codons_after = [new_cds[i : i + 3] for i in range(0, len(new_cds), 3)]
     threshold = weights["rare_run_threshold"]
-    rare_runs_before = _count_rare_runs(codons_before, threshold, weights)
     rare_runs_after = _count_rare_runs(codons_after, threshold, weights)
     rare_pairs_after = _count_rare_pairs(codons_after, threshold, weights)
     gc_std_before = _gc_window_stddev(working)

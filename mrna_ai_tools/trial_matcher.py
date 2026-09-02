@@ -206,14 +206,24 @@ def match(
     """
     if retriever == "dense" or retriever == "auto":
         try:
-            candidates = retrieve_candidates_dense(patient_text, trials, top_k=top_k)
-            retriever_used = "dense"
+            from .medcpt_retriever import retrieve_dense
+
+            trial_dicts = [
+                {
+                    "title": t.title,
+                    "condition": t.condition,
+                    "inclusion": list(t.inclusion),
+                    "exclusion": list(t.exclusion),
+                    "biomarkers": list(t.biomarkers),
+                }
+                for t in trials
+            ]
+            scored = retrieve_dense(patient_text, trial_dicts, top_k=top_k)
+            candidates = [trials[i] for i, _ in scored]
         except Exception:
             candidates = retrieve_candidates(patient_text, trials, top_k=top_k)
-            retriever_used = "keyword"
     else:
         candidates = retrieve_candidates(patient_text, trials, top_k=top_k)
-        retriever_used = "keyword"
     out: list[RankedTrial] = []
     debug: list[dict] = []
     for t in candidates:
@@ -245,14 +255,19 @@ def load_trials_jsonl(path: str | Path) -> list[Trial]:
 def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
+    import os
 
     p = argparse.ArgumentParser(prog="mrna_ai trial")
     p.add_argument("--patient", required=True)
     p.add_argument("--trials", required=True, help="JSONL of trials")
     p.add_argument("--top-k", type=int, default=10)
     p.add_argument("--backend", choices=["auto", "mock", "openai"], default="auto")
-    p.add_argument("--retriever", choices=["keyword", "dense", "auto"], default="keyword",
-                   help="retrieval method: keyword (fast) or dense (MedCPT-style semantic)")
+    p.add_argument(
+        "--retriever",
+        choices=["keyword", "dense", "auto"],
+        default="keyword",
+        help="retrieval method: keyword (fast) or dense (MedCPT-style semantic)",
+    )
     p.add_argument("--out")
     args = p.parse_args(argv)
 
@@ -261,7 +276,9 @@ def _run_cli(argv: list[str]) -> int:
     backend = None if args.backend == "auto" else args.backend
     if backend is None and os.environ.get("MRNA_AI_FORCE_MOCK") == "1":
         backend = "mock"
-    ranked, debug = match(patient_text, trials, top_k=args.top_k, backend=backend, retriever=args.retriever)
+    ranked, debug = match(
+        patient_text, trials, top_k=args.top_k, backend=backend, retriever=args.retriever
+    )
     out_obj = {"ranked": [asdict(r) for r in ranked], "n_candidates_screened": len(debug)}
     out_text = _json.dumps(out_obj, indent=2)
     if args.out:
