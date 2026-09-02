@@ -69,7 +69,25 @@ def _check_codon_optimize() -> tuple[bool, str]:
     from .codon_optimizer import optimize_basic
     r = optimize_basic("ATGGATAAGAAATACTCAATAGGCTTAGATATCGGCACAAATAGCGTGGGCTGGGCG")
     ok = r["after"]["cai"] > r["before"]["cai"] and r["changes"] > 0
-    return ok, f"CAI {r['before']['cai']} → {r['after']['cai']} ({r['changes']} swaps)"
+    return ok, f"basic CAI {r['before']['cai']} → {r['after']['cai']} ({r['changes']} swaps)"
+
+
+@register("codon.ribodecode_optimizer")
+def _check_codon_ribodecode() -> tuple[bool, str]:
+    from .codon_ribodecode import optimize_ribodecode
+    seq = (
+        "ATGGATAAGAAATACTCAATAGGCTTAGATATCGGCACAAATAGCGTGGGCTGGGCGGTGATCAC"
+        "CGATGAATATAAGGTTCCGTCTAAAAAGTTCAAGGTTCTGGGAAATACAGACCGCCACAGTATC"
+    )
+    r = optimize_ribodecode(seq)
+    ok = (
+        r.after["cai"] >= r.before["cai"]
+        and r.after["rare_codon_fraction"] <= r.before["rare_codon_fraction"]
+    )
+    return ok, (
+        f"ribodecode CAI {r.before['cai']} → {r.after['cai']}, "
+        f"rare-pair {r.rare_pair_count}, GC-stddev {r.gc_window_stddev_before} → {r.gc_window_stddev_after}"
+    )
 
 
 # ---------- trial backend -------------------------------------------------

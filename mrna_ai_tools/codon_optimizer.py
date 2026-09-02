@@ -252,6 +252,13 @@ def _run_cli(argv: list[str]) -> int:
     p = argparse.ArgumentParser(prog="mrna_ai codon")
     p.add_argument("--sequence", required=True, help="FASTA file or raw CDS string")
     p.add_argument("--optimize", action="store_true", help="greedy codon-optimize")
+    p.add_argument(
+        "--backend",
+        choices=["basic", "ribodecode"],
+        default="basic",
+        help="optimizer: basic (greedy single-codon) or ribodecode (context-aware)",
+    )
+    p.add_argument("--ribo-weights", help="JSON file with per-codon translation rates")
     p.add_argument("--out", help="write JSON report here")
     args = p.parse_args(argv)
 
@@ -263,7 +270,14 @@ def _run_cli(argv: list[str]) -> int:
         cds = raw.strip()
 
     if args.optimize:
-        result = optimize_basic(cds)
+        if args.backend == "ribodecode":
+            from .codon_ribodecode import optimize_ribodecode
+            ribo_weights = None
+            if args.ribo_weights:
+                ribo_weights = json.loads(Path(args.ribo_weights).read_text())
+            result = optimize_ribodecode(cds, ribo_weights=ribo_weights).to_dict()
+        else:
+            result = optimize_basic(cds)
     else:
         result = analyze_cds(cds).to_dict()
 
