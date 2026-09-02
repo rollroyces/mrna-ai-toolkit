@@ -139,6 +139,49 @@ def _check_scrna() -> tuple[bool, str]:
     )
 
 
+@register("scrna.variant_filter")
+def _check_scrna_variant_filter() -> tuple[bool, str]:
+    from .sc_rna_pipeline import run_pipeline
+    full = run_pipeline(
+        "mrna_ai_tools/examples/cells.csv",
+        "mrna_ai_tools/examples/variants_coding.csv",
+        "mrna_ai_tools/examples/proteins.fasta",
+        hla=("HLA-A*02:01",),
+        tumor_marker_genes=["TP53", "KRAS", "BRAF"],
+    )
+    filt = run_pipeline(
+        "mrna_ai_tools/examples/cells.csv",
+        "mrna_ai_tools/examples/variants_coding.csv",
+        "mrna_ai_tools/examples/proteins.fasta",
+        hla=("HLA-A*02:01",),
+        tumor_marker_genes=["TP53", "KRAS", "BRAF"],
+        variant_filter_top_fraction=0.30,
+    )
+    ok = (
+        filt.n_variants_after_filter < full.n_variants_after_filter
+        and filt.n_candidate_peptides < full.n_candidate_peptides
+    )
+    return ok, (
+        f"top-30% filter: {full.n_variants_input} variants → "
+        f"{filt.n_variants_after_filter} kept → "
+        f"{filt.n_candidate_peptides} peptides (was {full.n_candidate_peptides})"
+    )
+
+
+@register("scrna.variant_scorer_alphamissense")
+def _check_variant_scorer() -> tuple[bool, str]:
+    from .variant_scorer import score_variant
+    # Known driver mutations should rank highest
+    braf = score_variant("BRAF", 600, "V", "E", protein_length=766)
+    kras = score_variant("KRAS", 12, "G", "V", protein_length=189)
+    benign = score_variant("MYC", 100, "A", "A", protein_length=439)  # silent
+    ok = braf.normalized_score > kras.normalized_score > 0
+    return ok, (
+        f"BRAF.V600E={braf.normalized_score} > "
+        f"KRAS.G12V={kras.normalized_score} > 0 (silent={benign.normalized_score})"
+    )
+
+
 # ---------- runner --------------------------------------------------------
 
 def run_all(verbose: bool = True) -> int:

@@ -309,13 +309,14 @@ class PipelineReport:
     cluster_marker_scores: dict[int, float]
     tumor_cluster: int
     n_variants_input: int
+    n_variants_after_filter: int
+    variant_scores: dict[str, float]
     n_candidate_peptides: int
     peptides: list[TumorPeptide] = field(default_factory=list)
     note: str = ""
 
     def to_dict(self) -> dict:
-        d = asdict(self)
-        return d
+        return asdict(self)
 
 
 def run_pipeline(
@@ -327,11 +328,45 @@ def run_pipeline(
     tumor_marker_genes: list[str] | None = None,
     n_clusters: int = 4,
     peptide_lengths: tuple[int, ...] = (9, 10, 11),
+    variant_filter_top_fraction: float = 1.0,
+    variant_filter_min_score: float = 0.0,
 ) -> PipelineReport:
-    """Run the full pipeline. Returns a structured report."""
+    """Run the full pipeline. Returns a structured report.
+
+    Parameters
+    ----------
+    variant_filter_top_fraction : float
+        Fraction of variants to keep after pathogenicity scoring. 1.0 = no
+        filter (default). 0.2 = keep only the top 20% by score.
+    variant_filter_min_score : float
+        Minimum variant score (0–1) to keep. Default 0.0 (no filter).
+    """
     cell_ids, gene_names, matrix = load_expression(expression_path)
     variants = load_variants(variants_path)
     proteins = load_protein_fasta(proteins_path)
+
+    # Snapshot original count before filtering.
+    n_variants_input_orig = len(variants)
+
+    # Optional variant pre-filter (AlphaMissense-style).
+    filtered_count = n_variants_input_orig
+    filter_scores: dict[str, float] = {}
+    if variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
+        from .variant_scorer import filter_variants
+        v_dicts = [
+            {"gene": v.gene, "position": v.position, "wt_aa": v.wt_aa, "mut_aa": v.mut_aa}
+            for v in variants
+        ]
+        scored = filter_variants(
+            v_dicts,
+            top_fraction=variant_filter_top_fraction,
+            min_score=variant_filter_min_score,
+            protein_lengths={g: len(p) for g, p in proteins.items()},
+        )
+        keep_keys = {(s.gene, s.position, s.wt_aa, s.mut_aa) for s in scored}
+        variants = [v for v in variants if (v.gene, v.position, v.wt_aa, v.mut_aa) in keep_keys]
+        filtered_count = len(variants)
+        filter_scores = {f"{s.gene}.{s.position}{s.wt_aa}>{s.mut_aa}": s.normalized_score for s in scored}
 
     labels, cluster_names = cluster_with_scanpy(matrix, cell_ids, gene_names, seed=42)
     labels = [int(x) for x in labels]  # numpy strings or ints → uniform Python ints
@@ -388,7 +423,9 @@ def run_pipeline(
         cluster_labels=labels,
         cluster_marker_scores=cluster_scores,
         tumor_cluster=tumor_cluster,
-        n_variants_input=len(variants),
+        n_variants_input=n_variants_input_orig,
+        n_variants_after_filter=filtered_count,
+        variant_scores=filter_scores,
         n_candidate_peptides=len(peptides),
         peptides=peptides,
         note=note,
@@ -435,6 +472,10 @@ def _run_cli(argv: list[str]) -> int:
         default="9,10,11",
         help="comma-separated HLA-peptide lengths to enumerate",
     )
+    p.add_argument("--variant-filter-top-fraction", type=float, default=1.0,
+                   help="keep top fraction of variants by pathogenicity score (default 1.0 = no filter)")
+    p.add_argument("--variant-filter-min-score", type=float, default=0.0,
+                   help="minimum variant score to keep (0-1, default 0 = no filter)")
     p.add_argument("--out")
     args = p.parse_args(argv)
 
@@ -448,6 +489,8 @@ def _run_cli(argv: list[str]) -> int:
         hla=("HLA-A*02:01",),
         tumor_marker_genes=markers,
         peptide_lengths=lengths,
+        variant_filter_top_fraction=args.variant_filter_top_fraction,
+        variant_filter_min_score=args.variant_filter_min_score,
     )
     out_text = json.dumps(report.to_dict(), indent=2)
     if args.out:
