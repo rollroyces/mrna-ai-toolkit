@@ -99,6 +99,61 @@ def _check_codon_ribodecode() -> tuple[bool, str]:
     )
 
 
+_CODON_TABLE = {
+    "ATG": "M", "ATA": "I", "ATT": "I", "ATC": "I",
+    "ACA": "T", "ACT": "T", "ACC": "T", "ACG": "T",
+    "ACN": "T",
+    "AAT": "N", "AAC": "N", "AAA": "K", "AAG": "K",
+    "AAR": "K",
+    "AGT": "S", "AGC": "S", "AGA": "R", "AGG": "R",
+    "AGR": "R", "AGY": "S",
+    "TCA": "S", "TCG": "S", "TCT": "S", "TCC": "S",
+    "TCN": "S", "TCY": "S", "TCR": "S", "TCW": "S",
+    "GTT": "V", "GTC": "V", "GTA": "V", "GTG": "V",
+    "GCT": "A", "GCC": "A", "GCA": "A", "GCG": "A",
+    "GCN": "A",
+    "GAT": "D", "GAC": "D", "GAY": "D",
+    "GAA": "E", "GAG": "E", "GAR": "E",
+    "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G",
+    "GGN": "G",
+    "CAT": "H", "CAC": "H", "CAY": "H",
+    "CAA": "Q", "CAG": "Q", "CAR": "Q",
+    "CGT": "R", "CGC": "R", "CGA": "R", "CGG": "R", "CGN": "R",
+    "CTT": "L", "CTC": "L", "CTA": "L", "CTG": "L",
+    "CTN": "L", "CTR": "L", "CTY": "L",
+    "TTA": "L", "TTG": "L", "TTR": "L",
+    "TTT": "F", "TTC": "F", "TTY": "F",
+    "TGG": "W",
+    "TAT": "Y", "TAC": "Y", "TAY": "Y",
+    "TGT": "C", "TGC": "C", "TGY": "C",
+    "ATG": "M",
+    "TAA": "*", "TAG": "*", "TGA": "*", "TRA": "*",
+}
+
+
+def _translate(cds: str) -> str:
+    return "".join(_CODON_TABLE.get(cds[i : i + 3], "?") for i in range(0, len(cds), 3))
+
+
+@register("codon.lineardesign_optimizer")
+def _check_codon_lineardesign() -> tuple[bool, str]:
+    """LinearDesign DP must improve CAI without breaking the protein."""
+    from .codon_lineardesign import optimize_lineardesign
+    seq = (
+        "ATGGATAAGAAATACTCAATAGGCTTAGATATCGGCACAAATAGCGTGGGCTGGGCGGTGATCAC"
+        "CGATGAATATAAGGTTCCGTCTAAAAAGTTCAAGGTTCTGGGAAATACAGACCGCCACAGTATC"
+    )
+    r = optimize_lineardesign(seq)
+    protein_ok = _translate(seq) == _translate(r.new_cds)
+    cai_ok = r.after["cai"] >= r.before["cai"]
+    ok = protein_ok and cai_ok
+    return ok, (
+        f"lineardesign CAI {r.before['cai']} → {r.after['cai']}, "
+        f"changes={r.changes}, structure_score={r.structure_score}, "
+        f"protein_preserved={protein_ok}"
+    )
+
+
 # ---------- trial backend -------------------------------------------------
 
 

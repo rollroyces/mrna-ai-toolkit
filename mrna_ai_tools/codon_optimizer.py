@@ -254,9 +254,10 @@ def _run_cli(argv: list[str]) -> int:
     p.add_argument("--optimize", action="store_true", help="greedy codon-optimize")
     p.add_argument(
         "--backend",
-        choices=["basic", "ribodecode"],
+        choices=["basic", "ribodecode", "lineardesign"],
         default="basic",
-        help="optimizer: basic (greedy single-codon) or ribodecode (context-aware)",
+        help="optimizer: basic (greedy), ribodecode (context-aware), "
+        "or lineardesign (joint translation + mRNA structure via DP)",
     )
     p.add_argument("--ribo-weights", help="JSON file with per-codon translation rates")
     p.add_argument("--out", help="write JSON report here")
@@ -277,6 +278,19 @@ def _run_cli(argv: list[str]) -> int:
             if args.ribo_weights:
                 ribo_weights = _json.loads(Path(args.ribo_weights).read_text())
             result = optimize_ribodecode(cds, ribo_weights=ribo_weights).to_dict()
+        elif args.backend == "lineardesign":
+            from .codon_lineardesign import optimize_lineardesign
+
+            # LinearDesign DP is O(n × syn^2) — limit input length to keep
+            # the CLI snappy. For full-length CDS use the Python API.
+            max_nt = 600
+            if len(cds) > max_nt:
+                raise SystemExit(
+                    f"--backend lineardesign supports up to {max_nt} nt in the "
+                    "CLI (DP runtime grows quadratically). For longer CDS, "
+                    "use the Python API or switch to --backend ribodecode."
+                )
+            result = optimize_lineardesign(cds).to_dict()
         else:
             result = optimize_basic(cds)
     else:

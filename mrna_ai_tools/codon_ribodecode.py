@@ -136,7 +136,6 @@ def _optimize_with_score(
     cds: str,
     weights: dict[str, float],
     *,
-    seed: int = 0,
     n_passes: int = 3,
 ) -> str:
     """Hill-climb codon optimization under a custom scoring function.
@@ -146,10 +145,24 @@ def _optimize_with_score(
       - rare-run penalty (per extra rare codon in a long run)
       - rare-pair penalty (per adjacent rare pair)
       - GC window stddev penalty (smooths out GC spikes)
+
+    Deterministic: ties are broken by preferring the codon that appears
+    first in the codon-usage table. For a stochastic variant, swap in a
+    different optimizer — this function is the deterministic baseline.
     """
     cds = cds.upper().replace("U", "T")
     if cds[-3:] in CODON_TO_AA and CODON_TO_AA[cds[-3:]] == "*":
         cds = cds[:-3]
+    # Reject internal stop codons — they'd truncate the protein. Caller's job
+    # to clean up, but we surface a clear error here.
+    codons = [cds[i : i + 3] for i in range(0, len(cds), 3)]
+    for i, c in enumerate(codons):
+        aa = CODON_TO_AA.get(c)
+        if aa == "*":
+            raise ValueError(
+                f"internal stop codon at position {i + 1} (codon {c!r}); "
+                "refusing to optimize. Remove the stop or split the CDS."
+            )
     threshold = weights.get("rare_run_threshold", DEFAULT_WEIGHTS["rare_run_threshold"])
     rare_run_pen = weights.get("rare_run_penalty", DEFAULT_WEIGHTS["rare_run_penalty"])
     rare_pair_pen = weights.get("rare_pair_penalty", DEFAULT_WEIGHTS["rare_pair_penalty"])
@@ -157,8 +170,6 @@ def _optimize_with_score(
     gc_std_pen = weights.get(
         "gc_window_stddev_penalty", DEFAULT_WEIGHTS["gc_window_stddev_penalty"]
     )
-
-    codons = [cds[i : i + 3] for i in range(0, len(cds), 3)]
 
     def score(codons: list[str]) -> float:
         # sum of per-codon scores
@@ -211,14 +222,14 @@ def optimize_ribodecode(
     *,
     ribo_weights: dict[str, float] | None = None,
     custom_weights: dict[str, float] | None = None,
-    seed: int = 0,
 ) -> OptimizationResult:
     """RiboDecode-style codon optimization with context awareness.
 
-    Parameters
+    Deterministic hill-climb. Parameters
     ----------
     cds : str
         Coding sequence (uppercase, ACGT). May include U (converted to T).
+        Must not contain internal stop codons.
     ribo_weights : dict, optional
         Per-codon relative translation rates (e.g., from a Ribo-seq experiment).
         Keys are codons (uppercase, T-form), values are positive floats. Higher
@@ -239,7 +250,7 @@ def optimize_ribodecode(
     if working[-3:] in CODON_TO_AA and CODON_TO_AA[working[-3:]] == "*":
         working = working[:-3]
 
-    new_cds = _optimize_with_score(working, weights, seed=seed)
+    new_cds = _optimize_with_score(working, weights)
     after = analyze_cds(new_cds).to_dict()
 
     codons_before = [working[i : i + 3] for i in range(0, len(working), 3)]
