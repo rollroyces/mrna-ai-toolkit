@@ -1,0 +1,1838 @@
+{
+  "n_cells": 20,
+  "n_genes": 10,
+  "cluster_labels": [
+    1,
+    0,
+    1,
+    0,
+    2,
+    1,
+    0,
+    2,
+    2,
+    1,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+  ],
+  "cluster_marker_scores": {
+    "0": 0.4666666666666666,
+    "1": 0.44166666666666665,
+    "2": 0.4777777777777777,
+    "3": 3.0966666666666667
+  },
+  "tumor_cluster": 3,
+  "n_variants_input": 7,
+  "n_candidate_peptides": 180,
+  "peptides": [
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "QHMTEVVRH",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HMTEVVRHC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "MTEVVRHCP",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "TEVVRHCPH",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVVRHCPHH",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VVRHCPHHE",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VRHCPHHER",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RHCPHHERC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HCPHHERCS",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "SQHMTEVVRH",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "QHMTEVVRHC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HMTEVVRHCP",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "MTEVVRHCPH",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "TEVVRHCPHH",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVVRHCPHHE",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VVRHCPHHER",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VRHCPHHERC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RHCPHHERCS",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HCPHHERCSD",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "QSQHMTEVVRH",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "SQHMTEVVRHC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "QHMTEVVRHCP",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HMTEVVRHCPH",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "MTEVVRHCPHH",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "TEVVRHCPHHE",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVVRHCPHHER",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VVRHCPHHERC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VRHCPHHERCS",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RHCPHHERCSD",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 175,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HCPHHERCSDS",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SSCMGGMNQ",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SCMGGMNQR",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "CMGGMNQRP",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MGGMNQRPI",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GGMNQRPIL",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GMNQRPILT",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MNQRPILTI",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "NQRPILTII",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "QRPILTIIT",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "NSSCMGGMNQ",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SSCMGGMNQR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SCMGGMNQRP",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "CMGGMNQRPI",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MGGMNQRPIL",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GGMNQRPILT",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GMNQRPILTI",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MNQRPILTII",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "NQRPILTIIT",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "QRPILTIITL",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "CNSSCMGGMNQ",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "NSSCMGGMNQR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SSCMGGMNQRP",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "SCMGGMNQRPI",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "CMGGMNQRPIL",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MGGMNQRPILT",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GGMNQRPILTI",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "GMNQRPILTII",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "MNQRPILTIIT",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "NQRPILTIITL",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 248,
+      "wt_aa": "R",
+      "mut_aa": "Q",
+      "peptide": "QRPILTIITLE",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "LGRNSFEVH",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "GRNSFEVHV",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RNSFEVHVC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "NSFEVHVCA",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "SFEVHVCAC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "FEVHVCACP",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVHVCACPG",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VHVCACPGR",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HVCACPGRD",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "LLGRNSFEVH",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "LGRNSFEVHV",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "GRNSFEVHVC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RNSFEVHVCA",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "NSFEVHVCAC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "SFEVHVCACP",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "FEVHVCACPG",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVHVCACPGR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VHVCACPGRD",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HVCACPGRDR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "NLLGRNSFEVH",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "LLGRNSFEVHV",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "LGRNSFEVHVC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "GRNSFEVHVCA",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "RNSFEVHVCAC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "NSFEVHVCACP",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "SFEVHVCACPG",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "FEVHVCACPGR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "EVHVCACPGRD",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "VHVCACPGRDR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "H",
+      "peptide": "HVCACPGRDRR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "LGRNSFEVC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "GRNSFEVCV",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "RNSFEVCVC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "NSFEVCVCA",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "SFEVCVCAC",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "FEVCVCACP",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "EVCVCACPG",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "VCVCACPGR",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "CVCACPGRD",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "LLGRNSFEVC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "LGRNSFEVCV",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "GRNSFEVCVC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "RNSFEVCVCA",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "NSFEVCVCAC",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "SFEVCVCACP",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "FEVCVCACPG",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "EVCVCACPGR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "VCVCACPGRD",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "CVCACPGRDR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "NLLGRNSFEVC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "LLGRNSFEVCV",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "LGRNSFEVCVC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "GRNSFEVCVCA",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "RNSFEVCVCAC",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "NSFEVCVCACP",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "SFEVCVCACPG",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "FEVCVCACPGR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "EVCVCACPGRD",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "VCVCACPGRDR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 273,
+      "wt_aa": "R",
+      "mut_aa": "C",
+      "peptide": "CVCACPGRDRR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MCNSSCMGS",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CNSSCMGSM",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "NSSCMGSMN",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SSCMGSMNR",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SCMGSMNRR",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CMGSMNRRP",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MGSMNRRPI",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "GSMNRRPIL",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SMNRRPILT",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "YMCNSSCMGS",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MCNSSCMGSM",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CNSSCMGSMN",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "NSSCMGSMNR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SSCMGSMNRR",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SCMGSMNRRP",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CMGSMNRRPI",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MGSMNRRPIL",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "GSMNRRPILT",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SMNRRPILTI",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "NYMCNSSCMGS",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "YMCNSSCMGSM",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MCNSSCMGSMN",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CNSSCMGSMNR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "NSSCMGSMNRR",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SSCMGSMNRRP",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SCMGSMNRRPI",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "CMGSMNRRPIL",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "MGSMNRRPILT",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "GSMNRRPILTI",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "TP53",
+      "position": 245,
+      "wt_aa": "G",
+      "mut_aa": "S",
+      "peptide": "SMNRRPILTII",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "YKLVVVGAD",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "KLVVVGADG",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "LVVVGADGV",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVVGADGVG",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVGADGVGK",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VGADGVGKS",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "GADGVGKSA",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "ADGVGKSAL",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "DGVGKSALT",
+      "length": 9,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "EYKLVVVGAD",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "YKLVVVGADG",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "KLVVVGADGV",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "LVVVGADGVG",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVVGADGVGK",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVGADGVGKS",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VGADGVGKSA",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "GADGVGKSAL",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "ADGVGKSALT",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "DGVGKSALTI",
+      "length": 10,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "TEYKLVVVGAD",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "EYKLVVVGADG",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "YKLVVVGADGV",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "KLVVVGADGVG",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "LVVVGADGVGK",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVVGADGVGKS",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VVGADGVGKSA",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "VGADGVGKSAL",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "GADGVGKSALT",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "ADGVGKSALTI",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    },
+    {
+      "cell_cluster": 3,
+      "gene": "KRAS",
+      "position": 12,
+      "wt_aa": "G",
+      "mut_aa": "D",
+      "peptide": "DGVGKSALTIQ",
+      "length": 11,
+      "cluster_marker_score": 3.0966666666666667
+    }
+  ],
+  "note": ""
+}
