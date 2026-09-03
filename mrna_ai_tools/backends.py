@@ -288,6 +288,7 @@ def _check_medcpt() -> tuple[bool, str]:
     in the expected range.
     """
     import os
+
     if os.environ.get("MRNA_AI_SKIP_MEDCPT_CHECK") == "1":
         return True, "skipped via MRNA_AI_SKIP_MEDCPT_CHECK=1 (set in CI)"
     try:
@@ -297,6 +298,7 @@ def _check_medcpt() -> tuple[bool, str]:
         return True, f"medcpt not installed ({e}); plug-in dormant as expected"
 
     from .medcpt_integration import retrieve_medcpt
+
     patient = "62-year-old man with stage IIB-IV melanoma, BRAF V600E positive"
     trials = [
         "Personalized mRNA-4157 vaccine plus pembrolizumab for resected melanoma, BRAF V600E",

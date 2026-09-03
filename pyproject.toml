@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mrna-ai-toolkit"
-version = "0.3.0"
+version = "0.4.0"
 description = "Practical Python tools for the AI-leverage layers in mRNA cancer therapy."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -39,7 +39,9 @@ dependencies = []  # core: stdlib-only
 
 [project.optional-dependencies]
 llm = ["openai>=1.40"]
-neoantigen-mhcflurry = ["mhcflurry>=2.0", "pandas"]
+neoantigen-mhcflurry = ["mhcflurry>=2.0", "pandas<2.3"]
+neoantigen-medcpt = ["torch>=2.0", "transformers>=4.40"]
+trial-medcpt = ["torch>=2.0", "transformers>=4.40"]
 scrna = ["scanpy>=1.10", "anndata>=0.10", "numpy", "scipy"]
 docs = [
   "mkdocs>=1.6",
@@ -47,7 +49,7 @@ docs = [
   "mkdocstrings[python]>=0.25",
   "pymdown-extensions>=10.7",
 ]
-all = ["openai>=1.40", "mhcflurry>=2.0", "pandas", "scanpy>=1.10", "anndata>=0.10", "numpy", "scipy"]
+all = ["openai>=1.40", "mhcflurry>=2.0", "pandas<2.3", "torch>=2.0", "transformers>=4.40", "scanpy>=1.10", "anndata>=0.10", "numpy", "scipy"]
 dev = ["build>=1.0", "twine>=5.0", "pytest>=8.0"]
 
 [project.urls]
