@@ -33,6 +33,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
 
+from .alphamissense_integration import UNIPROT_TO_GENE
+
 # ---------- IO ------------------------------------------------------------
 
 
@@ -61,9 +63,32 @@ def load_variants(path: str | Path) -> list[Variant]:
 
 
 def load_protein_fasta(path: str | Path) -> dict[str, str]:
-    """Load a multi-record FASTA into {gene_name: protein_seq}."""
-    seqs: dict[str, str] = {}
+    """Load a multi-record FASTA into ``{gene_name: protein_seq}``.
+
+    For the gene name, the first whitespace-separated token after ``>``
+    is used. UniProt-style headers like ``>sp|P01116|RASK_HUMAN ...``
+    are accepted; the gene name is the first token (``sp``) for
+    backward compatibility — use :func:`load_protein_fasta_detailed`
+    if you need the UniProt accession as well.
+    """
+    detailed = load_protein_fasta_detailed(path)
+    return {gene: seq for gene, (_uid, seq) in detailed.items()}
+
+
+def load_protein_fasta_detailed(
+    path: str | Path,
+) -> dict[str, tuple[str | None, str]]:
+    """Load a multi-record FASTA into ``{gene_name: (uniprot_id?, sequence)}``.
+
+    Recognizes UniProt-style headers ``>sp|P01116|RASK_HUMAN ...`` and
+    extracts ``P01116`` as the UniProt accession. Falls back to ``None``
+    if the header is not UniProt-style.
+    """
+    import re
+
+    out: dict[str, tuple[str | None, str]] = {}
     name: str | None = None
+    uniprot: str | None = None
     buf: list[str] = []
     for line in Path(path).read_text().splitlines():
         line = line.strip()
@@ -71,14 +96,41 @@ def load_protein_fasta(path: str | Path) -> dict[str, str]:
             continue
         if line.startswith(">"):
             if name:
-                seqs[name] = "".join(buf).upper()
-            name = line[1:].split()[0]
+                out[name] = (uniprot, "".join(buf).upper())
+            header = line[1:]
+            first_token = header.split()[0] if header else "unnamed"
+            pipe_parts = first_token.split("|")
+            if len(pipe_parts) >= 3 and re.match(r"^[A-Z][A-Z0-9]{5,10}$", pipe_parts[1]):
+                # UniProt-style: >db|UID|GENE_OS
+                # The third field is the entry name (e.g. P53_HUMAN, RASK_HUMAN),
+                # not always a clean gene symbol. Fall back to the curated
+                # UniProt -> gene-symbol table, then to the part of the
+                # entry name before the first underscore (which matches most
+                # modern UniProt entry names but not all).
+                uid = pipe_parts[1]
+                entry_name = pipe_parts[2]
+                if uid in UNIPROT_TO_GENE:
+                    name = UNIPROT_TO_GENE[uid]
+                else:
+                    candidate = entry_name.split("_")[0] if "_" in entry_name else entry_name
+                    # If the candidate looks like a gene symbol (uppercase letters
+                    # or letters+digits, 2-10 chars), use it. Otherwise fall back
+                    # to the first token (legacy behavior).
+                    if re.match(r"^[A-Z][A-Z0-9]{1,9}$", candidate):
+                        name = candidate
+                    else:
+                        name = first_token
+                uniprot = uid
+            else:
+                name = first_token
+                m = re.match(r"^[a-z]+\|([A-Z][A-Z0-9]{5,10})\|", header)
+                uniprot = m.group(1) if m else None
             buf = []
         else:
             buf.append(line)
     if name:
-        seqs[name] = "".join(buf).upper()
-    return seqs
+        out[name] = (uniprot, "".join(buf).upper())
+    return out
 
 
 # ---------- peptide enumeration -------------------------------------------
@@ -342,14 +394,40 @@ def run_pipeline(
     """
     cell_ids, gene_names, matrix = load_expression(expression_path)
     variants = load_variants(variants_path)
-    proteins = load_protein_fasta(proteins_path)
+    proteins_detailed = load_protein_fasta_detailed(proteins_path)
+    proteins = {gene: seq for gene, (_uid, seq) in proteins_detailed.items()}
+    uniprot_ids = {gene: uid for gene, (uid, _seq) in proteins_detailed.items() if uid}
 
     # Snapshot original count before filtering.
     n_variants_input_orig = len(variants)
 
-    # Optional variant pre-filter (AlphaMissense-style).
+    # Optional variant pre-filter (AlphaMissense-style, with AlphaMissense
+    # itself plugged in when the predictions TSV is available).
     filtered_count = n_variants_input_orig
     filter_scores: dict[str, float] = {}
+    am_lookup_fn = None
+    am_active = False
+    # Only attempt to load the real AlphaMissense index when filtering is
+    # requested AND the index is already cached. We don't trigger the
+    # 15-min build during a normal run because that's a heavy operation
+    # the user should initiate explicitly. Users with a pre-built cache
+    # (created via ``python -m mrna_ai_tools.alphamissense_integration``
+    # or a prior ``load_index()`` call) get the real scores automatically.
+    if variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
+        try:
+            from .alphamissense_integration import (
+                CACHE_FILE,
+                load_index,
+                lookup,
+            )
+
+            if CACHE_FILE.exists():
+                load_index()
+                am_lookup_fn = lookup
+                am_active = True
+        except Exception:
+            am_lookup_fn = None
+
     if variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
         from .variant_scorer import filter_variants
 
@@ -363,6 +441,8 @@ def run_pipeline(
             min_score=variant_filter_min_score,
             protein_lengths={g: len(p) for g, p in proteins.items()},
             protein_sequences=proteins,
+            uniprot_ids=uniprot_ids,
+            am_lookup=am_lookup_fn,
             strict=False,
         )
         keep_keys = {(s.gene, s.position, s.wt_aa, s.mut_aa) for s in scored}
@@ -371,6 +451,19 @@ def run_pipeline(
         filter_scores = {
             f"{s.gene}.{s.position}{s.wt_aa}>{s.mut_aa}": s.normalized_score for s in scored
         }
+
+    note = ""
+    if am_active:
+        note = "AlphaMissense pathogenicity scores used in variant filtering."
+    elif variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
+        note = (
+            "AlphaMissense predictions not found — heuristic BLOSUM62 + driver "
+            "gene + structural score used. To enable AlphaMissense, download "
+            "the predictions TSV from "
+            "https://storage.googleapis.com/dm_alphamissense/ "
+            "to ~/.cache/mrna_ai_tools/AlphaMissense_hg38.tsv "
+            "(licensed CC BY-NC-SA 4.0, non-commercial)."
+        )
 
     labels, cluster_names = cluster_with_scanpy(matrix, cell_ids, gene_names, seed=42)
     labels = [int(x) for x in labels]  # numpy strings or ints → uniform Python ints
@@ -413,8 +506,6 @@ def run_pipeline(
                     cluster_marker_score=cluster_scores.get(tumor_cluster, 0.0),
                 )
             )
-
-    note = ""
     if not marker_idx:
         note = (
             "WARNING: no tumor-marker genes supplied; the largest cluster was "

@@ -417,6 +417,41 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("scrna.alphamissense_integration")
+def _check_alphamissense_integration() -> tuple[bool, str]:
+    """Confirm the AlphaMissense plug-in is wired end-to-end.
+
+    Always runs (no network, no model download) by exercising the
+    synthetic test index. Verifies:
+      1. build_test_index() returns the expected number of entries.
+      2. lookup() returns an AlphaMissenseResult with the right fields.
+      3. variant_scorer integrates the score and reports it in rationale.
+    """
+    from .alphamissense_integration import build_test_index, lookup
+    from .variant_scorer import score_variant
+
+    idx = build_test_index()
+    assert len(idx) == 5, f"expected 5 test entries, got {len(idx)}"
+    r = lookup("P01116", "G", 12, "D", index=idx)
+    assert r is not None, "KRAS.G12D lookup returned None"
+    assert r.classification == "likely_pathogenic"
+    assert 0.0 <= r.score <= 1.0
+    # End-to-end: BRAF.V600E with synthetic AlphaMissense
+    r2 = score_variant(
+        "BRAF", 600, "V", "E",
+        protein_length=766,
+        uniprot_id="P15056",
+        am_lookup=lambda u, w, p, m: lookup(u, w, p, m, index=idx),
+    )
+    assert "alphamissense_score" in r2.components
+    assert r2.components["alphamissense_score"] > 0.5
+    return True, (
+        f"AlphaMissense lookup + integration OK: "
+        f"5-entry test index, BRAF.V600E norm={r2.normalized_score}, "
+        f"AM={r2.components['alphamissense_score']:.3f}"
+    )
+
+
 @register("scrna.structural_disruption_chou_fasman")
 def _check_structural_disruption() -> tuple[bool, str]:
     """L→P in a helix context must score higher than L→P in a coil context.
