@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-09-03
+
+### Fixed
+- `mrna_ai_tools.backends --check-all` previously failed when run from
+  outside the repo (e.g., from a fresh `pip install` of the wheel),
+  because two checks used hardcoded relative paths
+  (`"mrna_ai_tools/examples/..."`) instead of resolving against the
+  installed package location. Now resolves via `_example_path()` and
+  passes 16/16 from any CWD. Caught during independent validation.
+
 ## [0.4.0] - 2026-09-02
 
 ### Added

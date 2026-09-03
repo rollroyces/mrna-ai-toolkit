@@ -19,6 +19,31 @@ from typing import Callable
 CHECKS: list[tuple[str, Callable[[], tuple[bool, str]]]] = []
 
 
+def _example_path(name: str) -> str:
+    """Resolve an example-file path relative to the installed package.
+
+    Works in two layouts:
+    - Installed wheel: pkg_dir = site-packages/mrna_ai_tools, examples
+      are bundled next to it under site-packages/mrna_ai_tools/examples.
+    - Dev / repo: pkg_dir is inside the repo, examples live at the repo
+      root under mrna_ai_tools/examples.
+
+    Returns the first path that exists, falling back to the wheel layout
+    (which will raise FileNotFoundError downstream if missing — that's the
+    expected behavior for missing bundled data).
+    """
+    from pathlib import Path
+
+    pkg_dir = Path(__file__).resolve().parent
+    wheel_candidate = pkg_dir / "examples" / name
+    if wheel_candidate.exists():
+        return str(wheel_candidate)
+    repo_candidate = pkg_dir.parent.parent / "mrna_ai_tools" / "examples" / name
+    if repo_candidate.exists():
+        return str(repo_candidate)
+    return str(wheel_candidate)
+
+
 def register(name: str):
     def deco(fn: Callable[[], tuple[bool, str]]) -> Callable[[], tuple[bool, str]]:
         CHECKS.append((name, fn))
@@ -334,9 +359,9 @@ def _check_scrna() -> tuple[bool, str]:
     from .sc_rna_pipeline import run_pipeline
 
     r = run_pipeline(
-        "mrna_ai_tools/examples/cells.csv",
-        "mrna_ai_tools/examples/variants_coding.csv",
-        "mrna_ai_tools/examples/proteins.fasta",
+        _example_path("cells.csv"),
+        _example_path("variants_coding.csv"),
+        _example_path("proteins.fasta"),
         hla=("HLA-A*02:01",),
         tumor_marker_genes=["TP53", "KRAS", "BRAF"],
     )
@@ -352,16 +377,16 @@ def _check_scrna_variant_filter() -> tuple[bool, str]:
     from .sc_rna_pipeline import run_pipeline
 
     full = run_pipeline(
-        "mrna_ai_tools/examples/cells.csv",
-        "mrna_ai_tools/examples/variants_coding.csv",
-        "mrna_ai_tools/examples/proteins.fasta",
+        _example_path("cells.csv"),
+        _example_path("variants_coding.csv"),
+        _example_path("proteins.fasta"),
         hla=("HLA-A*02:01",),
         tumor_marker_genes=["TP53", "KRAS", "BRAF"],
     )
     filt = run_pipeline(
-        "mrna_ai_tools/examples/cells.csv",
-        "mrna_ai_tools/examples/variants_coding.csv",
-        "mrna_ai_tools/examples/proteins.fasta",
+        _example_path("cells.csv"),
+        _example_path("variants_coding.csv"),
+        _example_path("proteins.fasta"),
         hla=("HLA-A*02:01",),
         tumor_marker_genes=["TP53", "KRAS", "BRAF"],
         variant_filter_top_fraction=0.30,
