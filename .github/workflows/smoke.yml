@@ -83,6 +83,7 @@ jobs:
       - name: Backend integrity check (network-free)
         env:
           MRNA_AI_FORCE_MOCK: "1"
+          MRNA_AI_SKIP_MEDCPT_CHECK: "1"
         run: |
           python -m mrna_ai_tools.backends --check-all
           # Also install-validate each optional extra's import path (without invoking models).

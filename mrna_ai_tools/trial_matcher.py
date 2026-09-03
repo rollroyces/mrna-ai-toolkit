@@ -205,23 +205,43 @@ def match(
         - ``"auto"``: dense if available, else keyword
     """
     if retriever == "dense" or retriever == "auto":
-        try:
-            from .medcpt_retriever import retrieve_dense
+        # Try MedCPT first (real semantic encoder), then TF-IDF dense,
+        # then keyword fallback.
+        from .medcpt_integration import medcpt_available
 
-            trial_dicts = [
-                {
-                    "title": t.title,
-                    "condition": t.condition,
-                    "inclusion": list(t.inclusion),
-                    "exclusion": list(t.exclusion),
-                    "biomarkers": list(t.biomarkers),
-                }
-                for t in trials
-            ]
-            scored = retrieve_dense(patient_text, trial_dicts, top_k=top_k)
-            candidates = [trials[i] for i, _ in scored]
-        except Exception:
-            candidates = retrieve_candidates(patient_text, trials, top_k=top_k)
+        medcpt_ok, _ = medcpt_available()
+        if medcpt_ok:
+            try:
+                from .medcpt_integration import retrieve_medcpt
+
+                trial_dicts = [
+                    {
+                        "title": t.title,
+                        "condition": t.condition,
+                        "inclusion": list(t.inclusion),
+                        "exclusion": list(t.exclusion),
+                        "biomarkers": list(t.biomarkers),
+                    }
+                    for t in trials
+                ]
+                # Build a single concatenated article string per trial
+                article_strings = [
+                    " ".join([d["title"], d["condition"]] + d["inclusion"] + d["biomarkers"])
+                    for d in trial_dicts
+                ]
+                scores = retrieve_medcpt(patient_text, article_strings)
+                ranked = sorted(zip(trials, scores), key=lambda x: -x[1])[:top_k]
+                candidates = [t for t, _ in ranked]
+            except Exception:
+                # MedCPT loaded but encode failed — fall through
+                candidates = _dense_fallback(
+                    patient_text,
+                    trials,
+                    top_k,
+                    from_medcpt=True,
+                )
+        else:
+            candidates = _dense_fallback(patient_text, trials, top_k)
     else:
         candidates = retrieve_candidates(patient_text, trials, top_k=top_k)
     out: list[RankedTrial] = []
@@ -233,6 +253,29 @@ def match(
         debug.append({"nct": t.nct_id, "match": match_result, "notes": notes})
     out.sort(key=lambda r: -r.score)
     return out, debug
+
+
+def _dense_fallback(
+    patient_text: str, trials: list[Trial], top_k: int, from_medcpt: bool = False
+) -> list[Trial]:
+    """TF-IDF dense retriever, with keyword fallback."""
+    try:
+        from .medcpt_retriever import retrieve_dense
+
+        trial_dicts = [
+            {
+                "title": t.title,
+                "condition": t.condition,
+                "inclusion": list(t.inclusion),
+                "exclusion": list(t.exclusion),
+                "biomarkers": list(t.biomarkers),
+            }
+            for t in trials
+        ]
+        scored = retrieve_dense(patient_text, trial_dicts, top_k=top_k)
+        return [trials[i] for i, _ in scored]
+    except Exception:
+        return retrieve_candidates(patient_text, trials, top_k=top_k)
 
 
 # ---------- IO --------------------------------------------------------------
