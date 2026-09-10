@@ -109,12 +109,80 @@ def _mock_complete(prompt: str, *, system: str = "", json_mode: bool = False) ->
                     "rationale": "[mock] missense variant in known tumor-suppressor locus.",
                 }
             )
-        # Generic structured answer for trial matching
+        # Trial-matching prompt: extract bullet-pointed criteria and judge each
+        # by simple keyword overlap with the patient summary.
+        # Stop parsing at the JSON shape section that follows.
+        end_markers = ["return only a json object", "return json object", "json object with this"]
+        # Better: split at the "Exclusion criteria" marker.
+        if "exclusion criteria" in text:
+            inc_block = prompt.split("Inclusion criteria")[1].split("Exclusion criteria")[0]
+            exc_block = prompt.split("Exclusion criteria")[1]
+            # Truncate exc_block at any "return json" or definition list
+            for marker in end_markers:
+                if marker in exc_block.lower():
+                    exc_block = exc_block.lower().split(marker)[0]
+        else:
+            inc_block, exc_block = prompt, ""
+        inc_items = re.findall(r"-\s*(.+?)(?:\n|$)", inc_block)
+        exc_items = re.findall(r"-\s*(.+?)(?:\n|$)", exc_block)
+        # Patient summary block (case-insensitive marker)
+        if "patient summary" in text:
+            idx = prompt.lower().find("patient summary")
+            tail = prompt[idx + len("patient summary:") :]
+            trial_idx = tail.lower().find("trial:")
+            pat_block = tail[:trial_idx] if trial_idx >= 0 else tail
+        else:
+            pat_block = prompt
+        pat_lower = pat_block.lower()
+
+        def judge(criterion: str, is_exclusion: bool = False) -> str:
+            crit_tokens = [t for t in re.split(r"[^a-z0-9]+", criterion.lower()) if len(t) > 3]
+            if not crit_tokens:
+                return "uncertain"
+            # Negation in the patient text
+            negations = ["no ", "not ", "denies ", "without "]
+            pat_negated = any(neg in pat_lower for neg in negations)
+            # Count hits: each token must appear, but for exclusions we
+            # also check for negation in the patient text.
+            hits = sum(1 for t in crit_tokens if t in pat_lower)
+            # For exclusion criteria, a negation in the patient text
+            # about a relevant concept inverts the meaning (e.g., "no
+            # prior therapy" + criterion "Prior therapy" → "unmet").
+            if is_exclusion and pat_negated:
+                # Only flip if the negation is "close" to the criterion
+                # concept (heuristic: any token of the criterion appears
+                # after the negation).
+                for neg in negations:
+                    idx = pat_lower.find(neg)
+                    while idx >= 0:
+                        rest = pat_lower[idx + len(neg) : idx + len(neg) + 80]
+                        if any(t in rest for t in crit_tokens):
+                            return "unmet"
+                        idx = pat_lower.find(neg, idx + 1)
+            if hits >= max(1, len(crit_tokens) // 2):
+                return "met"
+            if is_exclusion and hits == 0:
+                return "unmet"
+            return "uncertain"
+
         return json.dumps(
             {
-                "eligible": True,
-                "score": 0.7,
-                "reasons": ["[mock] biomarker matches inclusion criterion"],
+                "inclusion": [
+                    {
+                        "criterion": c,
+                        "verdict": judge(c, is_exclusion=False),
+                        "evidence": "[mock] keyword overlap",
+                    }
+                    for c in inc_items
+                ],
+                "exclusion": [
+                    {
+                        "criterion": c,
+                        "verdict": judge(c, is_exclusion=True),
+                        "evidence": "[mock] keyword overlap",
+                    }
+                    for c in exc_items
+                ],
             }
         )
     return "[mock] " + prompt.strip().splitlines()[-1][:200]

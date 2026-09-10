@@ -194,6 +194,7 @@ def match(
     top_k: int = 20,
     backend: str | None = None,
     retriever: str = "keyword",
+    matcher: str = "auto",
 ) -> tuple[list[RankedTrial], list[dict]]:
     """End-to-end pipeline: retrieve → match → rank.
 
@@ -203,6 +204,11 @@ def match(
         - ``"keyword"``: simple keyword overlap (default, fastest)
         - ``"dense"``: TF-IDF + biomedical synonym expansion (MedCPT-style)
         - ``"auto"``: dense if available, else keyword
+    matcher : str
+        - ``"auto"`` (default): use ``TrialGPT-style`` per-criterion LLM
+          matcher when ``OPENAI_API_KEY`` is set, else keyword fallback
+        - ``"trialgpt"``: force the per-criterion LLM matcher
+        - ``"keyword"``: force keyword-only matching (no LLM)
     """
     if retriever == "dense" or retriever == "auto":
         # Try MedCPT first (real semantic encoder), then TF-IDF dense,
@@ -246,8 +252,44 @@ def match(
         candidates = retrieve_candidates(patient_text, trials, top_k=top_k)
     out: list[RankedTrial] = []
     debug: list[dict] = []
+    # Determine matcher backend
+    use_trialgpt = False
+    if matcher == "trialgpt":
+        use_trialgpt = True
+    elif matcher == "auto":
+        # Use TrialGPT when an OpenAI key is present or when caller
+        # explicitly forced an LLM backend. Otherwise fall back to
+        # keyword matching.
+        import os
+
+        use_trialgpt = bool(os.environ.get("OPENAI_API_KEY") or (backend and backend != "mock"))
+
     for t in candidates:
-        match_result, notes = _match_one(t, patient_text, backend=backend)
+        if use_trialgpt:
+            from .trial_llm import score_trial_with_llm
+
+            try:
+                llm_result = score_trial_with_llm(
+                    patient_text,
+                    t.nct_id,
+                    t.title,
+                    list(t.inclusion),
+                    list(t.exclusion),
+                    backend=backend,
+                )
+                match_result = llm_result.to_dict()
+                # Trim to the shape that rank() expects
+                match_result = {
+                    "inclusion": llm_result.to_dict()["inclusion"],
+                    "exclusion": llm_result.to_dict()["exclusion"],
+                }
+                notes = list(llm_result.notes)
+            except Exception as e:
+                # Fall back to keyword matcher on failure
+                match_result, fallback_notes = _match_one(t, patient_text, backend=backend)
+                notes = ["trialgpt-fallback"] + list(fallback_notes) + [str(e)]
+        else:
+            match_result, notes = _match_one(t, patient_text, backend=backend)
         ranked = rank(t, match_result)
         out.append(ranked)
         debug.append({"nct": t.nct_id, "match": match_result, "notes": notes})
@@ -311,6 +353,12 @@ def _run_cli(argv: list[str]) -> int:
         default="keyword",
         help="retrieval method: keyword (fast) or dense (MedCPT-style semantic)",
     )
+    p.add_argument(
+        "--matcher",
+        choices=["auto", "trialgpt", "keyword"],
+        default="auto",
+        help="matching method: trialgpt (per-criterion LLM) or keyword (no LLM)",
+    )
     p.add_argument("--out")
     args = p.parse_args(argv)
 
@@ -320,7 +368,12 @@ def _run_cli(argv: list[str]) -> int:
     if backend is None and os.environ.get("MRNA_AI_FORCE_MOCK") == "1":
         backend = "mock"
     ranked, debug = match(
-        patient_text, trials, top_k=args.top_k, backend=backend, retriever=args.retriever
+        patient_text,
+        trials,
+        top_k=args.top_k,
+        backend=backend,
+        retriever=args.retriever,
+        matcher=args.matcher,
     )
     out_obj = {"ranked": [asdict(r) for r in ranked], "n_candidates_screened": len(debug)}
     out_text = _json.dumps(out_obj, indent=2)

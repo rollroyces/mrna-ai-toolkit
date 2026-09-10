@@ -417,6 +417,96 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("trial.trialgpt_llm")
+def _check_trialgpt_llm() -> tuple[bool, str]:
+    """TrialGPT-style per-criterion LLM matching produces structured output.
+
+    Skip when:
+      - MRNA_AI_FORCE_MOCK=1 (CI without LLM calls)
+      - MRNA_AI_SKIP_LLM_CHECK=1 (CI escape hatch)
+      - No LLM backend is available
+
+    When run (mock backend):
+      1. Build a synthetic patient + trial with explicit eligibility
+      2. Score via score_trial_with_llm
+      3. Verify per-criterion verdicts and aggregate score
+      4. Check that the matched trial ranks higher than the unmatched one
+    """
+    import os
+
+    if os.environ.get("MRNA_AI_FORCE_MOCK"):
+        return True, "skipped (MRNA_AI_FORCE_MOCK=1)"
+    if os.environ.get("MRNA_AI_SKIP_LLM_CHECK"):
+        return True, "skipped (MRNA_AI_SKIP_LLM_CHECK=1)"
+
+    from .trial_llm import score_trial_with_llm
+
+    patient = (
+        "65-year-old male with BRAF V600E+ metastatic melanoma, ECOG 1, no prior systemic therapy."
+    )
+    # Matching trial: BRAF V600E+, no exclusions triggered
+    matching_inclusion = [
+        "Histologically confirmed melanoma",
+        "BRAF V600E mutation positive",
+        "ECOG <= 2",
+        "Age >= 18 years",
+    ]
+    matching_exclusion = [
+        "Prior anti-PD-1 therapy",
+        "Active CNS metastases",
+        "Pregnancy",
+    ]
+    # Unrelated trial
+    unrelated_inclusion = [
+        "Stage IIIB/IV NSCLC",
+        "PD-L1 >= 50%",
+        "No prior systemic therapy",
+    ]
+    unrelated_exclusion = [
+        "EGFR mutation",
+        "ALK rearrangement",
+    ]
+
+    r_match = score_trial_with_llm(
+        patient,
+        "NCT_BRAF",
+        "BRAF V600E trial",
+        matching_inclusion,
+        matching_exclusion,
+        backend="mock",
+    )
+    r_unrelated = score_trial_with_llm(
+        patient,
+        "NCT_NSCLC",
+        "NSCLC trial",
+        unrelated_inclusion,
+        unrelated_exclusion,
+        backend="mock",
+    )
+
+    # Structural checks
+    assert len(r_match.inclusion_verdicts) == 4, (
+        f"expected 4 inclusion verdicts, got {len(r_match.inclusion_verdicts)}"
+    )
+    assert len(r_match.exclusion_verdicts) == 3, (
+        f"expected 3 exclusion verdicts, got {len(r_match.exclusion_verdicts)}"
+    )
+    assert r_match.n_met_inclusion >= 2, (
+        f"BRAF trial should match >=2 inclusion criteria, got {r_match.n_met_inclusion}"
+    )
+    assert r_match.eligibility_score > r_unrelated.eligibility_score, (
+        f"BRAF trial score {r_match.eligibility_score} should exceed "
+        f"unrelated {r_unrelated.eligibility_score}"
+    )
+
+    return True, (
+        f"TrialGPT OK: BRAF trial={r_match.eligibility_score:.3f} "
+        f"({r_match.n_met_inclusion}/{r_match.n_total_inclusion} inc, "
+        f"{r_match.n_unmet_exclusion}/{r_match.n_total_exclusion} exc), "
+        f"unrelated={r_unrelated.eligibility_score:.3f}"
+    )
+
+
 @register("scrna.scgpt_integration")
 def _check_scgpt_integration() -> tuple[bool, str]:
     """scGPT integration loads real weights and produces meaningful embeddings.

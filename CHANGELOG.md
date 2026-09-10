@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-09-03
+
+### Added
+- **TrialGPT-style per-criterion LLM matching** (`mrna_ai_tools.trial_llm`)
+  - Implements the TrialGPT-Matching approach from Jin et al.
+    (*Nature Communications* 2024): per-criterion LLM reasoning,
+    each inclusion/exclusion criterion judged independently as
+    ``"met" | "unmet" | "uncertain"`` with a short evidence snippet
+  - `score_trial_with_llm(patient_text, nct_id, title, inclusion,
+    exclusion, *, backend=None)` returns a `TrialMatchResult` with
+    per-criterion verdicts and aggregate 0–1 score
+  - Aggregate score = (n_met_inclusion / n_total_inclusion) ×
+    (n_unmet_exclusion / n_total_exclusion) — both axes required
+    for eligibility
+  - Schema-validated JSON parsing with case-insensitive dedup and
+    backfill of criteria the LLM omitted
+  - `MATCH_PROMPT_TEMPLATE` is the canonical TrialGPT prompt
+- `trial_matcher.match(..., matcher="trialgpt"|"keyword"|"auto")`:
+  - `matcher="trialgpt"` forces per-criterion LLM matching
+  - `matcher="auto"` (default) uses TrialGPT when `OPENAI_API_KEY`
+    is set, otherwise keyword fallback
+  - On TrialGPT failure, automatically falls back to keyword with
+    `"trialgpt-fallback"` note
+- CLI: `mrna-ai trial --matcher {auto,trialgpt,keyword}`
+- 21st backend integrity check (`trial.trialgpt_llm`):
+  - Skips when `MRNA_AI_FORCE_MOCK=1` (CI without LLM)
+  - Skips when `MRNA_AI_SKIP_LLM_CHECK=1` (CI escape hatch)
+  - Otherwise verifies per-criterion verdicts and that a matching
+    trial outranks an unrelated one
+
+### Mock backend improvements
+The `_mock_complete` LLM mock backend now produces real per-criterion
+JSON output for trial-matching prompts:
+- Parses inclusion/exclusion bullets from the prompt
+- Splits patient summary out by marker
+- Judges inclusion criteria by keyword overlap (>=50% hit → "met")
+- Judges exclusion criteria with negation awareness ("no prior
+  therapy" + criterion "Prior therapy" → "unmet")
+
+### Reference
+Jin, Qiao, et al. "Matching patients to clinical trials with large
+language models." *Nature Communications* 15 (2024): 9074.
+DOI: 10.1038/s41467-024-53081-z
+Reported: 87.3% accuracy on 1,015 patient-criterion pairs.
+
 ## [0.8.0] - 2026-09-03
 
 ### Added
