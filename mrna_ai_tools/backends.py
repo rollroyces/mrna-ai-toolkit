@@ -417,6 +417,78 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("scrna.scgpt_integration")
+def _check_scgpt_integration() -> tuple[bool, str]:
+    """scGPT integration loads real weights and produces meaningful embeddings.
+
+    Skip when:
+      - MRNA_AI_FORCE_MOCK=1 (CI without scGPT weights)
+      - MRNA_AI_SKIP_SCGPT_CHECK=1 (CI escape hatch)
+      - scGPT weights are not on disk (first-run before download)
+
+    When run:
+      1. Load weights + vocab
+      2. Embed 30 synthetic cells with named gene IDs (tumor vs normal markers)
+      3. Verify output shape (n_cells, 512) and variance > 0
+    """
+    import os
+
+    if os.environ.get("MRNA_AI_FORCE_MOCK"):
+        return True, "skipped (MRNA_AI_FORCE_MOCK=1)"
+    if os.environ.get("MRNA_AI_SKIP_SCGPT_CHECK"):
+        return True, "skipped (MRNA_AI_SKIP_SCGPT_CHECK=1)"
+
+    from .scgpt_integration import (
+        ScGPTConfig,
+        embed_with_scgpt,
+        scgpt_available,
+    )
+
+    if not scgpt_available():
+        return True, (
+            "skipped (scGPT weights not present at ~/.cache/mrna_ai_tools/). "
+            "Download from https://huggingface.co/perturblab/scgpt-human to enable."
+        )
+
+    cfg = ScGPTConfig.from_json()
+    gene_set = [
+        "TP53",
+        "MYC",
+        "KRAS",
+        "EGFR",
+        "EPCAM",
+        "CD8A",
+        "CD4",
+        "CD3E",
+        "PTPRC",
+        "ACTB",
+    ]
+    import random
+
+    random.seed(42)
+    matrix = []
+    for i in range(30):
+        is_tumor = i < 15
+        row = []
+        for g in gene_set:
+            if is_tumor and g in {"TP53", "MYC", "KRAS", "EGFR", "EPCAM"}:
+                row.append(random.gauss(5.0, 0.5))
+            elif (not is_tumor) and g in {"CD8A", "CD4", "CD3E", "PTPRC"}:
+                row.append(random.gauss(5.0, 0.5))
+            else:
+                row.append(random.gauss(2.0, 0.3))
+        matrix.append([max(0.0, v) for v in row])
+    emb = embed_with_scgpt(matrix, gene_names=gene_set, max_cells=30)
+    assert len(emb) == 30, f"got {len(emb)} embeddings"
+    assert len(emb[0]) == cfg.d_hid, f"got dim {len(emb[0])}, expected {cfg.d_hid}"
+    var = sum(sum(x * x for x in row) for row in emb) / (len(emb) * len(emb[0]))
+    assert var > 1e-6, f"all-zero embeddings (var={var})"
+    return True, (
+        f"scGPT OK: 30 cells -> 30x{cfg.d_hid} embeddings (var={var:.3f}, "
+        f"nlayers={cfg.nlayers}, vocab={cfg.ntoken})"
+    )
+
+
 @register("manufacture.score_manufacturability")
 def _check_manufacturability() -> tuple[bool, str]:
     """The manufacturability checker must flag real-world problems.

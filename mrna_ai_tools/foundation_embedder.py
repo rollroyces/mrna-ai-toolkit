@@ -131,19 +131,22 @@ def embed_cells(
         - ``"identity"``: per-cell mean expression (one dim).
     """
     if model == "scgpt":
+        # Use the real scGPT foundation model via HuggingFace weights.
+        # Falls back with a clear error if weights aren't downloaded.
         try:
-            import scgpt  # noqa: F401
-
-            raise NotImplementedError(
-                "scGPT detected but the integration point is left to the user "
-                "— see mrna_ai_tools.sc_rna_pipeline.embed_with_foundation_model "
-                "for where to call your scgpt embedding function. The scGPT API "
-                "changes between releases; we don't ship a fragile wrapper."
-            )
-        except ImportError:
+            from .scgpt_integration import embed_with_scgpt, scgpt_available
+        except ImportError as e:
             raise RuntimeError(
-                "scgpt is not installed. Use --model tfidf-svd (default) or pip install scgpt."
+                f"scGPT backend requested but scgpt_integration not importable: {e}. "
+                f"Use --model tfidf-svd (default) or pip install torch transformers."
             )
+        if not scgpt_available():
+            raise FileNotFoundError(
+                "scGPT weights not found at ~/.cache/mrna_ai_tools/. "
+                "Download from https://huggingface.co/perturblab/scgpt-human "
+                "(best_model.pt, vocab.json, args.json)."
+            )
+        return embed_with_scgpt(matrix, max_cells=64)
     if model == "identity":
         return [[sum(row) / len(row) if row else 0.0] for row in matrix]
     if model == "tfidf-svd":

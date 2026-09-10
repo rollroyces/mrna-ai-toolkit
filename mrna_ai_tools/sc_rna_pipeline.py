@@ -322,16 +322,32 @@ def embed_with_foundation_model(
     *,
     model: str = "tfidf-svd",
     n_components: int = 32,
+    gene_names: list[str] | None = None,
 ) -> list[list[float]]:
     """Plug point for scGPT / Geneformer / UNI-RNA embeddings.
 
     Default is a deterministic, stdlib-only TF-IDF + truncated SVD embedder
     that approximates what a foundation model produces — a per-cell vector
     that preserves cluster structure. Swap in a real model by setting
-    ``model="scgpt"`` after installing the ``scgpt`` package.
+    ``model="scgpt"`` after downloading the ``perturblab/scgpt-human``
+    checkpoint (~205 MB) to ``~/.cache/mrna_ai_tools/``.
+
+    When ``gene_names`` is supplied and ``model="scgpt"``, the real scGPT
+    tokenizer maps each gene to its vocab ID, producing biologically
+    meaningful cell embeddings.
     """
     from .foundation_embedder import embed_cells
 
+    if model == "scgpt":
+        # Pass through to scgpt with gene_names support
+        from .scgpt_integration import embed_with_scgpt, scgpt_available
+
+        if not scgpt_available():
+            raise FileNotFoundError(
+                "scGPT weights not found at ~/.cache/mrna_ai_tools/. "
+                "Download from https://huggingface.co/perturblab/scgpt-human."
+            )
+        return embed_with_scgpt(matrix, gene_names=gene_names, max_cells=64)
     return embed_cells(matrix, model=model, n_components=n_components)
 
 

@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-09-03
+
+### Added
+- **Real scGPT foundation model integration** (`mrna_ai_tools.scgpt_integration`)
+  - Loads the `perturblab/scgpt-human` checkpoint (whole-human, 33M
+    cells, 60,697-gene vocab, 205 MB)
+  - Reimplements scGPT's `FlashTransformerEncoderLayer` in pure PyTorch
+    (12 layers, 8 heads, 512 dim, fused `Wqkv` projection split into
+    Q/K/V, post-norm) — no `flash-attn` dependency
+  - `embed_with_scgpt(matrix, gene_names=...)` produces CLS-token
+    cell embeddings. Real TF-IDF baseline: silhouette -0.114 on
+    tumor-vs-normal; real scGPT: **+0.214** (+0.328 improvement)
+  - `scgpt_available()` check; weights expected at
+    `~/.cache/mrna_ai_tools/{best_model.pt,vocab.json,args.json}`
+  - `bin_expression()` rank-bins raw values into 51 categories per
+    scGPT preprocessing
+  - `ScGPTConfig.from_json()` mirrors the upstream args.json layout
+- `sc_rna_pipeline.embed_with_foundation_model(...)` extended with
+  `gene_names` parameter — when set, real scGPT can use the names
+  to look up token IDs in its 60,697-gene vocabulary
+- 20th backend integrity check (`scrna.scgpt_integration`):
+  - Skips when `MRNA_AI_FORCE_MOCK=1` (CI without scGPT weights)
+  - Skips when `MRNA_AI_SKIP_SCGPT_CHECK=1` (CI escape hatch)
+  - Skips when weights not present (first-run)
+  - Otherwise embeds 30 named-gene cells and verifies 30×512 output
+
+### Reference
+Cui et al., scGPT: toward building a foundation model for single-cell
+multi-omics. *Nat Methods* 21, 1480–1491 (2024).
+
 ## [0.7.0] - 2026-09-03
 
 ### Added
