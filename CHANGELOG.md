@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-09-03
+
+### Added
+- **mRNA manufacturability checker** — the wet-lab bridge between
+  computational sequence design and what's actually synthesizable.
+  Eight checks:
+  1. `poly_a_runs` — runs of ≥5 As destabilize the DNA template
+  2. `gc_5prime_hairpin` — GC-rich stems (≥70% GC, 30+ nt) at the 5'
+     end block ribosome scanning
+  3. `kozak_strength` — match to mammalian Kozak consensus
+     `GCCRCCATGG`
+  4. `are_motif` — AU-rich elements (`UUAUUUAUU` nonamers) in the
+     3' UTR trigger mRNA decay
+  5. `stop_context` — termination efficiency depends on stop codon
+     identity + +4 base (TGA-T and TAA-T are strongest)
+  6. `hidden_stops` — internal in-frame stops (must be zero)
+  7. `gc_window_uniformity` — local GC stddev > 15% flags IVT yield
+     problems and ribosomal stalling
+  8. `cpg_balance` — extreme CpG density (suppressed <0.5% or
+     excessive >15%) signals silencing or immune activation
+- New CLI: `mrna-ai manufacture --cds input.fasta [--utr5 ...] [--utr3 ...]`
+  returns a JSON report with per-check status, score, severity, and
+  summary. Exit code 0 if no errors, 2 if any check is `error`.
+- 19th backend integrity check (`manufacture.score_manufacturability`)
+  verifies that the checker correctly distinguishes clean vs
+  pathological sequences.
+
+### Reference
+- Holtkamp et al. (2006) *Blood* 108.
+- Kozak (1986) *Cell* 44.
+- Chen & Shyu (1995) *Trends Biochem Sci* 20.
+
 ## [0.6.0] - 2026-09-03
 
 ### Added

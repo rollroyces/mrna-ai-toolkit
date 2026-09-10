@@ -417,6 +417,60 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("manufacture.score_manufacturability")
+def _check_manufacturability() -> tuple[bool, str]:
+    """The manufacturability checker must flag real-world problems.
+
+    Test:
+      1. A clean CDS scores high (>0.7) with no errors.
+      2. A pathological CDS (long poly-A, ARE nonamers) gets errors.
+      3. A CDS with hidden internal stops is flagged.
+    """
+    from .manufacturability import (
+        check_hidden_stops,
+        score_manufacturability,
+    )
+
+    # 1. Clean CDS — high score, no errors
+    clean = "ATG" + ("GCTGCAGCTGCAGCTGCA" * 50) + "TAA"
+    r1 = score_manufacturability(
+        clean,
+        utr5="GCCGCCACC",
+        utr3="AAAAAAAAAAAAAAAAAAAAAAAA",
+    )
+    assert r1.n_error == 0, f"clean CDS should have 0 errors, got {r1.n_error}"
+    assert r1.overall_score > 0.7, f"clean CDS score {r1.overall_score} too low"
+
+    # 2. Pathological CDS — must trigger poly-A error
+    pathological = (
+        "AAAAAAAAAAAAAAAATAA" + "ATGGCTGCAGCTGCATAA" + "TAG" + "GGGGGGGGGGCCCCCCCCCAAAAAAAATAA"
+    )
+    r2 = score_manufacturability(
+        pathological,
+        utr5="AAAAAAAA",
+        utr3="UUAUUUAUUAAUUAUUUAUUAUUUAUU",
+    )
+    poly = next(c for c in r2.checks if c.name == "poly_a_runs")
+    assert poly.severity == "error", f"poly-A severity {poly.severity} != error"
+    are = next(c for c in r2.checks if c.name == "are_motif")
+    assert are.severity == "error", f"ARE severity {are.severity} != error"
+    assert r2.overall_score < r1.overall_score, (
+        f"pathological score {r2.overall_score} should be < clean {r1.overall_score}"
+    )
+
+    # 3. Hidden stops — internal TAA in-frame
+    with_stops = "ATG" + "GCT" * 30 + "TAA" + "GCT" * 30 + "TAA"
+    stops = check_hidden_stops(with_stops)
+    assert stops.severity == "error", f"hidden_stops severity {stops.severity}"
+    assert stops.score == 0.0
+
+    return True, (
+        f"manufacturability OK: clean={r1.overall_score:.2f}, "
+        f"pathological={r2.overall_score:.2f} (errors={r2.n_error}), "
+        f"hidden_stops={stops.severity}"
+    )
+
+
 @register("codon.lineardesign_full_length")
 def _check_lineardesign_full_length() -> tuple[bool, str]:
     """LinearDesign DP must work on full-length CDS (≥600 nt) and

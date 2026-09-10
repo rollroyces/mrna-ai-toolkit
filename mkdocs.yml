@@ -71,6 +71,7 @@ nav:
       - trial: tools/trial.md
       - lnp: tools/lnp.md
       - scrna: tools/scrna.md
+      - manufacture: tools/manufacture.md
   - Backends: backends.md
   - API reference: api.md
   - Contributing: contributing.md
