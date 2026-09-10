@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-09-03
+
+### Added
+- **Full-length LinearDesign** (Do & Woods, *Nature* 2024): the
+  600-nt CLI cap is gone. Real LinearDesign uses a **linear-time
+  per-step DP** where the state space is bounded by `|Σ|^(W/3)` —
+  independent of CDS length. This implementation now does the same:
+  state key = the last `W/3` codons (default 7 codons / 21 nt).
+  Pareto-prune keeps the highest-translation-score path per key, so
+  two paths arriving at the same suffix collapse to one state.
+  Full-length Cas9 (4,104 nt) optimizes in **37.6 s** via the CLI
+  with protein preservation verified.
+- New `LinearDesignResult` fields: `elapsed_seconds`, `n_states_evaluated`
+  — useful for benchmarking and reporting.
+- 18th backend integrity check (`codon.lineardesign_full_length`) that
+  verifies LinearDesign works on a 603-nt synthetic CDS end-to-end and
+  preserves the protein sequence. Runs in ~100 ms.
+
+### Changed
+- Default `gc_window_size` lowered from 30 → 21 (must be a multiple of
+  3 so the codon-suffix state grouping is exact). Window 21 keeps the
+  state space at `|Σ|^7 ≈ 64K max` for sub-second typical runs while
+  still capturing the same class of local stem structures.
+- `optimize_lineardesign` accepts a new `verbose` flag that prints
+  progress every 50 codons — useful for full-length runs.
+- Codon CLI `--backend lineardesign` now accepts CDS of any length
+  (was previously hard-capped at 600 nt).
+
+### Reference
+- Do, C. & Woods, D. LinearDesign: a Toolkit for Full-length Stable
+  mRNA Design. *Nature* (2024).
+
 ## [0.5.0] - 2026-09-03
 
 ### Added

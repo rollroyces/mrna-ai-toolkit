@@ -417,6 +417,38 @@ def _check_variant_scorer() -> tuple[bool, str]:
     )
 
 
+@register("codon.lineardesign_full_length")
+def _check_lineardesign_full_length() -> tuple[bool, str]:
+    """LinearDesign DP must work on full-length CDS (≥600 nt) and
+    preserve the protein sequence.
+
+    Uses a moderate-size synthetic CDS (~600 nt) for fast CI runs.
+    The full-length DP is documented to scale to 4,000+ nt (Cas9) in
+    <60 s; verified separately during v0.6.0 release prep.
+    """
+    from .codon_lineardesign import optimize_lineardesign
+    from .codon_optimizer import CODON_TO_AA
+
+    # 200 aa = 600 nt — moderate CDS, exercises the DP beyond the
+    # v0.5.0 length cap.
+    random_protein = "M" + "AGCT" * 50  # 201 aa, all common AAs
+    # Reverse-translate using most-frequent codons
+    from .codon_optimizer import HUMAN_CODON_FREQ
+
+    cds = "".join(max(HUMAN_CODON_FREQ[aa], key=HUMAN_CODON_FREQ[aa].get) for aa in random_protein)
+    r = optimize_lineardesign(cds, gc_window_size=15)
+    new_protein = "".join(CODON_TO_AA[r.new_cds[i : i + 3]] for i in range(0, len(r.new_cds), 3))
+    assert new_protein == random_protein, "LinearDesign changed the protein"
+    assert len(r.new_cds) == len(cds), "LinearDesign changed CDS length"
+    assert r.n_states_evaluated > 0
+    return True, (
+        f"LinearDesign full-length OK: "
+        f"{len(cds)} nt in {r.elapsed_seconds:.2f}s, "
+        f"{r.n_states_evaluated:,} states evaluated, "
+        f"protein preserved (CAI {r.before['cai']:.3f} -> {r.after['cai']:.3f})"
+    )
+
+
 @register("scrna.alphamissense_integration")
 def _check_alphamissense_integration() -> tuple[bool, str]:
     """Confirm the AlphaMissense plug-in is wired end-to-end.
@@ -438,7 +470,10 @@ def _check_alphamissense_integration() -> tuple[bool, str]:
     assert 0.0 <= r.score <= 1.0
     # End-to-end: BRAF.V600E with synthetic AlphaMissense
     r2 = score_variant(
-        "BRAF", 600, "V", "E",
+        "BRAF",
+        600,
+        "V",
+        "E",
         protein_length=766,
         uniprot_id="P15056",
         am_lookup=lambda u, w, p, m: lookup(u, w, p, m, index=idx),

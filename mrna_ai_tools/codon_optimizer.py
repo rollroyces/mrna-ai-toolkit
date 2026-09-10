@@ -281,16 +281,11 @@ def _run_cli(argv: list[str]) -> int:
         elif args.backend == "lineardesign":
             from .codon_lineardesign import optimize_lineardesign
 
-            # LinearDesign DP is O(n × syn^2) — limit input length to keep
-            # the CLI snappy. For full-length CDS use the Python API.
-            max_nt = 600
-            if len(cds) > max_nt:
-                raise SystemExit(
-                    f"--backend lineardesign supports up to {max_nt} nt in the "
-                    "CLI (DP runtime grows quadratically). For longer CDS, "
-                    "use the Python API or switch to --backend ribodecode."
-                )
-            result = optimize_lineardesign(cds).to_dict()
+            # LinearDesign DP is now linear-time per step (state space
+            # bounded by |syn|^W, independent of CDS length), so the CLI
+            # accepts full-length CDS.
+            verbose = getattr(args, "verbose", False)
+            result = optimize_lineardesign(cds, verbose=verbose).to_dict()
         else:
             result = optimize_basic(cds)
     else:

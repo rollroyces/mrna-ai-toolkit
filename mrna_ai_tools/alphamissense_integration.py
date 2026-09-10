@@ -42,6 +42,7 @@ Reference
 Cheng et al., "Accurate proteome-wide missense variant effect prediction
 with AlphaMissense," *Science* 381, eadg7492 (2023).
 """
+
 from __future__ import annotations
 
 import csv
@@ -56,21 +57,18 @@ CACHE_DIR = Path.home() / ".cache" / "mrna_ai_tools"
 CACHE_FILE = CACHE_DIR / "alphamissense_index.pkl"
 TSV_FILENAME = "AlphaMissense_hg38.tsv"
 TSV_GZ_FILENAME = "AlphaMissense_hg38.tsv.gz"
-TSV_URL = (
-    "https://storage.googleapis.com/dm_alphamissense/"
-    "AlphaMissense_hg38.tsv.gz"
-)
+TSV_URL = "https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz"
 
 # Reverse UniProt → gene-symbol mapping for the common cancer drivers.
 # The AlphaMissense TSV is keyed by UniProt accession; the variant CSVs
 # are keyed by gene symbol. We bridge the two via this small table.
 UNIPROT_TO_GENE: dict[str, str] = {
-    "P01116": "KRAS",     # RASK_HUMAN
+    "P01116": "KRAS",  # RASK_HUMAN
     "P15056": "BRAF",
-    "P04637": "TP53",     # P53_HUMAN
+    "P04637": "TP53",  # P53_HUMAN
     "P38398": "BRCA1",
     "P51587": "BRCA2",
-    "P28482": "MAPK1",    # ERK2
+    "P28482": "MAPK1",  # ERK2
     "P42336": "PIK3CA",
     "P60484": "PTEN",
     "Q07812": "BAX",
@@ -97,6 +95,7 @@ THRESHOLD_BENIGN = 0.34
 @dataclass
 class AlphaMissenseResult:
     """Pathogenicity prediction for one missense variant."""
+
     score: float
     classification: str
     uniprot: str
@@ -162,9 +161,7 @@ def _find_tsv() -> Path:
     ):
         if cand.exists():
             return cand
-    raise FileNotFoundError(
-        f"AlphaMissense TSV not found. Download from {TSV_URL}."
-    )
+    raise FileNotFoundError(f"AlphaMissense TSV not found. Download from {TSV_URL}.")
 
 
 def _build_index(tsv_path: Path, index_path: Path) -> int:
@@ -227,11 +224,7 @@ def load_index(
     if _INDEX is not None and _INDEX_PATH == CACHE_FILE and not force_rebuild:
         return _INDEX
     with _INDEX_LOCK:
-        if (
-            _INDEX is not None
-            and _INDEX_PATH == CACHE_FILE
-            and not force_rebuild
-        ):
+        if _INDEX is not None and _INDEX_PATH == CACHE_FILE and not force_rebuild:
             return _INDEX
         if force_rebuild and CACHE_FILE.exists():
             CACHE_FILE.unlink()
@@ -287,23 +280,33 @@ def build_test_index() -> dict[str, AlphaMissenseResult]:
     """
     return {
         "P01116|G12D": AlphaMissenseResult(
-            score=0.832, classification="likely_pathogenic",
-            uniprot="P01116", aa_change="G12D",
+            score=0.832,
+            classification="likely_pathogenic",
+            uniprot="P01116",
+            aa_change="G12D",
         ),
         "P01116|G12V": AlphaMissenseResult(
-            score=0.913, classification="likely_pathogenic",
-            uniprot="P01116", aa_change="G12V",
+            score=0.913,
+            classification="likely_pathogenic",
+            uniprot="P01116",
+            aa_change="G12V",
         ),
         "P15056|V600E": AlphaMissenseResult(
-            score=0.954, classification="likely_pathogenic",
-            uniprot="P15056", aa_change="V600E",
+            score=0.954,
+            classification="likely_pathogenic",
+            uniprot="P15056",
+            aa_change="V600E",
         ),
         "P04637|R175H": AlphaMissenseResult(
-            score=0.881, classification="likely_pathogenic",
-            uniprot="P04637", aa_change="R175H",
+            score=0.881,
+            classification="likely_pathogenic",
+            uniprot="P04637",
+            aa_change="R175H",
         ),
         "P04637|R248Q": AlphaMissenseResult(
-            score=0.872, classification="likely_pathogenic",
-            uniprot="P04637", aa_change="R248Q",
+            score=0.872,
+            classification="likely_pathogenic",
+            uniprot="P04637",
+            aa_change="R248Q",
         ),
     }
