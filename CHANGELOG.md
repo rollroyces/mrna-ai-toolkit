@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-09-10
+
+### Performance
+- **LinearDesign 2-4x faster** (no semantic change):
+  - **Parent-pointer DP** replaces the full-codon-history copy: each
+    state stores `(parent_key, accumulated_codons)` in an append-only
+    trace dict, and the traceback walks the chain at the end. Old
+    code did O(L) per-state work for O(L²) total; new code is O(L).
+  - **Precomputed `_LOG_SCORE_TABLE`**: `(aa, codon) -> float`
+    built once at module load. Eliminates 13M+ `dict.get` and
+    `math.log` calls per Cas9 run.
+  - **`_append_key(prev_key, cand, max_len)`**: faster than
+    `"|".join(codons[-n:])` (no list allocation, no split).
+
+### Benchmarks (Apple Silicon, Python 3.12)
+| protein      | aa   | nt   | before | after  | speedup |
+|--------------|------|------|--------|--------|---------|
+| EPO          | 193  | 579  | 726ms  | 310ms  | 2.3x    |
+| GFP          | 239  | 717  | 1003ms | 444ms  | 2.3x    |
+| mAb heavy    | 450  | 1350 | 4459ms | 1408ms | 3.2x    |
+| Luciferase   | 550  | 1650 | 3522ms | 1288ms | 2.7x    |
+| **Cas9**     | 1368 | 4104 | 34040s | **8925ms** | **3.8x** |
+
+Same outputs: protein sequences preserved on every test, CAI
+deltas identical, codon-change counts identical.
+
 ## [0.9.0] - 2026-09-03
 
 ### Added

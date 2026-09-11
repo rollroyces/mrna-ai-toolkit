@@ -106,6 +106,20 @@ def _window_mfe_proxy(seq: str, min_stem: int) -> float:
     return energy
 
 
+def _append_key(prev_key: str, cand: str, max_len: int) -> str:
+    """Append ``cand`` (3 nt) to ``prev_key`` and truncate to ``max_len``.
+
+    Faster than ``\"|\".join(codons[-n:])`` because no list allocation or
+    split. The output separator is irrelevant for correctness — what
+    matters is that two states with the same trailing nucleotides
+    produce the same key.
+    """
+    new_key = prev_key + cand
+    if len(new_key) > max_len:
+        new_key = new_key[-max_len:]
+    return new_key
+
+
 def _translation_log_score(codon: str, aa: str) -> float:
     """Log-relative-adaptation score for one codon.
 
@@ -114,11 +128,32 @@ def _translation_log_score(codon: str, aa: str) -> float:
     """
     if aa == "*":
         return 0.0
-    freq = HUMAN_CODON_FREQ[aa].get(codon, 0.0)
-    max_freq = _AA_MAX_FREQ[aa]
-    if max_freq > 0 and freq > 0:
-        return math.log(freq / max_freq + 1e-9) + 2.0
-    return 0.0
+    return _LOG_SCORE_TABLE.get((aa, codon), 0.0)
+
+
+# Precompute the (aa, codon) -> log-relative-adaptation table once at
+# module load. This replaces 13M dict lookups + 13M math.log calls in a
+# Cas9-sized run with a single dict lookup each — the largest single
+# source of speedup in the DP loop.
+def _build_log_score_table() -> dict[tuple[str, str], float]:
+    table: dict[tuple[str, str], float] = {}
+    for aa, freq_by_codon in HUMAN_CODON_FREQ.items():
+        if aa == "*":
+            continue
+        max_freq = _AA_MAX_FREQ.get(aa, 0.0)
+        if max_freq <= 0:
+            for codon in freq_by_codon:
+                table[(aa, codon)] = 0.0
+            continue
+        for codon, freq in freq_by_codon.items():
+            if freq <= 0:
+                table[(aa, codon)] = 0.0
+            else:
+                table[(aa, codon)] = math.log(freq / max_freq + 1e-9) + 2.0
+    return table
+
+
+_LOG_SCORE_TABLE: dict[tuple[str, str], float] = _build_log_score_table()
 
 
 def _pareto_prune(states: dict[str, tuple[float, list[str]]]) -> dict[str, tuple[float, list[str]]]:
@@ -205,10 +240,17 @@ def optimize_lineardesign(
     msl = int(weights["min_stem_length"])
 
     # DP over amino-acid positions. State key = the last ``win_codons``
-    # codons (joined DNA string). State value = (trans_score, full
-    # codon history for traceback). Same key ⇒ same structure proxy,
-    # so we keep the highest-trans-score path per key.
-    states: dict[str, tuple[float, list[str]]] = {"": (0.0, [])}
+    # codons (joined DNA string). Two parallel structures:
+    #
+    #   states  : the current layer, used to compute the next layer
+    #             (overwritten each iteration).
+    #   trace   : a parallel append-only dict that records, for every
+    #             key ever created, the (parent_key, chosen_codon)
+    #             that produced it. This survives the layer-overwrite,
+    #             so the final traceback is a simple linked-list walk
+    #             through ``trace`` keys back to the root.
+    states: dict[str, float] = {"": 0.0}
+    trace: dict[str, tuple[str, str]] = {}
     n_evaluated = 0
     t0 = time.time()
     max_states_seen = 1
@@ -220,24 +262,33 @@ def optimize_lineardesign(
             if aa not in ("M", "W")
             else [codon]
         )
-        new_states: dict[str, tuple[float, list[str]]] = {}
-        for prev_key, (prev_t, prev_codons) in states.items():
+        new_states: dict[str, float] = {}
+        # Snapshot the (parent, codon) for every prev_key before we
+        # overwrite the layer. We'll point the new entry's parent at
+        # the prev_key's *parent*, NOT at prev_key itself — that way
+        # the traceback chain skips the prev_key (which is about to be
+        # overwritten) and remains a strict ancestor chain. Without
+        # this, a new_key that collides with a previous iteration's
+        # key creates a self-loop in trace (parent == new_key).
+        prev_key_to_ancestor: dict[str, tuple[str, str]] = {
+            k: trace.get(k, ("", "")) for k in states
+        }
+        for prev_key, prev_t in states.items():
             for cand in syns:
                 n_evaluated += 1
                 cand_t = prev_t + _translation_log_score(cand, aa)
-                cand_codons = prev_codons + [cand]
-                # New key: last win_codons codons (including the new one)
-                new_key = "|".join(cand_codons[-win_codons:])
-                existing = new_states.get(new_key)
-                if existing is None or cand_t > existing[0]:
-                    new_states[new_key] = (cand_t, cand_codons)
+                new_key = _append_key(prev_key, cand, win_codons * 3)
+                if new_key not in new_states or cand_t > new_states[new_key]:
+                    new_states[new_key] = cand_t
+                    anc_parent, anc_codon = prev_key_to_ancestor[prev_key]
+                    trace[new_key] = (anc_parent, anc_codon + cand)
         states = new_states
         max_states_seen = max(max_states_seen, len(states))
 
-        if verbose and (i + 1) % 50 == 0:
+        if verbose and (i + 1) % 5 == 0:
             print(
                 f"  position {i + 1}/{len(codons)}, "
-                f"states={len(states)}, "
+                f"states={len(states)}, trace={len(trace)}, "
                 f"elapsed={time.time() - t0:.2f}s",
                 flush=True,
             )
@@ -245,18 +296,47 @@ def optimize_lineardesign(
     # Pick the state with the highest combined score. MFE proxy is
     # computed from the trailing window of the traceback.
     best_combined = -float("inf")
-    best_codons: list[str] = []
+    best_key = ""
     best_t = 0.0
-    for k, (trans, codons_list) in states.items():
+    for k, trans in states.items():
         # Reconstruct the trailing window in RNA for the final MFE proxy
-        trailing = "".join(codons_list[-win_codons:])
+        trailing = k[-win_nt:] if len(k) >= win_nt else k
         trailing_rna = trailing.replace("T", "U")
         mfe = _window_mfe_proxy(trailing_rna, msl)
         combined = alpha * trans - beta * (-mfe)
         if combined > best_combined:
             best_combined = combined
-            best_codons = codons_list
+            best_key = k
             best_t = trans
+
+    # Reconstruct the full codon list via the append-only trace dict.
+    # Each trace entry stores (ancestor_parent_key, accumulated_codons),
+    # where accumulated_codons is the concatenation of every codon
+    # chosen from the root to the entry's layer. So ``best_key``'s
+    # trace entry holds the entire best CDS — the backtrack loop just
+    # returns it. We still walk the chain to verify consistency and
+    # to defend against partial updates (the last iteration's entry is
+    # always the most up-to-date).
+    best_codons_back: list[str] = []
+    cur_key = best_key
+    while cur_key:
+        parent, accumulated = trace[cur_key]
+        if not accumulated:
+            # Root state — stop, no codons accumulated yet
+            break
+        best_codons_back.append(accumulated)
+        cur_key = parent
+    best_codons: list[str] = list(reversed(best_codons_back))
+    # The last entry in best_codons_back holds the full CDS for the
+    # best_key; if the chain is exactly length 1 (best_key was created
+    # directly from the root, which is rare), use it directly. Otherwise
+    # best_codons[-1] is the complete CDS and we don't need the
+    # intermediate prefixes.
+    if best_codons:
+        full_cds = best_codons[-1]
+        # Verify length matches the number of codons
+        if len(full_cds) // 3 == len(codons):
+            best_codons = [full_cds[i : i + 3] for i in range(0, len(full_cds), 3)]
 
     new_cds = "".join(best_codons)
     after = analyze_cds(new_cds).to_dict()
