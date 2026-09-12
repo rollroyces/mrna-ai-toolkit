@@ -633,6 +633,119 @@ def _check_manufacturability() -> tuple[bool, str]:
     )
 
 
+@register("codon.ribodecode_protocols")
+def _check_ribodecode_protocols() -> tuple[bool, str]:
+    """RiboDecode adapter: Protocol contracts + mock backends pass
+    conformance checks without downloading the upstream package.
+
+    Validates:
+      1. RiboDecodeRequest dataclass validation (length, mfe_weight,
+         custom env CSV required when env='custom').
+      2. TranslationPredictor / CodonOptimizer are runtime_checkable
+         Protocols and the mock backends satisfy them.
+      3. MockTranslationPredictor returns a value in [0, 100] for a
+         realistic CDS (matching the upstream TranslationModel range).
+      4. MockCodonOptimizer preserves the protein sequence end-to-end
+         (the optimizer's hard contract).
+    """
+    from .codon_protocols import (
+        CodonOptimizer,
+        RiboDecodeRequest,
+        TranslationPredictor,
+    )
+    from .codon_ribodecode_adapter import (
+        MockCodonOptimizer,
+        MockTranslationPredictor,
+        ribo_decode_available,
+    )
+
+    # 1. RiboDecodeRequest validation
+    bad = []
+    try:
+        RiboDecodeRequest(cds="")
+    except ValueError:
+        pass
+    else:
+        bad.append("empty cds should raise")
+    try:
+        RiboDecodeRequest(cds="ATG")  # too short, length 3 OK; check non-multiple
+        RiboDecodeRequest(cds="ATGA")  # length 4, not multiple of 3
+    except ValueError:
+        pass
+    else:
+        bad.append("non-multiple-of-3 cds should raise")
+    try:
+        RiboDecodeRequest(cds="A" * 4501)
+    except ValueError:
+        pass
+    else:
+        bad.append(">4500 nt cds should raise")
+    try:
+        RiboDecodeRequest(cds="ATGGACGGGTAG", mfe_weight=1.5)
+    except ValueError:
+        pass
+    else:
+        bad.append("mfe_weight outside [0,1] should raise")
+    try:
+        RiboDecodeRequest(cds="ATGGACGGGTAG", env="custom")
+    except ValueError:
+        pass
+    else:
+        bad.append("env='custom' without custom_env_csv should raise")
+    if bad:
+        return False, f"dataclass validation gaps: {bad}"
+
+    # 2. Protocol runtime_checkable + mock instances conform
+    pred = MockTranslationPredictor()
+    opt = MockCodonOptimizer()
+    assert isinstance(pred, TranslationPredictor), "mock pred does not satisfy Protocol"
+    assert isinstance(opt, CodonOptimizer), "mock opt does not satisfy Protocol"
+
+    # 3. Mock translation score in [0, 100]
+    # Use a GFP-like codon sequence (high CAI by construction)
+    high_cai = "ATG" + ("GCTGCTGCTGCTGCTGCT" * 50) + "TAA"  # 453 nt, all Ala = GCC
+    p_high = pred.predict(high_cai, env="HEK293T")
+    low_cai = "ATG" + ("TTATTATTATTATTATTA" * 50) + "TAA"  # low-frequency codons
+    p_low = pred.predict(low_cai, env="HEK293T")
+    assert 0.0 <= p_low.translation_level <= 100.0, (
+        f"low translation level {p_low.translation_level} out of [0,100]"
+    )
+    assert 0.0 <= p_high.translation_level <= 100.0, (
+        f"high translation level {p_high.translation_level} out of [0,100]"
+    )
+    assert p_high.translation_level > p_low.translation_level, (
+        f"high-CAI CDS ({p_high.translation_level:.2f}) should score "
+        f"higher than low-CAI ({p_low.translation_level:.2f})"
+    )
+
+    # 4. Mock optimizer preserves the protein
+    req = RiboDecodeRequest(cds="ATG" + ("GCTGCTGCTGCTGCTGCT" * 10) + "TAA")
+    res = opt.optimize(req)
+    from .codon_optimizer import CODON_TO_AA
+
+    # MockCodonOptimizer strips the trailing stop before optimizing;
+    # the optimized CDS has no stop. So we compare the AA prefix of
+    # the input (excluding trailing stop) to the AA translation of the
+    # output.
+    input_codons = [req.cds[i : i + 3] for i in range(0, len(req.cds), 3)]
+    if input_codons and CODON_TO_AA.get(input_codons[-1]) == "*":
+        input_codons = input_codons[:-1]
+    original_protein = "".join(CODON_TO_AA[c] for c in input_codons)
+    new_protein = "".join(
+        CODON_TO_AA[res.optimized_cds[i : i + 3]] for i in range(0, len(res.optimized_cds), 3)
+    )
+    assert new_protein == original_protein, (
+        f"mock optimizer changed protein: {new_protein[:30]}... vs {original_protein[:30]}..."
+    )
+    # upstream_backend = "ribodecode" if installed else "mock"
+    real_installed = ribo_decode_available()
+    return True, (
+        f"RiboDecode protocols OK: mock translation high={p_high.translation_level:.1f} "
+        f"low={p_low.translation_level:.1f}, optimizer preserved protein "
+        f"({len(res.optimized_cds)} nt), real backend installed={real_installed}"
+    )
+
+
 @register("codon.lineardesign_full_length")
 def _check_lineardesign_full_length() -> tuple[bool, str]:
     """LinearDesign DP must work on full-length CDS (≥600 nt) and

@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-09-11
+
+### Added
+- **RiboDecode Protocol adapters** (`mrna_ai_tools.codon_protocols` +
+  `mrna_ai_tools.codon_ribodecode_adapter`). Wires the published
+  RiboDecode package (Li, Wang, Yang et al., *Nat Commun* 16, 9957
+  (2025)) into the toolkit via two `runtime_checkable` Protocols:
+  - `TranslationPredictor` — predicts translation level per CDS,
+    optionally per cellular environment (HEK293T, A549, HeLa, or
+    custom RPKM CSV).
+  - `CodonOptimizer` — joint translation × MFE optimization via
+    the published deep generative model.
+- **Two real CLI adapters** (`TranslationModelCLIAdapter`,
+  `RiboDecodeCLIAdapter`) shell out to the upstream `pred-translation`
+  and `ribo-decode` console scripts. Heavy deps (ViennaRNA, torch,
+  CUDA) are only required on the user's machine — the toolkit itself
+  remains stdlib-only.
+- **Two mock backends** (`MockTranslationPredictor`,
+  `MockCodonOptimizer`) that satisfy the Protocols using only stdlib
+  (CAI-derived score + LinearDesign for optimization). Used by CI and
+  tests; fall back automatically when the upstream binaries aren't
+  installed.
+- **Typed dataclass contracts**: `RiboDecodeRequest` validates
+  length (multiples of 3, ≤4500 nt), mfe_weight ∈ [0,1], and
+  `env='custom'` requiring a CSV path — at construction time, before
+  the backend ever sees the input.
+- **CLI wiring**: `mrna-ai codon --backend ribodecode-real
+  [--env HEK293T|A549|HeLa|custom] [--env-csv ...] [--mfe-weight ...]
+  [--optim-epoch N]`. Falls back gracefully to the mock if the
+  upstream binary isn't installed.
+- **Backend selector**: `select_translation_predictor()` and
+  `select_codon_optimizer()` choose real-or-mock based on $PATH
+  + `prefer=` override.
+- **22nd backend integrity check** (`codon.ribodecode_protocols`):
+  verifies dataclass validation, Protocol runtime_checkable, mock
+  translation in [0, 100] range with CAI ordering, and protein
+  preservation end-to-end through the mock optimizer.
+- **`tests/` directory** with `test_ribodecode_adapter.py` (46
+  tests): dataclass validation, Protocol conformance, mock
+  translator + optimizer, CLI subprocess mock paths, backend
+  selector dispatch, end-to-end protein preservation. Runs in
+  ~20 s with stdlib `unittest.mock`.
+
+### Reference
+Li, Y., Wang, F., Yang, J. et al. *Deep generative optimization of
+mRNA codon sequences for enhanced mRNA translation and therapeutic
+efficacy.* Nat Commun 16, 9957 (2025).
+DOI: 10.1038/s41467-025-64894-x
+
 ## [0.9.1] - 2026-09-10
 
 ### Performance

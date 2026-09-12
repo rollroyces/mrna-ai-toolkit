@@ -254,10 +254,34 @@ def _run_cli(argv: list[str]) -> int:
     p.add_argument("--optimize", action="store_true", help="greedy codon-optimize")
     p.add_argument(
         "--backend",
-        choices=["basic", "ribodecode", "lineardesign"],
+        choices=["basic", "ribodecode", "lineardesign", "ribodecode-real"],
         default="basic",
-        help="optimizer: basic (greedy), ribodecode (context-aware), "
-        "or lineardesign (joint translation + mRNA structure via DP)",
+        help="optimizer: basic (greedy), ribodecode (in-house heuristic), "
+        "lineardesign (joint translation + mRNA structure via DP), or "
+        "ribodecode-real (published RiboDecode CLI from "
+        "github.com/wangfanfff/RiboDecode, requires ViennaRNA+CUDA)",
+    )
+    p.add_argument(
+        "--env",
+        default="HEK293T",
+        help="cellular environment for ribodecode-real: HEK293T, A549, "
+        "HeLa, or custom (requires --env-csv)",
+    )
+    p.add_argument(
+        "--env-csv",
+        help="custom environment CSV (gene-ID, RPKM) for --env custom",
+    )
+    p.add_argument(
+        "--mfe-weight",
+        type=float,
+        default=0.0,
+        help="structure weight for ribodecode-real (0=translation-only, 1=MFE-only)",
+    )
+    p.add_argument(
+        "--optim-epoch",
+        type=int,
+        default=10,
+        help="number of optimization epochs for ribodecode-real",
     )
     p.add_argument("--ribo-weights", help="JSON file with per-codon translation rates")
     p.add_argument("--out", help="write JSON report here")
@@ -271,7 +295,62 @@ def _run_cli(argv: list[str]) -> int:
         cds = raw.strip()
 
     if args.optimize:
-        if args.backend == "ribodecode":
+        if args.backend == "ribodecode-real":
+            # Real upstream RiboDecode package (CLI subprocess).
+            # Falls back to the stdlib mock if the binary is missing.
+            from .codon_protocols import RiboDecodeRequest
+            from .codon_ribodecode_adapter import (
+                RiboDecodeNotInstalled,
+                select_codon_optimizer,
+            )
+
+            req = RiboDecodeRequest(
+                cds=cds,
+                env=args.env,
+                custom_env_csv=Path(args.env_csv) if args.env_csv else None,
+                mfe_weight=args.mfe_weight,
+                optim_epoch=args.optim_epoch,
+            )
+            optimizer = select_codon_optimizer(prefer="auto")
+            try:
+                ribo_res = optimizer.optimize(req)
+            except RiboDecodeNotInstalled as e:
+                raise SystemExit(str(e))
+            # Map to the same shape optimize_basic/lineardesign produce
+            before = analyze_cds(cds).to_dict()
+            after = analyze_cds(ribo_res.optimized_cds).to_dict()
+            changes = sum(
+                1
+                for a, b in zip(
+                    [cds[i : i + 3] for i in range(0, len(cds) - 2, 3)],
+                    [
+                        ribo_res.optimized_cds[i : i + 3]
+                        for i in range(0, len(ribo_res.optimized_cds), 3)
+                    ],
+                )
+                if a != b
+            )
+            result = {
+                "new_cds": ribo_res.optimized_cds,
+                "before": before,
+                "after": after,
+                "changes": changes,
+                "translation_score": ribo_res.predicted_translation,
+                "structure_score": ribo_res.predicted_mfe,
+                "weights": {
+                    "translation_weight": 1.0 - args.mfe_weight,
+                    "structure_weight": args.mfe_weight,
+                    "gc_window_size": 21,
+                    "min_stem_length": 3,
+                },
+                "elapsed_seconds": round(ribo_res.elapsed_seconds, 3),
+                "n_states_evaluated": 0,  # unknown for upstream RiboDecode
+                "backend": ribo_res.backend,
+                "epoch": ribo_res.epoch,
+                "env": args.env,
+                "notes": list(ribo_res.notes),
+            }
+        elif args.backend == "ribodecode":
             from .codon_ribodecode import optimize_ribodecode
 
             ribo_weights = None
