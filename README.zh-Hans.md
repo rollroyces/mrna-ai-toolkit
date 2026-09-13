@@ -266,18 +266,50 @@ mkdocs serve
 
 ## 发布到 PyPI
 
-wheel 与 sdist 皆已预先构建并附加至每个 GitHub release。
+本工具包通过 GitHub Actions OIDC 采用**信任发布（trusted publishing）**
+——无需管理长效 PyPI token。工作流位于 `.github/workflows/publish.yml`。
 
-发布新版本：
+### 一次性设置
+
+1. 于 <https://pypi.org/manage/account/publishing/> 注册待处理信任发布者：
+   - 所有者：`rollroyces`
+   - 仓库：`mrna-ai-toolkit`
+   - 工作流文件：`publish.yml`
+   - 环境：`pypi`
+2. 为 TestPyPI 重复步骤，网址为
+   <https://test.pypi.org/manage/account/publishing/>，环境名称为
+   `testpypi`。
+3. 于 GitHub 仓库的 **Settings → Environments** 建立两个环境：
+   - `pypi` —— 部署前需要审核者批准（建议用于正式部署）
+   - `testpypi` —— 无需批准（烟雾测试）
+
+### 发布流程
 
 ```bash
-# 1. 在 mrna_ai_tools/__init__.py 与 pyproject.toml 中调整版本号
-# 2. 构建
+# 1. 在 mrna_ai_tools/__init__.py + pyproject.toml 调整版本号
+# 2. 提交并标记
+git commit -am "release: v0.14.0"
+git tag v0.14.0
+git push --follow-tags
+
+# 3. CI 自动执行：
+#    a. build job  → 构建 sdist + wheel，验证版本与标记相符
+#    b. publish-to-testpypi → 上传至 TestPyPI（自动）
+#    c. publish-to-pypi → 上传至 PyPI（人工批准 'pypi' 环境后）
+```
+
+PEP 740 证明由 `pypa/gh-action-pypi-publish@release/v1` 自动生成。
+
+### 手动后备（未设置信任发布者时）
+
+若尚未注册信任发布者，可改用长效 API token：
+
+```bash
+# 于 https://pypi.org/manage/account/token/ 生成 token
 python -m pip install --upgrade build twine
 python -m build --sdist --wheel
-# 3. 上传（先 Test PyPI，再正式）
-python -m twine upload --repository testpypi dist/*
-python -m twine upload dist/*
+TWINE_USERNAME=__token__ TWINE_PASSWORD=pypi-... \
+    python -m twine upload dist/mrna_ai_toolkit-*
 ```
 
 你会需要 PyPI token——至 <https://pypi.org/manage/account/token/>
