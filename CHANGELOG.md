@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.1] - 2026-09-13
+
+### Fixed
+- **`mrna-ai manufacture --cds ...` crashed with `AttributeError: 'NoneType' object has no attribute 'upper'`** when `--utr5` / `--utr3` were not passed (which is the common case). Root cause: `score_manufacturability` called `utr5.upper()` on `None`. Fix: `(utr5 or "").upper().replace("U", "T")` and same for `utr3`. CLI `_manufacture_run` was passing `None` for empty `--utr5/--utr3` flags, so every invocation without UTRs crashed. **Bug existed since v0.7.0.**
+- **`mrna-ai spatial ...` CLI subcommand was missing entirely.** The CLI dispatcher's `sub.add_parser("spatial", ...)` was never registered, so `mrna-ai spatial ...` printed an argparse error while the README and docs claimed it worked. Added `_spatial_run()` to `cli.py` with full argument parsing (--count-file, --locations-file, --platform, --num-modules, --backend, --out) and routed it through the existing backend selector. Now end-to-end runs:
+  ```bash
+  mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+      --platform ST --num-modules 10 --backend mock
+  ```
+
+### Tests
+- New `tests/test_cli_dispatch.py` — 7 tests in 3 classes:
+  - `TestCLISubcommandRegistration`: asserts all 7 tools listed in
+    `--help`; regression test for spatial registration.
+  - `TestSpatialCLIEndToEnd`: runs the CLI as a subprocess with
+    real TSV inputs, asserts valid JSON output, error paths for
+    missing files, `--out` file writing.
+  - `TestManufactureCLI`: regression test for the None-UTR crash.
+
+  All 174 unit tests pass; 25/25 backend integrity checks pass;
+  mkdocs strict build passes for all 3 locales.
+
 ## [0.13.0] - 2026-09-13
 
 ### Added

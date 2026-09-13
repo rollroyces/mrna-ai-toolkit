@@ -509,8 +509,8 @@ def score_manufacturability(
     0-1 score (mean of all check scores).
     """
     cds = cds.upper().replace("U", "T")
-    utr5 = utr5.upper().replace("U", "T")
-    utr3 = utr3.upper().replace("U", "T")
+    utr5 = (utr5 or "").upper().replace("U", "T")
+    utr3 = (utr3 or "").upper().replace("U", "T")
 
     checks: list[CheckResult] = [
         check_poly_a_runs(cds),
