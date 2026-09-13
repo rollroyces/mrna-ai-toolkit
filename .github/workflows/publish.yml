@@ -1,0 +1,114 @@
+name: publish
+
+# Publish Python distribution to PyPI via Trusted Publishing (OIDC).
+# Triggered ONLY by tag pushes (e.g. `git tag v0.13.1 && git push --tags`).
+#
+# Setup (one-time, requires PyPI admin):
+#   1. Go to https://pypi.org/manage/account/publishing/
+#   2. Register a new pending trusted publisher:
+#        - Owner:       rollroyces
+#        - Repository:  mrna-ai-toolkit
+#        - Workflow:    publish.yml   <-- THIS file
+#        - Environment: pypi
+#   3. Repeat for TestPyPI: https://test.pypi.org/manage/account/publishing/
+#      using environment name "testpypi".
+#   4. Create the matching GitHub Environments in repo Settings → Environments:
+#        - "pypi"      — require manual approval before deploy (recommended)
+#        - "testpypi"  — no approval needed
+#
+# Then future workflow:
+#   git tag vX.Y.Z && git push --tags
+#   # → builds dist → uploads to PyPI automatically.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Cancel any in-flight publish run when a new tag is pushed.
+concurrency:
+  group: publish
+  cancel-in-progress: false  # never cancel a partially-completed PyPI upload
+
+# Required for OIDC token (Trusted Publishing).
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build
+        run: python -m pip install --upgrade pip build
+
+      - name: Build sdist + wheel
+        run: python -m build --sdist --wheel
+
+      - name: Verify built artifacts
+        run: |
+          ls -lh dist/
+          # Sanity-check that the wheel version matches the git tag.
+          WHL_VER=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          TAG_VER=${GITHUB_REF_NAME#v}
+          echo "pyproject version: $WHL_VER"
+          echo "git tag version:   $TAG_VER"
+          if [ "$WHL_VER" != "$TAG_VER" ]; then
+            echo "::error::pyproject.toml version ($WHL_VER) does not match git tag ($TAG_VER)"
+            exit 1
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish-to-testpypi:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/mrna-ai-toolkit/
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      # Manual approval gate is configured under repo Settings → Environments → pypi
+      name: pypi
+      url: https://pypi.org/project/mrna-ai-toolkit/
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
