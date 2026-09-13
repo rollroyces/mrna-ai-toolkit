@@ -55,3 +55,40 @@ mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv \
 ## 授權
 
 雙重授權：開源使用採 [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)；專屬部署另需商用授權。詳見 [License](license.md)。
+
+
+## 為何我們不依賴重型評估函式庫
+
+令人驚訝的是，許多「生產級」生物資訊流程會在內部對自己的 AUPRC
+分數產生分歧。Chen et al. 2024（*Genome Biology* 25(1): 118）在超過
+3,000 項已發表研究中評估了 10 個廣泛使用的 PRC 繪圖與 AUPRC 計算
+工具，並發現：
+
+> 這些工具計算出的 AUPRC 值會以不同方式對分類器進行排名，且部分
+> 工具會產生過於樂觀的結果。
+
+此發現正說明為何本工具組的 `backends.py` 完整性檢查刻意採用
+**確定性的結構性斷言**，而非由第三方函式庫計算的 AUPRC / F1 /
+準確率：
+
+- 每項檢查都產生一個布林值與字串訊息，皆可直接檢視。
+- 所有數字（CAI、GC%、序列相似度、模組活性）皆透過本工具組端到端
+  擁有的**純標準函式庫**程式碼路徑計算——沒有 `sklearn.metrics.
+  precision_recall_curve`、沒有 `torchmetrics.AveragePrecision`、
+  也沒有本機結果與 CI 結果之間的隱性分歧。
+- 當確實使用重型函式庫時（例如 mhcflurry 用於結合親和力、
+  transformers 用於 ESM2 嵌入），該整合會**隔離在 Protocol 配接器
+  之後**，並提供純標準函式庫的 mock 後備——完整性檢查絕不依賴
+  重型函式庫的評估語意。
+
+對於需要 AUPRC 類型評估的使用者，我們建議**自己擁有該指標**：
+重新實作所需的小型公式（通常 10 行 Python），提交至你的儲存庫，
+並以自己的基線作為斷言依據。Chen et al. 的結果顯示，
+「使用 scikit-learn 的 average_precision_score」並非表面上安全的預設。
+
+### 參考文獻
+
+Chen W.*, Miao C.*, Zhang Z., Fung C.S.H., Wang R., Chen Y., Qian Y.,
+Cheng L., Yip K.Y.#, Tsui S.K.W.#, and Cao Q.#. (2024). Commonly
+used software tools produce conflicting and overly-optimistic AUPRC
+values. *Genome Biology* 25(1): 118.

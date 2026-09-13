@@ -77,3 +77,61 @@ labels = cluster_with_scanpy(embeddings, cell_ids, gene_names)
 
 本包中的 `embed_with_foundation_model` 函数是一个轻量包装层，用于文档化集成方式，
 但本身并不依赖于 scgpt。
+
+## 真实生物学案例：胃癌研究
+
+本流程所对应的代表性湿实验工作流程，记载于 **Qian et al. 2022**
+（*International Journal of Cancer* 151(8): 1367-1381）：
+
+> 通过单细胞 RNA 测序解析胃癌淋巴结转移中肿瘤细胞的异质性及肿瘤
+> 环境的全面动态。
+
+该研究对胃癌原发肿瘤加上淋巴结转移进行 scRNA-seq 测序，识别肿瘤
+细胞群聚，并表征肿瘤微环境 (TME)——包括驱动免疫逃逸的 T 细胞耗竭
+表型。下游 mRNA 癌症疫苗设计的问题是：*哪些肿瘤群聚特异性的突变
+肽段与耗竭 T 细胞在空间上共定位，能作为疫苗标的？*
+
+本工具组的 `scrna` 模块正好串联此循环：
+
+```bash
+# 1. 将 scRNA-seq 计数进行分群
+mrna-ai scrna \
+  --expression gastric_primary.h5ad \
+  --proteins gastric_peptides.fasta \
+  --variants patient_variants.csv \
+  --output-dir results/
+
+# 2. 将肿瘤群聚肽段清单移交给新抗原筛选
+mrna-ai neoantigen \
+  --csv results/tumor_peptides.csv \
+  --hla "HLA-A*02:01,HLA-A*24:02" \
+  --backend mock
+```
+
+同一份肽段清单接着可通过以下步骤处理：
+
+```bash
+# 3. ESM2 蛋白质语言模型免疫原性评分（冻结 LM + 分类器）
+python -c "
+from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+import pandas as pd
+df = pd.read_csv('results/tumor_peptides.csv')
+df['lm_score'] = df['peptide'].apply(
+    lambda p: lm_immunogenicity_score(p)['score']
+)
+df.to_csv('results/tumor_peptides_lm_scored.csv', index=False)
+"
+```
+
+整个 Qian 风格的工作流程可在工具组的纯标准函数库基线上端到端执行；
+具备 GPU 访问权限的用户可改用 scGPT 作为基础模型步骤，
+ESM2-150M 用于免疫原性评分，而每个肽段的肿瘤微环境交互分析则
+与已发表流程完全相同。
+
+## 参考文献
+
+Qian Y., Zhai E., Chen S., Liu Y., Ma Y., Chen J., Liu J., Qin C.,
+Cao Q.#, Chen J.#, and Cai S.#. (2022). Single-cell RNA-seq
+dissecting heterogeneity of tumor cells and comprehensive dynamics
+in tumor microenvironment during lymph nodes metastasis in gastric
+cancer. *International Journal of Cancer* 151(8): 1367-1381.

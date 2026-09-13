@@ -61,3 +61,40 @@ scGPT 的方法见 [后端](backends.md) 页面。
 
 双重许可：开源使用采用 [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)；
 商业专有部署另需独立商业许可。详见 [License](license.md)。
+
+
+## 为何我们不依赖重型评估函数库
+
+令人惊讶的是，许多"生产级"生物信息流程会在内部对自己的 AUPRC
+分数产生分歧。Chen et al. 2024（*Genome Biology* 25(1): 118）在超过
+3,000 项已发表研究中评估了 10 个广泛使用的 PRC 绘图与 AUPRC 计算
+工具，并发现：
+
+> 这些工具计算出的 AUPRC 值会以不同方式对分类器进行排名，且部分
+> 工具会产生过于乐观的结果。
+
+此发现正说明为何本工具组的 `backends.py` 完整性检查刻意采用
+**确定性的结构性断言**，而非由第三方函数库计算的 AUPRC / F1 /
+准确率：
+
+- 每项检查都产生一个布尔值与字符串消息，皆可直接查看。
+- 所有数字（CAI、GC%、序列相似度、模块活性）皆通过本工具组端到端
+  拥有的**纯标准函数库**代码路径计算——没有 `sklearn.metrics.
+  precision_recall_curve`、没有 `torchmetrics.AveragePrecision`、
+  也没有本地结果与 CI 结果之间的隐性分歧。
+- 当确实使用重型函数库时（例如 mhcflurry 用于结合亲和力、
+  transformers 用于 ESM2 嵌入），该整合会**隔离在 Protocol 适配器
+  之后**，并提供纯标准函数库的 mock 后备——完整性检查绝不依赖
+  重型函数库的评估语义。
+
+对于需要 AUPRC 类型评估的用户，我们建议**自己拥有该指标**：
+重新实现所需的小型公式（通常 10 行 Python），提交至你的代码仓库，
+并以自己的基线作为断言依据。Chen et al. 的结果显示，
+"使用 scikit-learn 的 average_precision_score"并非表面安全的默认。
+
+### 参考文献
+
+Chen W.*, Miao C.*, Zhang Z., Fung C.S.H., Wang R., Chen Y., Qian Y.,
+Cheng L., Yip K.Y.#, Tsui S.K.W.#, and Cao Q.#. (2024). Commonly
+used software tools produce conflicting and overly-optimistic AUPRC
+values. *Genome Biology* 25(1): 118.

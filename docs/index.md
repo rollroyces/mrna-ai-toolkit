@@ -63,3 +63,44 @@ and the [Backends](backends.md) page for wiring real LLMs / mhcflurry / scGPT.
 Dual-licensed: [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html)
 for open-source use, plus a separate commercial license for proprietary
 deployments. See [License](license.md).
+
+
+## Why we don't depend on heavy evaluation libraries
+
+A surprising number of "production" bioinformatics pipelines silently
+disagree on their own AUPRC scores. Chen et al. 2024 (*Genome Biology*
+25(1): 118) evaluated 10 widely-used PRC-plotting + AUPRC-computing
+tools across >3,000 published studies and found:
+
+> The AUPRC values computed by the tools rank classifiers differently
+> and some tools produce overly-optimistic results.
+
+This finding is exactly why the toolkit's `backends.py` integrity
+checks deliberately use **deterministic structural assertions** rather
+than AUPRC / F1 / accuracy metrics computed by third-party libraries:
+
+- Every check produces a boolean + a string message, both directly
+  inspectable.
+- The numbers (CAI, GC%, sequence similarity, module activity)
+  are computed by **stdlib-only** code paths the toolkit owns
+  end-to-end — no `sklearn.metrics.precision_recall_curve`, no
+  `torchmetrics.AveragePrecision`, no silent divergences between
+  local results and CI results.
+- When a heavy library IS used (e.g. mhcflurry for binding affinity,
+  transformers for ESM2 embeddings), the integration is **isolated
+  behind a Protocol adapter** with a stdlib mock fallback — the
+  integrity check never depends on the heavy library's evaluation
+  semantics.
+
+For users who need AUPRC-style evaluation, we recommend **owning
+the metric**: reimplement the small formula you need (typically 10
+lines of Python), commit it to your repo, and assert against your
+own baseline. The Chen et al. result shows that "use scikit-learn's
+average_precision_score" is not the safe default it appears to be.
+
+### Reference
+
+Chen W.*, Miao C.*, Zhang Z., Fung C.S.H., Wang R., Chen Y., Qian Y.,
+Cheng L., Yip K.Y.#, Tsui S.K.W.#, and Cao Q.#. (2024). Commonly
+used software tools produce conflicting and overly-optimistic AUPRC
+values. *Genome Biology* 25(1): 118.
