@@ -292,13 +292,9 @@ no long-lived PyPI tokens to manage. The workflow lives in
    - Repository: `mrna-ai-toolkit`
    - Workflow file: `publish.yml`
    - Environment: `pypi`
-2. Repeat for TestPyPI at
-   <https://test.pypi.org/manage/account/publishing/> with environment
-   name `testpypi`.
-3. In GitHub repo **Settings → Environments**, create two environments:
-   - `pypi` — require reviewer approval before deploy
-     (recommended for production deploys)
-   - `testpypi` — no approval needed (smoke check)
+2. In GitHub repo **Settings → Environments**, create the `pypi`
+   environment — require reviewer approval before deploy
+   (recommended for production deploys).
 
 ### Release flow
 
@@ -311,8 +307,7 @@ git push --follow-tags
 
 # 3. CI does the rest:
 #    a. build job  → builds sdist + wheel, verifies version matches tag
-#    b. publish-to-testpypi → uploads to TestPyPI (auto)
-#    c. publish-to-pypi → uploads to PyPI (after manual approval of
+#    b. publish-to-pypi → uploads to PyPI (after manual approval of
 #                          the 'pypi' environment)
 ```
 

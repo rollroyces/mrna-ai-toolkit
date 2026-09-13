@@ -276,12 +276,8 @@ mkdocs serve
    - 儲存庫：`mrna-ai-toolkit`
    - 工作流程檔案：`publish.yml`
    - 環境：`pypi`
-2. 為 TestPyPI 重複步驟，網址為
-   <https://test.pypi.org/manage/account/publishing/>，環境名稱為
-   `testpypi`。
-3. 於 GitHub 儲存庫的 **Settings → Environments** 建立兩個環境：
-   - `pypi` —— 部署前需要審核者核准（建議用於正式部署）
-   - `testpypi` —— 無需核准（煙霧測試）
+2. 於 GitHub 儲存庫的 **Settings → Environments** 建立 `pypi` 環境
+   ——部署前需要審核者核准（建議用於正式部署）。
 
 ### 發布流程
 
@@ -294,8 +290,7 @@ git push --follow-tags
 
 # 3. CI 自動執行：
 #    a. build job  → 建構 sdist + wheel，驗證版本與標記相符
-#    b. publish-to-testpypi → 上傳至 TestPyPI（自動）
-#    c. publish-to-pypi → 上傳至 PyPI（人工核准 'pypi' 環境後）
+#    b. publish-to-pypi → 上傳至 PyPI（人工核准 'pypi' 環境後）
 ```
 
 PEP 740 證明由 `pypa/gh-action-pypi-publish@release/v1` 自動產生。

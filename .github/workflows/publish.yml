@@ -10,15 +10,12 @@ name: publish
 #        - Repository:  mrna-ai-toolkit
 #        - Workflow:    publish.yml   <-- THIS file
 #        - Environment: pypi
-#   3. Repeat for TestPyPI: https://test.pypi.org/manage/account/publishing/
-#      using environment name "testpypi".
-#   4. Create the matching GitHub Environments in repo Settings → Environments:
-#        - "pypi"      — require manual approval before deploy (recommended)
-#        - "testpypi"  — no approval needed
+#   3. Create the matching GitHub Environment in repo Settings → Environments:
+#        - "pypi" — require manual approval before deploy (recommended)
 #
 # Then future workflow:
 #   git tag vX.Y.Z && git push --tags
-#   # → builds dist → uploads to PyPI automatically.
+#   # → builds dist → uploads to PyPI automatically (after approval).
 
 on:
   push:
@@ -76,25 +73,6 @@ jobs:
           path: dist/
           if-no-files-found: error
 
-  publish-to-testpypi:
-    name: Publish to TestPyPI
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/project/mrna-ai-toolkit/
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
-
   publish-to-pypi:
     name: Publish to PyPI
     needs: build
@@ -112,3 +90,4 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
