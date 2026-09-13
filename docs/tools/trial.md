@@ -15,18 +15,18 @@ selection).
 
 ```bash
 # Plain TrialGPT (zero-shot per-criterion LLM)
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt \
-              --trials mrna_ai_tools/examples/trials.jsonl \
+mrnavax trial --patient mrnavax/examples/patient_summary.txt \
+              --trials mrnavax/examples/trials.jsonl \
               --top-k 5 --matcher trialgpt --backend openai
 
 # Sim-ICL: similarity-ranked few-shot demos (Fung et al. 2026)
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt \
-              --trials mrna_ai_tools/examples/trials.jsonl \
+mrnavax trial --patient mrnavax/examples/patient_summary.txt \
+              --trials mrnavax/examples/trials.jsonl \
               --top-k 5 --matcher trialgpt-simicl --backend openai
 
 # Mock backend (no API key needed; uses heuristic per-criterion judge)
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt \
-              --trials mrna_ai_tools/examples/trials.jsonl \
+mrnavax trial --patient mrnavax/examples/patient_summary.txt \
+              --trials mrnavax/examples/trials.jsonl \
               --top-k 5 --matcher trialgpt --backend mock
 ```
 
@@ -52,8 +52,8 @@ returns all 3 BRAF-melanoma trials in the top 3 — perfect biological
 relevance.
 
 ```python
-from mrna_ai_tools.trial_llm import score_trial_with_llm
-from mrna_ai_tools.trial_similar import load_default_demo_store
+from mrnavax.trial_llm import score_trial_with_llm
+from mrnavax.trial_similar import load_default_demo_store
 
 result = score_trial_with_llm(
     patient_text="55yo BRAF V600E melanoma patient",

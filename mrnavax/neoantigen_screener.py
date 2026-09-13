@@ -324,7 +324,7 @@ def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
 
-    p = argparse.ArgumentParser(prog="mrna_ai neoantigen")
+    p = argparse.ArgumentParser(prog="mrnavax neoantigen")
     p.add_argument("--variants", required=True, help="CSV with a 'peptide' column")
     p.add_argument("--hla", action="append", required=True, help="repeatable, e.g. HLA-A*02:01")
     p.add_argument("--backend", choices=["auto", "mock", "openai", "mhcflurry"], default="auto")

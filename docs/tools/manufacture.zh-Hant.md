@@ -22,7 +22,7 @@
 ## CLI
 
 ```bash
-mrna-ai manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
+mrnavax manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
 ```
 
 回傳一份 JSON 報告，內含每項檢查的狀態、分數、嚴重度與摘要。若無任何 error，結束代碼為 0；若有任一項檢查回傳 `error`，則結束代碼為 2。
@@ -30,7 +30,7 @@ mrna-ai manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
 ## Python API
 
 ```python
-from mrna_ai_tools.manufacturability import score_manufacturability
+from mrnavax.manufacturability import score_manufacturability
 
 report = score_manufacturability(
     cds,

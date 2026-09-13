@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-09-02
 
 ### Added
-- **Backend integrity check module** — `python -m mrna_ai_tools.backends --check-all`
+- **Backend integrity check module** — `python -m mrnavax.backends --check-all`
   runs 13 checks across all five tools. Used by CI; also useful as a
   post-install verification.
 - **`codon --backend ribodecode`** — RiboDecode-style context-aware codon

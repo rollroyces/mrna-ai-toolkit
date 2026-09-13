@@ -347,7 +347,7 @@ def _run_cli(argv: list[str]) -> int:
     import json as _json
     import os
 
-    p = argparse.ArgumentParser(prog="mrna_ai trial")
+    p = argparse.ArgumentParser(prog="mrnavax trial")
     p.add_argument("--patient", required=True)
     p.add_argument("--trials", required=True, help="JSONL of trials")
     p.add_argument("--top-k", type=int, default=10)

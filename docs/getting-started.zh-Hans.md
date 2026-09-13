@@ -7,12 +7,12 @@
 `lnp`、`scrna`（标准库 k-medoids 后备）或 `spatial`（mock 后端）。
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e .
 ```
 
-这会安装单一控制台脚本 `mrna-ai`，以及 `mrna_ai_tools` Python 包。
+这会安装单一控制台脚本 `mrnavax`，以及 `mrnavax` Python 包。
 
 ## 可选扩展包
 
@@ -47,7 +47,7 @@ pip install -e ".[all]"                       # 上述全部
 
 ```bash
 # 运行 25 项后端完整性检查
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # 运行单元测试套件（167 个测试）
 python -m unittest discover tests

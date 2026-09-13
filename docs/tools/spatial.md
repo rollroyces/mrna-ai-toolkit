@@ -24,26 +24,26 @@ characteristics of transcriptomic landscapes. *Genome Medicine*
 The R package distributes from GitHub at
 [`rwang-z/STModule`](https://github.com/rwang-z/STModule) and requires
 R 4.4 + Seurat v5 + torch + GPUmatrix 1.0.2 + CUDA 11.7. The toolkit
-ships a small R shim (`mrna_ai_tools/scripts/stmodule_shim.R`) that
+ships a small R shim (`mrnavax/scripts/stmodule_shim.R`) that
 calls the published R functions and emits JSON to stdout.
 
 ## Usage
 
 ```bash
 # Stdlib-only (uses synthetic spatial coordinates + mock tissue modules)
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file examples/spatial/st_bc2_count_matrix.tsv \
     --locations-file examples/spatial/st_bc2_locations.tsv \
     --platform ST --num-modules 10
 
 # Real: when R + STModule are installed (Rscript on $PATH)
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file examples/spatial/st_bc2_count_matrix.tsv \
     --locations-file examples/spatial/st_bc2_locations.tsv \
     --platform ST --num-modules 10 --backend stmodule
 
 # Slide-seqV2 (high-resolution)
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file my_slideseq.tsv --locations-file my_locs.tsv \
     --platform SlideSeqV2 --num-modules 10
 ```
@@ -60,8 +60,8 @@ CLI flag:
 ## Python API
 
 ```python
-from mrna_ai_tools.spatial_protocols import SpatialData
-from mrna_ai_tools.spatial_module_adapter import select_spatial_module_backend
+from mrnavax.spatial_protocols import SpatialData
+from mrnavax.spatial_module_adapter import select_spatial_module_backend
 
 backend = select_spatial_module_backend()  # picks real or mock
 data = SpatialData(
@@ -107,7 +107,7 @@ The mock backend uses per-platform gene universes:
 
 The `top_genes` of each module become the candidate peptides for the
 toolkit's `neoantigen` module: feed them through
-`mrna-ai neoantigen --csv ... --hla ...` to score immunogenicity.
+`mrnavax neoantigen --csv ... --hla ...` to score immunogenicity.
 
 ## Why a separate module (and not inside `scrna`)?
 

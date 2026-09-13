@@ -17,9 +17,9 @@ class TestCLISubcommandRegistration(unittest.TestCase):
     """The CLI dispatcher must register every tool we ship."""
 
     def test_all_seven_subcommands_listed_in_help(self) -> None:
-        """`mrna-ai --help` must list all 7 tools."""
+        """`mrnavax --help` must list all 7 tools."""
         result = subprocess.run(
-            [sys.executable, "-m", "mrna_ai_tools.cli", "--help"],
+            [sys.executable, "-m", "mrnavax.cli", "--help"],
             capture_output=True,
             text=True,
             env={**os.environ, "MRNA_AI_FORCE_MOCK": "1"},
@@ -35,14 +35,14 @@ class TestCLISubcommandRegistration(unittest.TestCase):
         """Regression: the spatial subcommand is wired up.
 
         Bug history: prior to v0.13.0, README and docs mentioned
-        `mrna-ai spatial` but the CLI dispatcher did NOT register it.
-        Verified by checking that `mrna-ai --help` lists `spatial`
+        `mrnavax spatial` but the CLI dispatcher did NOT register it.
+        Verified by checking that `mrnavax --help` lists `spatial`
         AND that the spatial sub-parser's args are reachable (the
         dispatcher routes to `_spatial_run` which has the right args).
         """
         # 1. The --help output mentions spatial
         result = subprocess.run(
-            [sys.executable, "-m", "mrna_ai_tools.cli", "--help"],
+            [sys.executable, "-m", "mrnavax.cli", "--help"],
             capture_output=True,
             text=True,
             env={**os.environ, "MRNA_AI_FORCE_MOCK": "1"},
@@ -60,7 +60,7 @@ class TestCLISubcommandRegistration(unittest.TestCase):
         # different subcommand.
         result = subprocess.run(
             [
-                sys.executable, "-m", "mrna_ai_tools.cli", "spatial",
+                sys.executable, "-m", "mrnavax.cli", "spatial",
                 # Missing --count-file and --locations-file
             ],
             capture_output=True,
@@ -75,7 +75,7 @@ class TestCLISubcommandRegistration(unittest.TestCase):
 
 
 class TestSpatialCLIEndToEnd(unittest.TestCase):
-    """End-to-end test of `mrna-ai spatial` CLI invocation."""
+    """End-to-end test of `mrnavax spatial` CLI invocation."""
 
     def _make_inputs(self, tmp: Path) -> tuple[Path, Path]:
         count = tmp / "counts.tsv"
@@ -102,7 +102,7 @@ class TestSpatialCLIEndToEnd(unittest.TestCase):
             count, loc = self._make_inputs(tmp_path)
             result = subprocess.run(
                 [
-                    sys.executable, "-m", "mrna_ai_tools.cli", "spatial",
+                    sys.executable, "-m", "mrnavax.cli", "spatial",
                     "--count-file", str(count),
                     "--locations-file", str(loc),
                     "--platform", "ST",
@@ -125,7 +125,7 @@ class TestSpatialCLIEndToEnd(unittest.TestCase):
         """Missing --count-file must exit non-zero with a clear error."""
         result = subprocess.run(
             [
-                sys.executable, "-m", "mrna_ai_tools.cli", "spatial",
+                sys.executable, "-m", "mrnavax.cli", "spatial",
                 "--count-file", "/nonexistent.tsv",
                 "--locations-file", "/nonexistent.tsv",
                 "--platform", "ST",
@@ -145,7 +145,7 @@ class TestSpatialCLIEndToEnd(unittest.TestCase):
             out_file = tmp_path / "out.json"
             result = subprocess.run(
                 [
-                    sys.executable, "-m", "mrna_ai_tools.cli", "spatial",
+                    sys.executable, "-m", "mrnavax.cli", "spatial",
                     "--count-file", str(count),
                     "--locations-file", str(loc),
                     "--platform", "ST",
@@ -178,7 +178,7 @@ class TestManufactureCLI(unittest.TestCase):
         try:
             result = subprocess.run(
                 [
-                    sys.executable, "-m", "mrna_ai_tools.cli", "manufacture",
+                    sys.executable, "-m", "mrnavax.cli", "manufacture",
                     "--cds", tmp_path,
                 ],
                 capture_output=True,
@@ -199,9 +199,9 @@ class TestManufactureCLI(unittest.TestCase):
         Bug history: prior to v0.13.1, score_manufacturability called
         `utr5.upper()` on None, raising AttributeError. The CLI
         `_manufacture_run` passed None for empty --utr5/--utr3 flags,
-        so every `mrna-ai manufacture --cds ...` invocation crashed.
+        so every `mrnavax manufacture --cds ...` invocation crashed.
         """
-        from mrna_ai_tools.manufacturability import score_manufacturability
+        from mrnavax.manufacturability import score_manufacturability
 
         # Must not raise
         report = score_manufacturability(

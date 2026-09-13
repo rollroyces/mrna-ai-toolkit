@@ -249,7 +249,7 @@ def _run_cli(argv: list[str]) -> int:
     import argparse
     import json as _json
 
-    p = argparse.ArgumentParser(prog="mrna_ai codon")
+    p = argparse.ArgumentParser(prog="mrnavax codon")
     p.add_argument("--sequence", required=True, help="FASTA file or raw CDS string")
     p.add_argument("--optimize", action="store_true", help="greedy codon-optimize")
     p.add_argument(

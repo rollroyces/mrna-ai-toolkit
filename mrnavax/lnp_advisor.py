@@ -236,7 +236,7 @@ def _run_cli(argv: list[str]) -> int:
     import json as _json
     from pathlib import Path as _Path
 
-    p = argparse.ArgumentParser(prog="mrna_ai lnp")
+    p = argparse.ArgumentParser(prog="mrnavax lnp")
     p.add_argument(
         "--target", default="liver", help="liver | lung | spleen | muscle | tumor | dendritic"
     )

@@ -6,23 +6,23 @@ Scores peptide-MHC binding and immunogenicity for candidate neoantigens.
 
 ```bash
 # Default: heuristic A*02:01 anchor matrix
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01
 
 # Real binding-affinity prediction (mhcflurry)
 pip install -e ".[neoantigen-mhcflurry]"
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01 --backend mhcflurry
 
 # OpenAI LLM for immunogenicity narrative
 export OPENAI_API_KEY=...
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01 --backend openai
 
 # ESM2 protein-LM immunogenicity (frozen LM + Applm-style classifier)
 pip install -e ".[protein-lm]"
 python -c "
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
 print(lm_immunogenicity_score('NLVPMVATV'))  # CMV pp65 epitope
 "
 ```
@@ -46,8 +46,8 @@ The default model is `facebook/esm2_t12_35M_UR50D` (35M parameters,
 | `facebook/esm2_t33_650M_UR50D` | 650M | 1280 | ~2.5 GB |
 
 ```python
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
-from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.protein_lm_adapter import ESM2Embedder
 
 # Use the real ESM2-150M model for higher accuracy
 result = lm_immunogenicity_score(

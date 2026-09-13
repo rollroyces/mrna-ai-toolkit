@@ -19,26 +19,26 @@ characteristics of transcriptomic landscapes. *Genome Medicine*
 
 R 套件由 GitHub 的 [`rwang-z/STModule`](https://github.com/rwang-z/STModule)
 發布，需要 R 4.4 + Seurat v5 + torch + GPUmatrix 1.0.2 + CUDA 11.7。
-本工具組提供小型 R 殼層（`mrna_ai_tools/scripts/stmodule_shim.R`），
+本工具組提供小型 R 殼層（`mrnavax/scripts/stmodule_shim.R`），
 呼叫已發表的 R 函式並將 JSON 輸出至 stdout。
 
 ## 用法
 
 ```bash
 # 純標準函式庫（使用合成空間座標 + mock 組織模組）
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file examples/spatial/st_bc2_count_matrix.tsv \
     --locations-file examples/spatial/st_bc2_locations.tsv \
     --platform ST --num-modules 10
 
 # 真實：已安裝 R + STModule（Rscript 在 $PATH）
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file examples/spatial/st_bc2_count_matrix.tsv \
     --locations-file examples/spatial/st_bc2_locations.tsv \
     --platform ST --num-modules 10 --backend stmodule
 
 # Slide-seqV2（高解析度）
-python -m mrna_ai_tools.cli spatial \
+python -m mrnavax.cli spatial \
     --count-file my_slideseq.tsv --locations-file my_locs.tsv \
     --platform SlideSeqV2 --num-modules 10
 ```
@@ -55,8 +55,8 @@ CLI 旗標：
 ## Python API
 
 ```python
-from mrna_ai_tools.spatial_protocols import SpatialData
-from mrna_ai_tools.spatial_module_adapter import select_spatial_module_backend
+from mrnavax.spatial_protocols import SpatialData
+from mrnavax.spatial_module_adapter import select_spatial_module_backend
 
 backend = select_spatial_module_backend()  # 挑選真實或 mock
 data = SpatialData(
@@ -101,7 +101,7 @@ Mock 後端使用各平台對應的基因宇宙：
 ```
 
 每個模組的 `top_genes` 成為本工具組 `neoantigen` 模組的候選胜肽：
-透過 `mrna-ai neoantigen --csv ... --hla ...` 餵入以評分免疫原性。
+透過 `mrnavax neoantigen --csv ... --hla ...` 餵入以評分免疫原性。
 
 ## 為何是獨立模組（而非併入 `scrna`）？
 

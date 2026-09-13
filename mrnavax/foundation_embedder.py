@@ -142,7 +142,7 @@ def embed_cells(
             )
         if not scgpt_available():
             raise FileNotFoundError(
-                "scGPT weights not found at ~/.cache/mrna_ai_tools/. "
+                "scGPT weights not found at ~/.cache/mrnavax/. "
                 "Download from https://huggingface.co/perturblab/scgpt-human "
                 "(best_model.pt, vocab.json, args.json)."
             )

@@ -15,26 +15,26 @@ optimization backends:
 
 ```bash
 # Codon analysis (no optimization)
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta
+mrnavax codon --sequence mrnavax/examples/cas9.fasta
 
 # Greedy optimization
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta --optimize
+mrnavax codon --sequence mrnavax/examples/cas9.fasta --optimize
 
 # LinearDesign (joint translation + mRNA structure, O(L) DP)
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta \
+mrnavax codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend lineardesign
 
 # RiboDecode heuristic (context-aware hill-climb)
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta \
+mrnavax codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend ribodecode
 
 # Real RiboDecode CLI (requires upstream R package)
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta \
+mrnavax codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend ribodecode-real \
     --env HEK293T --mfe-weight 0.3 --optim-epoch 10
 
 # LinearDesign works on full-length CDS (Cas9 4.1 kb in ~9 s)
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta \
+mrnavax codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend lineardesign
 ```
 
@@ -89,7 +89,7 @@ pip install TranslationModel-1.1.0-py3-none-any.whl
 pip install ribodecode-1.3.0-py3-none-any.whl
 
 # Optional: custom cellular environment via RPKM CSV
-mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode-real \
+mrnavax codon --sequence gfp.fasta --optimize --backend ribodecode-real \
     --env HEK293T \
     --csv env_hek293t.csv \
     --mfe-weight 0.3 --optim-epoch 10

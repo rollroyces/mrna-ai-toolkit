@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.13.1] - 2026-09-13
 
 ### Fixed
-- **`mrna-ai manufacture --cds ...` crashed with `AttributeError: 'NoneType' object has no attribute 'upper'`** when `--utr5` / `--utr3` were not passed (which is the common case). Root cause: `score_manufacturability` called `utr5.upper()` on `None`. Fix: `(utr5 or "").upper().replace("U", "T")` and same for `utr3`. CLI `_manufacture_run` was passing `None` for empty `--utr5/--utr3` flags, so every invocation without UTRs crashed. **Bug existed since v0.7.0.**
-- **`mrna-ai spatial ...` CLI subcommand was missing entirely.** The CLI dispatcher's `sub.add_parser("spatial", ...)` was never registered, so `mrna-ai spatial ...` printed an argparse error while the README and docs claimed it worked. Added `_spatial_run()` to `cli.py` with full argument parsing (--count-file, --locations-file, --platform, --num-modules, --backend, --out) and routed it through the existing backend selector. Now end-to-end runs:
+- **`mrnavax manufacture --cds ...` crashed with `AttributeError: 'NoneType' object has no attribute 'upper'`** when `--utr5` / `--utr3` were not passed (which is the common case). Root cause: `score_manufacturability` called `utr5.upper()` on `None`. Fix: `(utr5 or "").upper().replace("U", "T")` and same for `utr3`. CLI `_manufacture_run` was passing `None` for empty `--utr5/--utr3` flags, so every invocation without UTRs crashed. **Bug existed since v0.7.0.**
+- **`mrnavax spatial ...` CLI subcommand was missing entirely.** The CLI dispatcher's `sub.add_parser("spatial", ...)` was never registered, so `mrnavax spatial ...` printed an argparse error while the README and docs claimed it worked. Added `_spatial_run()` to `cli.py` with full argument parsing (--count-file, --locations-file, --platform, --num-modules, --backend, --out) and routed it through the existing backend selector. Now end-to-end runs:
   ```bash
-  mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+  mrnavax spatial --count-file counts.tsv --locations-file locs.tsv \
       --platform ST --num-modules 10 --backend mock
   ```
 
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **ESM2 protein-language-model Protocol adapter**
-  (`mrna_ai_tools.protein_lm_protocols` + `mrna_ai_tools.protein_lm_adapter`).
+  (`mrnavax.protein_lm_protocols` + `mrnavax.protein_lm_adapter`).
   Implements the Applm pattern from Wong et al. 2025
   (arXiv 2508.10541): use a **frozen** protein-LM to embed candidate
   peptides, then a lightweight downstream classifier scores them
@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   =480-dim, esm2_t30_150M_UR50D=640-dim, esm2_t33_650M_UR50D
   =1280-dim). Lazy-loads on first call; supports mean/cls/sum
   pooling; respects batch_size. Heavy deps (torch + transformers)
-  are opt-in via `pip install mrna-ai-toolkit[protein-lm]`.
+  are opt-in via `pip install mrnavax[protein-lm]`.
 - **`MockProteinLMEmbedder`** stdlib stub: deterministic k-mer (k=3)
   frequency vectors, L2-normalized. Different sequences → different
   embeddings; same sequence → same embedding (no RNG).
@@ -90,7 +90,7 @@ model.* Science 379(6637): 1123-1130.
 
 ### Added
 - **STModule spatial-transcriptomics Protocol adapter**
-  (`mrna_ai_tools.spatial_protocols` + `mrna_ai_tools.spatial_module_adapter`).
+  (`mrnavax.spatial_protocols` + `mrnavax.spatial_module_adapter`).
   Implements the STModule method from Wang et al. 2025 (Genome
   Medicine 17, 18): identifying tissue modules from spatially
   resolved transcriptomics (SRT) data — recurrent cellular
@@ -122,7 +122,7 @@ model.* Science 379(6637): 1123-1130.
   runtime_checkable, mock run produces correct n_modules,
   determinism, JSON-serializable, spot/location mismatch handling,
   backend selector dispatches correctly when Rscript missing.
-- **R shim** (`mrna_ai_tools/scripts/stmodule_shim.R`): ~150 lines
+- **R shim** (`mrnavax/scripts/stmodule_shim.R`): ~150 lines
   with proper CLI parsing (optparse), 5-stage exit codes (0=ok,
   1=bad args, 2=missing pkg, 3=run failed, 4=JSON failed),
   structured error messages, JSON output via jsonlite.
@@ -145,7 +145,7 @@ characteristics of transcriptomic landscapes. *Genome Medicine*
 ## [0.11.0] - 2026-09-12
 
 ### Added
-- **Sim-ICL demonstration selection** (`mrna_ai_tools.trial_similar`).
+- **Sim-ICL demonstration selection** (`mrnavax.trial_similar`).
   Implements the Sim-ICL strategy from Fung et al. 2026 (Genome
   Biology, in press): when a downstream task is solved by
   in-context learning, **selecting demonstrations by similarity to
@@ -167,7 +167,7 @@ characteristics of transcriptomic landscapes. *Genome Medicine*
   integration: when Sim-ICL is on and a non-empty demo store is
   available, top-K demos are prepended; `simicl-kN` and
   `simicl-demo-ids=...` appear in result notes for auditability.
-- **CLI wiring**: `mrna-ai trial --matcher trialgpt-simicl`. Falls
+- **CLI wiring**: `mrnavax trial --matcher trialgpt-simicl`. Falls
   back gracefully when the demo store is empty.
 - **Env-var knobs**: `MRNA_AI_SIMICL_TOPK` (default 32), `MRNA_AI_SIMICL_ENABLED`
   (default True), `MRNA_AI_SIMICL_DEMOS` (override JSON path).
@@ -190,8 +190,8 @@ Models for Antibody Characterization. *Genome Biology* (in press).
 ## [0.10.0] - 2026-09-11
 
 ### Added
-- **RiboDecode Protocol adapters** (`mrna_ai_tools.codon_protocols` +
-  `mrna_ai_tools.codon_ribodecode_adapter`). Wires the published
+- **RiboDecode Protocol adapters** (`mrnavax.codon_protocols` +
+  `mrnavax.codon_ribodecode_adapter`). Wires the published
   RiboDecode package (Li, Wang, Yang et al., *Nat Commun* 16, 9957
   (2025)) into the toolkit via two `runtime_checkable` Protocols:
   - `TranslationPredictor` — predicts translation level per CDS,
@@ -213,7 +213,7 @@ Models for Antibody Characterization. *Genome Biology* (in press).
   length (multiples of 3, ≤4500 nt), mfe_weight ∈ [0,1], and
   `env='custom'` requiring a CSV path — at construction time, before
   the backend ever sees the input.
-- **CLI wiring**: `mrna-ai codon --backend ribodecode-real
+- **CLI wiring**: `mrnavax codon --backend ribodecode-real
   [--env HEK293T|A549|HeLa|custom] [--env-csv ...] [--mfe-weight ...]
   [--optim-epoch N]`. Falls back gracefully to the mock if the
   upstream binary isn't installed.
@@ -265,7 +265,7 @@ deltas identical, codon-change counts identical.
 ## [0.9.0] - 2026-09-03
 
 ### Added
-- **TrialGPT-style per-criterion LLM matching** (`mrna_ai_tools.trial_llm`)
+- **TrialGPT-style per-criterion LLM matching** (`mrnavax.trial_llm`)
   - Implements the TrialGPT-Matching approach from Jin et al.
     (*Nature Communications* 2024): per-criterion LLM reasoning,
     each inclusion/exclusion criterion judged independently as
@@ -285,7 +285,7 @@ deltas identical, codon-change counts identical.
     is set, otherwise keyword fallback
   - On TrialGPT failure, automatically falls back to keyword with
     `"trialgpt-fallback"` note
-- CLI: `mrna-ai trial --matcher {auto,trialgpt,keyword}`
+- CLI: `mrnavax trial --matcher {auto,trialgpt,keyword}`
 - 21st backend integrity check (`trial.trialgpt_llm`):
   - Skips when `MRNA_AI_FORCE_MOCK=1` (CI without LLM)
   - Skips when `MRNA_AI_SKIP_LLM_CHECK=1` (CI escape hatch)
@@ -310,7 +310,7 @@ Reported: 87.3% accuracy on 1,015 patient-criterion pairs.
 ## [0.8.0] - 2026-09-03
 
 ### Added
-- **Real scGPT foundation model integration** (`mrna_ai_tools.scgpt_integration`)
+- **Real scGPT foundation model integration** (`mrnavax.scgpt_integration`)
   - Loads the `perturblab/scgpt-human` checkpoint (whole-human, 33M
     cells, 60,697-gene vocab, 205 MB)
   - Reimplements scGPT's `FlashTransformerEncoderLayer` in pure PyTorch
@@ -320,7 +320,7 @@ Reported: 87.3% accuracy on 1,015 patient-criterion pairs.
     cell embeddings. Real TF-IDF baseline: silhouette -0.114 on
     tumor-vs-normal; real scGPT: **+0.214** (+0.328 improvement)
   - `scgpt_available()` check; weights expected at
-    `~/.cache/mrna_ai_tools/{best_model.pt,vocab.json,args.json}`
+    `~/.cache/mrnavax/{best_model.pt,vocab.json,args.json}`
   - `bin_expression()` rank-bins raw values into 51 categories per
     scGPT preprocessing
   - `ScGPTConfig.from_json()` mirrors the upstream args.json layout
@@ -357,7 +357,7 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
      problems and ribosomal stalling
   8. `cpg_balance` — extreme CpG density (suppressed <0.5% or
      excessive >15%) signals silencing or immune activation
-- New CLI: `mrna-ai manufacture --cds input.fasta [--utr5 ...] [--utr3 ...]`
+- New CLI: `mrnavax manufacture --cds input.fasta [--utr5 ...] [--utr3 ...]`
   returns a JSON report with per-check status, score, severity, and
   summary. Exit code 0 if no errors, 2 if any check is `error`.
 - 19th backend integrity check (`manufacture.score_manufacturability`)
@@ -410,13 +410,13 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
   at 45% of the total score — the dominant signal.
   Verified end-to-end: BRAF.V600E norm jumps from 0.73 (heuristic) to
   0.83 (AlphaMissense-augmented).
-- `mrna_ai_tools.alphamissense_integration` module with:
+- `mrnavax.alphamissense_integration` module with:
   - `build_test_index()` — 5-entry synthetic index for unit tests
     (KRAS.G12D=0.832, KRAS.G12V=0.913, BRAF.V600E=0.954,
     TP53.R175H=0.881, TP53.R248Q=0.872)
   - `load_index()` — streams the 5.5 GB predictions TSV into a 71.7M-entry
     dict and pickles it (cached at
-    `~/.cache/mrna_ai_tools/alphamissense_index.pkl`)
+    `~/.cache/mrnavax/alphamissense_index.pkl`)
   - `lookup(uniprot, wt_aa, position, mut_aa)` — O(1) by `(uniprot, aa_change)`
 - `UNIPROT_TO_GENE` reverse-lookup table (TP53, KRAS, BRAF, BRCA1/2, EGFR,
   PTEN, PIK3CA, AKT1/2, etc.) — bridges the UniProt-keyed AlphaMissense
@@ -431,7 +431,7 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
 
 ### Caveats
 - The AlphaMissense predictions TSV is licensed under **CC BY-NC-SA 4.0**
-  (non-commercial, share-alike). It cannot be bundled with mrna-ai-toolkit
+  (non-commercial, share-alike). It cannot be bundled with mrnavax
   (which is dual-licensed under AGPL-3.0 + commercial). Users must download
   the ~640 MB gzipped TSV separately from
   https://storage.googleapis.com/dm_alphamissense/.
@@ -441,10 +441,10 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
 ## [0.4.1] - 2026-09-03
 
 ### Fixed
-- `mrna_ai_tools.backends --check-all` previously failed when run from
+- `mrnavax.backends --check-all` previously failed when run from
   outside the repo (e.g., from a fresh `pip install` of the wheel),
   because two checks used hardcoded relative paths
-  (`"mrna_ai_tools/examples/..."`) instead of resolving against the
+  (`"mrnavax/examples/..."`) instead of resolving against the
   installed package location. Now resolves via `_example_path()` and
   passes 16/16 from any CWD. Caught during independent validation.
 
@@ -463,7 +463,7 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
   rank higher than the same substitution in a coil. L→P in helix:
   score 0.43 (struct_penalty 0.8). L→P in coil: score 0.27
   (struct_penalty 0.0). Reference: Chou & Fasman (1978).
-- **MedCPT integration module** (`mrna_ai_tools.medcpt_integration`) —
+- **MedCPT integration module** (`mrnavax.medcpt_integration`) —
   real semantic trial retrieval via `ncbi/MedCPT-Query-Encoder` and
   `ncbi/MedCPT-Article-Encoder` from HuggingFace. Verified end-to-end
   on the bundled melanoma test patient: INTerpath-001 ranks #1 with
@@ -500,7 +500,7 @@ multi-omics. *Nat Methods* 21, 1480–1491 (2024).
 ## [0.3.0] - 2026-09-02
 
 ### Added
-- Backend integrity check module (`mrna_ai_tools.backends --check-all`,
+- Backend integrity check module (`mrnavax.backends --check-all`,
   13 checks). CI runs without network access.
 - RiboDecode-style codon optimizer (`--backend ribodecode`) with
   optional `--ribo-weights` JSON.

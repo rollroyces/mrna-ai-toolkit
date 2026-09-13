@@ -7,13 +7,13 @@ formulations for a given (target tissue × cargo × therapeutic intent).
 
 ```bash
 # Cancer vaccine, lung delivery, saRNA cargo
-mrna-ai lnp --target lung --cargo saRNA --intent "cancer vaccine"
+mrnavax lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # Hepatic gene editing with Cas9 mRNA
-mrna-ai lnp --target liver --cargo Cas9 --intent "gene editing"
+mrnavax lnp --target liver --cargo Cas9 --intent "gene editing"
 
 # Intratumoral injection (TRAIL-mRNA example)
-mrna-ai lnp --target tumor --cargo mRNA --intent "cancer vaccine"
+mrnavax lnp --target tumor --cargo mRNA --intent "cancer vaccine"
 ```
 
 ## Output schema

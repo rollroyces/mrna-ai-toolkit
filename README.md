@@ -1,4 +1,4 @@
-# mRNA × AI Toolkit
+# mrnavax
 
 > Practical Python tools for the AI-leverage layers in mRNA cancer therapy.
 > Stdlib-only core, seven runnable tools, eight real-model adapters behind
@@ -39,48 +39,48 @@ Protocol using only stdlib, so CI runs without downloading any model weights.
 ## Quick start
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e .                   # stdlib-only core
 
 # 1. Codon analysis (CAI, GC%, rare-codon, GC-window stddev)
-python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta
-python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta \
+python -m mrnavax.cli codon --sequence mrnavax/examples/cas9.fasta
+python -m mrnavax.cli codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend lineardesign
 
 # 2. Neoantigen screen (heuristic anchor matrix + LLM immunogenicity)
-python -m mrna_ai_tools.cli neoantigen \
-    --variants mrna_ai_tools/examples/tp53_variants.csv \
+python -m mrnavax.cli neoantigen \
+    --variants mrnavax/examples/tp53_variants.csv \
     --hla HLA-A*02:01
 
 # 3. Patient-to-trial matching (TrialGPT-style, optionally Sim-ICL)
-python -m mrna_ai_tools.cli trial \
-    --patient mrna_ai_tools/examples/patient_summary.txt \
-    --trials mrna_ai_tools/examples/trials.jsonl --top-k 5 \
+python -m mrnavax.cli trial \
+    --patient mrnavax/examples/patient_summary.txt \
+    --trials mrnavax/examples/trials.jsonl --top-k 5 \
     --matcher trialgpt-simicl
 
 # 4. LNP composition advice
-python -m mrna_ai_tools.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
+python -m mrnavax.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # 5. scRNA-seq → neoantigen handoff
-python -m mrna_ai_tools.cli scrna \
-    --expression mrna_ai_tools/examples/cells.csv \
-    --variants mrna_ai_tools/examples/variants_coding.csv \
-    --proteins mrna_ai_tools/examples/proteins.fasta \
+python -m mrnavax.cli scrna \
+    --expression mrnavax/examples/cells.csv \
+    --variants mrnavax/examples/variants_coding.csv \
+    --proteins mrnavax/examples/proteins.fasta \
     --tumor-markers TP53,KRAS,BRAF
 
 # 6. mRNA manufacturability score
-python -m mrna_ai_tools.cli manufacture --cds mrna_ai_tools/examples/cds_gfp.json
+python -m mrnavax.cli manufacture --cds mrnavax/examples/cds_gfp.json
 
 # 7. Spatial transcriptomics tissue modules
-python -m mrna_ai_tools.cli spatial \
-    --count-file mrna_ai_tools/examples/st_bc2_count_matrix.tsv \
-    --locations-file mrna_ai_tools/examples/st_bc2_locations.tsv \
+python -m mrnavax.cli spatial \
+    --count-file mrnavax/examples/st_bc2_count_matrix.tsv \
+    --locations-file mrnavax/examples/st_bc2_locations.tsv \
     --platform ST --num-modules 10
 ```
 
 After `pip install -e .`, the same CLI is also installed as the console
-script `mrna-ai`.
+script `mrnavax`.
 
 Sample outputs for every tool are committed under `examples/sample_outputs/`.
 
@@ -103,9 +103,9 @@ Then activate the real backend:
 ```bash
 export OPENAI_API_KEY=sk-...
 export OPENAI_MODEL=gpt-4o-mini               # default
-python -m mrna_ai_tools.cli trial \
-    --patient mrna_ai_tools/examples/patient_summary.txt \
-    --trials mrna_ai_tools/examples/trials.jsonl --backend openai
+python -m mrnavax.cli trial \
+    --patient mrnavax/examples/patient_summary.txt \
+    --trials mrnavax/examples/trials.jsonl --backend openai
 ```
 
 Heavy-dependency backends (RiboDecode, STModule, ESM2, MedCPT, scGPT) ship
@@ -114,13 +114,13 @@ runs without them; production users opt in per-extras above.
 
 ## Documentation
 
-Full MkDocs site: <https://rollroyces.github.io/mrna-ai-toolkit/>
+Full MkDocs site: <https://rollroyces.github.io/mrnavax/>
 
 Available in three languages:
 
-- 🇺🇸 English — <https://rollroyces.github.io/mrna-ai-toolkit/>
-- 🇹🇼 繁體中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hant/>
-- 🇨🇳 简体中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hans/>
+- 🇺🇸 English — <https://rollroyces.github.io/mrnavax/>
+- 🇹🇼 繁體中文 — <https://rollroyces.github.io/mrnavax/zh-Hant/>
+- 🇨🇳 简体中文 — <https://rollroyces.github.io/mrnavax/zh-Hans/>
 
 Subsequent pushes to `main` deploy all three locales automatically via
 GitHub Pages.
@@ -146,11 +146,11 @@ subprocess adapter that calls the upstream CLI when present.
 
 ```bash
 # Real: when ribo-decode is installed + Rscript on $PATH
-mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode-real \
+mrnavax codon --sequence gfp.fasta --optimize --backend ribodecode-real \
     --env HEK293T --env-csv custom_env.csv --mfe-weight 0.3 --optim-epoch 10
 
 # Mock: same shape, stdlib only
-mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode
+mrnavax codon --sequence gfp.fasta --optimize --backend ribodecode
 ```
 
 ### `STModule` (Wang et al., *Genome Medicine* 17, 2025)
@@ -161,11 +161,11 @@ shipped via a small R shim that shells out to `Rscript stmodule_shim.R`.
 
 ```bash
 # Real: when R + STModule are installed
-mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+mrnavax spatial --count-file counts.tsv --locations-file locs.tsv \
     --platform SlideSeqV2 --num-modules 10
 
 # Mock: same shape, stdlib only
-mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+mrnavax spatial --count-file counts.tsv --locations-file locs.tsv \
     --platform ST --num-modules 10
 ```
 
@@ -175,7 +175,7 @@ Frozen protein-LM embeddings for neoantigen immunogenicity scoring.
 Heavy deps (torch + transformers), shipped as a lazy-loaded adapter.
 
 ```python
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
 r = lm_immunogenicity_score("NLVPMVATV")  # CMV pp65 epitope
 print(r["score"])  # 0.0–1.0
 ```
@@ -188,7 +188,7 @@ sampling) — matching the paper's finding that sequence-similar
 demonstrations outperform random few-shot.
 
 ```bash
-mrna-ai trial --patient patient.txt --trials trials.jsonl \
+mrnavax trial --patient patient.txt --trials trials.jsonl \
     --matcher trialgpt-simicl --top-k 10
 ```
 
@@ -259,7 +259,7 @@ offline use.
 
 ```bash
 # Run all backend integrity checks (matches CI)
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # Run the unit test suite
 python -m unittest discover tests
@@ -289,7 +289,7 @@ no long-lived PyPI tokens to manage. The workflow lives in
 1. Register a pending trusted publisher at
    <https://pypi.org/manage/account/publishing/>:
    - Owner: `rollroyces`
-   - Repository: `mrna-ai-toolkit`
+   - Repository: `mrnavax`
    - Workflow file: `publish.yml`
    - Environment: `pypi`
 2. In GitHub repo **Settings → Environments**, create the `pypi`
@@ -299,7 +299,7 @@ no long-lived PyPI tokens to manage. The workflow lives in
 ### Release flow
 
 ```bash
-# 1. Bump version in mrna_ai_tools/__init__.py + pyproject.toml
+# 1. Bump version in mrnavax/__init__.py + pyproject.toml
 # 2. Commit + tag
 git commit -am "release: v0.14.0"
 git tag v0.14.0
@@ -323,7 +323,7 @@ to a long-lived API token:
 python -m pip install --upgrade build twine
 python -m build --sdist --wheel
 TWINE_USERNAME=__token__ TWINE_PASSWORD=pypi-... \
-    python -m twine upload dist/mrna_ai_toolkit-*
+    python -m twine upload dist/mrnavax-*
 ```
 
 You'll need a PyPI token — generate one at
@@ -334,8 +334,8 @@ You'll need a PyPI token — generate one at
 
 Pull requests welcome. The default dependency surface is **Python stdlib
 only** — heavy model integrations must plug into a backend selector via
-the existing Protocol-based adapter pattern (see `mrna_ai_tools/codon_ribodecode_adapter.py`,
-`mrna_ai_tools/spatial_module_adapter.py`, `mrna_ai_tools/protein_lm_adapter.py`
+the existing Protocol-based adapter pattern (see `mrnavax/codon_ribodecode_adapter.py`,
+`mrnavax/spatial_module_adapter.py`, `mrnavax/protein_lm_adapter.py`
 for reference).
 
 Every new tool should ship with:

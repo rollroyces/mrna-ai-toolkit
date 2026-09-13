@@ -6,17 +6,17 @@
 
 ```bash
 # 默认：启发式 A*02:01 锚定位矩阵
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01
 
 # 真实的结合亲和力预测（mhcflurry）
 pip install -e ".[neoantigen-mhcflurry]"
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01 --backend mhcflurry
 
 # OpenAI LLM
 export OPENAI_API_KEY=...
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv \
                    --hla HLA-A*02:01 --backend openai
 ```
 

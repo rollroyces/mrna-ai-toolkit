@@ -249,10 +249,10 @@ def score_trial_with_llm(
         Optional LLM backend override. ``None`` = auto-detect from
         ``OPENAI_API_KEY`` (uses real OpenAI) or fall back to ``mock``.
     demo_store
-        Optional :class:`~mrna_ai_tools.trial_similar.DemoStore`. When
+        Optional :class:`~mrnavax.trial_similar.DemoStore`. When
         ``None``, loads the bundled store from
         ``examples/simicl_demos.json`` via
-        :func:`~mrna_ai_tools.trial_similar.load_default_demo_store`.
+        :func:`~mrnavax.trial_similar.load_default_demo_store`.
         Pass an explicit ``DemoStore(demos=[])`` to disable.
     use_simicl
         Override ``$MRNA_AI_SIMICL_ENABLED``. When ``True``, the top-K

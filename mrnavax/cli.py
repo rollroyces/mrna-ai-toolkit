@@ -1,4 +1,4 @@
-"""Unified CLI: `python -m mrna_ai_tools.cli <tool> ...`"""
+"""Unified CLI: `python -m mrnavax.cli <tool> ...`"""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from .trial_matcher import _run_cli as trial_run
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        prog="mrna_ai",
+        prog="mrnavax",
         description="mRNA × AI toolkit "
         "(codon / neoantigen / trial / lnp / scrna / manufacture / spatial)",
     )
@@ -57,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _manufacture_run(argv: list[str]) -> int:
     """CLI for the manufacturability checker."""
-    p = argparse.ArgumentParser(prog="mrna_ai manufacture")
+    p = argparse.ArgumentParser(prog="mrnavax manufacture")
     p.add_argument(
         "--cds",
         required=True,
@@ -101,7 +101,7 @@ def _spatial_run(argv: list[str]) -> int:
     """CLI for spatial-transcriptomics tissue-module identification."""
     import json as _json_spatial
 
-    p = argparse.ArgumentParser(prog="mrna_ai spatial")
+    p = argparse.ArgumentParser(prog="mrnavax spatial")
     p.add_argument(
         "--count-file",
         required=True,

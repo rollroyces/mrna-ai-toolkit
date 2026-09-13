@@ -1,8 +1,8 @@
 site_name: mRNA × AI Toolkit
 site_description: Practical Python tools for the AI-leverage layers in mRNA cancer therapy.
-site_url: https://rollroyces.github.io/mrna-ai-toolkit/
-repo_url: https://github.com/rollroyces/mrna-ai-toolkit
-repo_name: rollroyces/mrna-ai-toolkit
+site_url: https://rollroyces.github.io/mrnavax/
+repo_url: https://github.com/rollroyces/mrnavax
+repo_name: rollroyces/mrnavax
 
 theme:
   name: material
@@ -70,7 +70,7 @@ plugins:
         - locale: zh-Hant
           name: 繁體中文
           build: true
-          fixed_link: https://rollroyces.github.io/mrna-ai-toolkit/zh-Hant/
+          fixed_link: https://rollroyces.github.io/mrnavax/zh-Hant/
           theme:
             language: zh-Hant
           nav_translations:
@@ -92,7 +92,7 @@ plugins:
         - locale: zh-Hans
           name: 简体中文
           build: true
-          fixed_link: https://rollroyces.github.io/mrna-ai-toolkit/zh-Hans/
+          fixed_link: https://rollroyces.github.io/mrnavax/zh-Hans/
           theme:
             language: zh
           nav_translations:
@@ -131,5 +131,5 @@ nav:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/rollroyces/mrna-ai-toolkit
+      link: https://github.com/rollroyces/mrnavax
   generator: false

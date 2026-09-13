@@ -6,7 +6,7 @@ scGPT) are gated by their respective extras.
 
 Run directly:
 
-    python -m mrna_ai_tools.backends --check-all
+    python -m mrnavax.backends --check-all
 
 Exits 0 if every check passes, 1 otherwise.
 """
@@ -27,10 +27,10 @@ def _example_path(name: str) -> str:
     """Resolve an example-file path relative to the installed package.
 
     Works in two layouts:
-    - Installed wheel: pkg_dir = site-packages/mrna_ai_tools, examples
-      are bundled next to it under site-packages/mrna_ai_tools/examples.
+    - Installed wheel: pkg_dir = site-packages/mrnavax, examples
+      are bundled next to it under site-packages/mrnavax/examples.
     - Dev / repo: pkg_dir is inside the repo, examples live at the repo
-      root under mrna_ai_tools/examples.
+      root under mrnavax/examples.
 
     Returns the first path that exists, falling back to the wheel layout
     (which will raise FileNotFoundError downstream if missing — that's the
@@ -42,7 +42,7 @@ def _example_path(name: str) -> str:
     wheel_candidate = pkg_dir / "examples" / name
     if wheel_candidate.exists():
         return str(wheel_candidate)
-    repo_candidate = pkg_dir.parent.parent / "mrna_ai_tools" / "examples" / name
+    repo_candidate = pkg_dir.parent.parent / "mrnavax" / "examples" / name
     if repo_candidate.exists():
         return str(repo_candidate)
     return str(wheel_candidate)
@@ -537,7 +537,7 @@ def _check_scgpt_integration() -> tuple[bool, str]:
 
     if not scgpt_available():
         return True, (
-            "skipped (scGPT weights not present at ~/.cache/mrna_ai_tools/). "
+            "skipped (scGPT weights not present at ~/.cache/mrnavax/). "
             "Download from https://huggingface.co/perturblab/scgpt-human to enable."
         )
 
@@ -1147,7 +1147,7 @@ def _check_stmodule_module_identification() -> tuple[bool, str]:
         from unittest.mock import patch
 
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.rscript_available",
+            "mrnavax.spatial_module_adapter.rscript_available",
             return_value=False,
         ):
             sel = select_spatial_module_backend(prefer="auto")

@@ -26,7 +26,7 @@ mRNA decay — issues that show up only in the wet lab.
 ## CLI
 
 ```bash
-mrna-ai manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
+mrnavax manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
 ```
 
 Returns a JSON report with per-check status, score, severity, and
@@ -35,7 +35,7 @@ summary. Exit code 0 if no errors, 2 if any check returns `error`.
 ## Python API
 
 ```python
-from mrna_ai_tools.manufacturability import score_manufacturability
+from mrnavax.manufacturability import score_manufacturability
 
 report = score_manufacturability(
     cds,

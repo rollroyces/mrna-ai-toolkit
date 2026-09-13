@@ -8,7 +8,7 @@ Source: https://console.cloud.google.com/storage/browser/dm_alphamissense
 License: CC BY-NC-SA 4.0 (NOT commercial; user must download separately)
 
 The TSV cannot be bundled with this toolkit because the AlphaMissense
-predictions are licensed under CC BY-NC-SA 4.0, while mrna-ai-toolkit
+predictions are licensed under CC BY-NC-SA 4.0, while mrnavax
 is dual-licensed under AGPL-3.0 + commercial. The user is responsible
 for downloading the predictions themselves.
 
@@ -18,15 +18,15 @@ Setup
     curl -O https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg38.tsv.gz
     gunzip AlphaMissense_hg38.tsv.gz
     # Place at one of: $CWD/AlphaMissense_hg38.tsv,
-    # ~/.cache/mrna_ai_tools/AlphaMissense_hg38.tsv, or $HOME/AlphaMissense_hg38.tsv
+    # ~/.cache/mrnavax/AlphaMissense_hg38.tsv, or $HOME/AlphaMissense_hg38.tsv
 
     # First call to load_index() will:
     #   1. Stream the TSV into a Python dict (~5-7 min, ~5 GB RAM)
-    #   2. Pickle the dict to ~/.cache/mrna_ai_tools/alphamissense_index.pkl (~10-15 min)
+    #   2. Pickle the dict to ~/.cache/mrnavax/alphamissense_index.pkl (~10-15 min)
     #   Total: ~15-20 min on a modern machine
     # Subsequent calls load the pickle in <1 s.
 
-    from mrna_ai_tools.alphamissense_integration import load_index, lookup
+    from mrnavax.alphamissense_integration import load_index, lookup
     load_index()  # one-time cost
     r = lookup("P01116", "G", 12, "D")  # KRAS G12D
     # -> AlphaMissenseResult(score=0.832, classification="likely_pathogenic")
@@ -53,7 +53,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-CACHE_DIR = Path.home() / ".cache" / "mrna_ai_tools"
+CACHE_DIR = Path.home() / ".cache" / "mrnavax"
 CACHE_FILE = CACHE_DIR / "alphamissense_index.pkl"
 TSV_FILENAME = "AlphaMissense_hg38.tsv"
 TSV_GZ_FILENAME = "AlphaMissense_hg38.tsv.gz"
@@ -144,7 +144,7 @@ def alphamissense_available() -> tuple[bool, str]:
     return False, (
         f"AlphaMissense predictions TSV not found. Download from "
         f"{TSV_URL} (~640 MB) and place at "
-        f"~/.cache/mrna_ai_tools/{TSV_FILENAME} (or $CWD/{TSV_FILENAME}). "
+        f"~/.cache/mrnavax/{TSV_FILENAME} (or $CWD/{TSV_FILENAME}). "
         f"Note: licensed CC BY-NC-SA 4.0 (non-commercial)."
     )
 
@@ -214,7 +214,7 @@ def load_index(
 ) -> dict[str, AlphaMissenseResult]:
     """Load the AlphaMissense index, building it on first use.
 
-    Cached at ``~/.cache/mrna_ai_tools/alphamissense_index.pkl``.
+    Cached at ``~/.cache/mrnavax/alphamissense_index.pkl``.
     Thread-safe; only the first caller builds.
 
     First-time build: ~5-7 min to stream + ~5-10 min to pickle = ~15 min.

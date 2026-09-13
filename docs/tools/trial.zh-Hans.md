@@ -9,8 +9,8 @@ TrialGPT 三阶段流程（Jin et al. *Nat Commun* 15, 9074, 2024）的端到端
 ## 用法
 
 ```bash
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt \
-              --trials mrna_ai_tools/examples/trials.jsonl \
+mrnavax trial --patient mrnavax/examples/patient_summary.txt \
+              --trials mrnavax/examples/trials.jsonl \
               --top-k 5 --backend mock
 ```
 

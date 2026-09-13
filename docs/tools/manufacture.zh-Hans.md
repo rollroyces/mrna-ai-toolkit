@@ -24,7 +24,7 @@
 ## 命令行
 
 ```bash
-mrna-ai manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
+mrnavax manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
 ```
 
 返回一份 JSON 报告，包含逐项检查的状态、得分、严重度以及汇总。
@@ -33,7 +33,7 @@ mrna-ai manufacture --cds input.fasta --utr5 GCCGCCACC --utr3 AAAAAAAAAAAAAA
 ## Python API
 
 ```python
-from mrna_ai_tools.manufacturability import score_manufacturability
+from mrnavax.manufacturability import score_manufacturability
 
 report = score_manufacturability(
     cds,

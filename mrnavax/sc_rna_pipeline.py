@@ -330,7 +330,7 @@ def embed_with_foundation_model(
     that approximates what a foundation model produces — a per-cell vector
     that preserves cluster structure. Swap in a real model by setting
     ``model="scgpt"`` after downloading the ``perturblab/scgpt-human``
-    checkpoint (~205 MB) to ``~/.cache/mrna_ai_tools/``.
+    checkpoint (~205 MB) to ``~/.cache/mrnavax/``.
 
     When ``gene_names`` is supplied and ``model="scgpt"``, the real scGPT
     tokenizer maps each gene to its vocab ID, producing biologically
@@ -344,7 +344,7 @@ def embed_with_foundation_model(
 
         if not scgpt_available():
             raise FileNotFoundError(
-                "scGPT weights not found at ~/.cache/mrna_ai_tools/. "
+                "scGPT weights not found at ~/.cache/mrnavax/. "
                 "Download from https://huggingface.co/perturblab/scgpt-human."
             )
         return embed_with_scgpt(matrix, gene_names=gene_names, max_cells=64)
@@ -427,7 +427,7 @@ def run_pipeline(
     # requested AND the index is already cached. We don't trigger the
     # 15-min build during a normal run because that's a heavy operation
     # the user should initiate explicitly. Users with a pre-built cache
-    # (created via ``python -m mrna_ai_tools.alphamissense_integration``
+    # (created via ``python -m mrnavax.alphamissense_integration``
     # or a prior ``load_index()`` call) get the real scores automatically.
     if variant_filter_top_fraction < 1.0 or variant_filter_min_score > 0.0:
         try:
@@ -477,7 +477,7 @@ def run_pipeline(
             "gene + structural score used. To enable AlphaMissense, download "
             "the predictions TSV from "
             "https://storage.googleapis.com/dm_alphamissense/ "
-            "to ~/.cache/mrna_ai_tools/AlphaMissense_hg38.tsv "
+            "to ~/.cache/mrnavax/AlphaMissense_hg38.tsv "
             "(licensed CC BY-NC-SA 4.0, non-commercial)."
         )
 
@@ -567,7 +567,7 @@ def _gene_means_per_cluster(
 def _run_cli(argv: list[str]) -> int:
     import argparse
 
-    p = argparse.ArgumentParser(prog="mrna_ai scrna")
+    p = argparse.ArgumentParser(prog="mrnavax scrna")
     p.add_argument(
         "--expression",
         required=True,

@@ -237,7 +237,7 @@ def retrieve_real(patient_text: str, trial_texts: list[str]) -> list[float]:
     if _REAL_ENCODER is None:
         raise RuntimeError(
             "no real encoder plugged in — install MedCPT or call "
-            "mrna_ai_tools.medcpt_retriever.set_real_encoder(...)"
+            "mrnavax.medcpt_retriever.set_real_encoder(...)"
         )
     vectors = _REAL_ENCODER([patient_text] + trial_texts)
     p = vectors[0]

@@ -19,22 +19,22 @@ Pull requests welcome.
 - **Protocol-based pluggability.** Heavy model integrations
   (RiboDecode, STModule, ESM2, scGPT, mhcflurry) must live behind a
   `runtime_checkable` Protocol or abstract adapter class installed
-  via optional extras (e.g. `pip install mrna-ai-toolkit[sota]`).
-  See `mrna_ai_tools/codon_ribodecode_adapter.py`,
-  `mrna_ai_tools/spatial_module_adapter.py`,
-  `mrna_ai_tools/protein_lm_adapter.py` for reference.
+  via optional extras (e.g. `pip install mrnavax[sota]`).
+  See `mrnavax/codon_ribodecode_adapter.py`,
+  `mrnavax/spatial_module_adapter.py`,
+  `mrnavax/protein_lm_adapter.py` for reference.
 - **TDD for new features.** Every new public function must have a test
   written before implementation (see *Development* below).
 
 ## Development
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e ".[dev,llm]"
 
 # Run the 25 backend integrity checks
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # Run the unit test suite (167 tests)
 python -m unittest discover tests
@@ -63,7 +63,7 @@ mkdocs serve
 4. Add a `register()` entry in `backends.py` for any new backend.
 5. CI must be green on Python 3.11–3.14 before merge.
 6. Squash-merge with a `[verified]` commit message once
-   `bash scripts/smoke.sh` + `python -m mrna_ai_tools.backends --check-all`
+   `bash scripts/smoke.sh` + `python -m mrnavax.backends --check-all`
    + `python -m unittest discover tests` all pass.
 
 ## Adding a new tool

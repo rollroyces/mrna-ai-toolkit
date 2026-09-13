@@ -33,7 +33,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 # Default cache location
-DEFAULT_CACHE_DIR = Path("~/.cache/mrna_ai_tools").expanduser()
+DEFAULT_CACHE_DIR = Path("~/.cache/mrnavax").expanduser()
 SCGPT_VOCAB_PATH = DEFAULT_CACHE_DIR / "scgpt-vocab.json"
 SCGPT_ARGS_PATH = DEFAULT_CACHE_DIR / "scgpt-args.json"
 SCGPT_WEIGHTS_PATH = DEFAULT_CACHE_DIR / "scgpt-best_model.pt"

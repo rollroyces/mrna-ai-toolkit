@@ -7,13 +7,13 @@ ML 发现的离子化脂质配方短名单。
 
 ```bash
 # 癌症疫苗，肺部递送，saRNA 载荷
-mrna-ai lnp --target lung --cargo saRNA --intent "cancer vaccine"
+mrnavax lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # 肝脏基因编辑，使用 Cas9 mRNA
-mrna-ai lnp --target liver --cargo Cas9 --intent "gene editing"
+mrnavax lnp --target liver --cargo Cas9 --intent "gene editing"
 
 # 瘤内注射（TRAIL-mRNA 示例）
-mrna-ai lnp --target tumor --cargo mRNA --intent "cancer vaccine"
+mrnavax lnp --target tumor --cargo mRNA --intent "cancer vaccine"
 ```
 
 ## 输出 schema

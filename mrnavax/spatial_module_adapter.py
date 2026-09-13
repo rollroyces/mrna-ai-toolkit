@@ -32,7 +32,7 @@ Why an R shim + subprocess rather than a Python R-interface library
 (rpy2): the user is the one who installs R + Seurat + torch +
 GPUmatrix (heavy). rpy2 would force these deps on every toolkit
 user. Subprocess invocation lets the user opt in by ``pip install
-mrna-ai-toolkit[spatial-r]`` and following the conda install from
+mrnavax[spatial-r]`` and following the conda install from
 the upstream vignette; if any of those are missing the adapter
 raises :class:`STModuleNotInstalled` with a clear remediation message.
 """
@@ -80,7 +80,7 @@ class STModuleNotInstalled(STModuleError):
             "2) `conda install conda-forge::r-seurat r-devtools`; "
             "3) `devtools::install_github('rwang-z/STModule')` "
             "(requires torch + CUDA 11.7 + GPUmatrix 1.0.2 — DO NOT update GPUmatrix). "
-            "Then `pip install mrna-ai-toolkit[spatial-r]` and ensure "
+            "Then `pip install mrnavax[spatial-r]` and ensure "
             "`Rscript` is on $PATH. For tests and offline use, the "
             "mock backend works without any installation."
         )
@@ -103,8 +103,8 @@ def rscript_available() -> bool:
 def _shim_path() -> Path:
     """Locate the bundled R shim next to the adapter module.
 
-    Search order: (1) sibling of ``mrna_ai_tools/spatial_module_adapter.py``,
-    (2) ``mrna_ai_tools/scripts/stmodule_shim.R``. The shim is
+    Search order: (1) sibling of ``mrnavax/spatial_module_adapter.py``,
+    (2) ``mrnavax/scripts/stmodule_shim.R``. The shim is
     versioned alongside the Python module so the subprocess always
     matches the protocol the adapter expects.
     """
@@ -132,8 +132,8 @@ class STModuleCLIAdapter:
     """Adapter that shells out to the published STModule R package.
 
     Usage (requires R + Seurat + STModule installed):
-        >>> from mrna_ai_tools.spatial_module_adapter import STModuleCLIAdapter
-        >>> from mrna_ai_tools.spatial_protocols import SpatialData
+        >>> from mrnavax.spatial_module_adapter import STModuleCLIAdapter
+        >>> from mrnavax.spatial_protocols import SpatialData
         >>> data = SpatialData(count_file=Path("counts.tsv"),
         ...                    locations_file=Path("locs.tsv"),
         ...                    platform="ST", num_modules=10)

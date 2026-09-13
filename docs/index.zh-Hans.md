@@ -30,27 +30,27 @@ mRNA 癌症治疗领域已经来到拐点：
 ## 快速开始
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e .
 
 # 密码子分析
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta --optimize
+mrnavax codon --sequence mrnavax/examples/cas9.fasta --optimize
 
 # 新抗原筛选
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv --hla HLA-A*02:01
+mrnavax neoantigen --variants mrnavax/examples/tp53_variants.csv --hla HLA-A*02:01
 
 # 患者 → 临床试验匹配
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt \
-              --trials mrna_ai_tools/examples/trials.jsonl --top-k 5
+mrnavax trial --patient mrnavax/examples/patient_summary.txt \
+              --trials mrnavax/examples/trials.jsonl --top-k 5
 
 # LNP 配方建议
-mrna-ai lnp --target lung --cargo saRNA --intent "cancer vaccine"
+mrnavax lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # scRNA-seq → 新抗原交接
-mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv \
-              --variants mrna_ai_tools/examples/variants_coding.csv \
-              --proteins mrna_ai_tools/examples/proteins.fasta \
+mrnavax scrna --expression mrnavax/examples/cells.csv \
+              --variants mrnavax/examples/variants_coding.csv \
+              --proteins mrnavax/examples/proteins.fasta \
               --tumor-markers GENE_170,GENE_180
 ```
 

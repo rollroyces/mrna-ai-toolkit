@@ -16,15 +16,15 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from mrna_ai_tools.codon_optimizer import CODON_TO_AA
-from mrna_ai_tools.codon_protocols import (
+from mrnavax.codon_optimizer import CODON_TO_AA
+from mrnavax.codon_protocols import (
     CodonOptimizer,
     RiboDecodeRequest,
     RiboDecodeResult,
     TranslationPrediction,
     TranslationPredictor,
 )
-from mrna_ai_tools.codon_ribodecode_adapter import (
+from mrnavax.codon_ribodecode_adapter import (
     MockCodonOptimizer,
     MockTranslationPredictor,
     RiboDecodeCLIAdapter,
@@ -294,7 +294,7 @@ class TestRealAdapterErrors(unittest.TestCase):
     def test_pred_translation_missing_binary_raises(self) -> None:
         adapter = TranslationModelCLIAdapter()
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.shutil.which",
+            "mrnavax.codon_ribodecode_adapter.shutil.which",
             return_value=None,
         ):
             with self.assertRaises(RiboDecodeNotInstalled) as ctx:
@@ -305,7 +305,7 @@ class TestRealAdapterErrors(unittest.TestCase):
         adapter = RiboDecodeCLIAdapter()
         req = RiboDecodeRequest(cds="ATGGACGGGTAG")
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.shutil.which",
+            "mrnavax.codon_ribodecode_adapter.shutil.which",
             return_value=None,
         ):
             with self.assertRaises(RiboDecodeNotInstalled) as ctx:
@@ -320,10 +320,10 @@ class TestRealAdapterErrors(unittest.TestCase):
         mock_proc.stdout = "42.5\n"
         mock_proc.stderr = ""
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.shutil.which",
+            "mrnavax.codon_ribodecode_adapter.shutil.which",
             return_value="/usr/bin/pred-translation",
         ), patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.subprocess.run",
+            "mrnavax.codon_ribodecode_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             r = adapter.predict("ATGGACGGGTAG", env="HEK293T")
@@ -338,10 +338,10 @@ class TestRealAdapterErrors(unittest.TestCase):
         mock_proc.stdout = ""
         mock_proc.stderr = "fatal: GPU not found"
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.shutil.which",
+            "mrnavax.codon_ribodecode_adapter.shutil.which",
             return_value="/usr/bin/pred-translation",
         ), patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.subprocess.run",
+            "mrnavax.codon_ribodecode_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             with self.assertRaises(RiboDecodeNotInstalled.__bases__[0]):  # RiboDecodeError
@@ -354,10 +354,10 @@ class TestRealAdapterErrors(unittest.TestCase):
         mock_proc.stdout = "not a number"
         mock_proc.stderr = ""
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.shutil.which",
+            "mrnavax.codon_ribodecode_adapter.shutil.which",
             return_value="/usr/bin/pred-translation",
         ), patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.subprocess.run",
+            "mrnavax.codon_ribodecode_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             with self.assertRaises(Exception):
@@ -374,7 +374,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_translation_predictor_real_forced_missing(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.pred_translation_available",
+            "mrnavax.codon_ribodecode_adapter.pred_translation_available",
             return_value=False,
         ):
             with self.assertRaises(RiboDecodeNotInstalled):
@@ -382,7 +382,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_translation_predictor_real_forced_present(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.pred_translation_available",
+            "mrnavax.codon_ribodecode_adapter.pred_translation_available",
             return_value=True,
         ):
             sel = select_translation_predictor(prefer="real")
@@ -394,7 +394,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_translation_predictor_auto_picks_real(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.pred_translation_available",
+            "mrnavax.codon_ribodecode_adapter.pred_translation_available",
             return_value=True,
         ):
             sel = select_translation_predictor()
@@ -402,7 +402,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_translation_predictor_auto_falls_back_to_mock(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.pred_translation_available",
+            "mrnavax.codon_ribodecode_adapter.pred_translation_available",
             return_value=False,
         ):
             sel = select_translation_predictor()
@@ -410,7 +410,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_codon_optimizer_real_forced_missing(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.ribo_decode_available",
+            "mrnavax.codon_ribodecode_adapter.ribo_decode_available",
             return_value=False,
         ):
             with self.assertRaises(RiboDecodeNotInstalled):
@@ -418,7 +418,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_codon_optimizer_real_forced_present(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.ribo_decode_available",
+            "mrnavax.codon_ribodecode_adapter.ribo_decode_available",
             return_value=True,
         ):
             sel = select_codon_optimizer(prefer="real")
@@ -430,7 +430,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_codon_optimizer_auto_falls_back_to_mock(self) -> None:
         with patch(
-            "mrna_ai_tools.codon_ribodecode_adapter.ribo_decode_available",
+            "mrnavax.codon_ribodecode_adapter.ribo_decode_available",
             return_value=False,
         ):
             sel = select_codon_optimizer()

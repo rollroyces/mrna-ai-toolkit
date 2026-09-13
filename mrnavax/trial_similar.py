@@ -13,7 +13,7 @@ Zhou J., Yip K.Y.#, Tsui S.K.W.#, and Cao Q.#. (2026) A Systematic
 Evaluation of In-Context Learning in Large Language Models for Antibody
 Characterization. Genome Biology (in press).
 
-Applied to mrna-ai-toolkit
+Applied to mrnavax
 --------------------------
 The toolkit's :mod:`trial_llm` module already uses an LLM to judge
 each clinical-trial criterion against a patient summary (the TrialGPT
@@ -399,7 +399,7 @@ def load_default_demo_store() -> DemoStore:
     """
     candidates = [
         Path(__file__).parent.parent / "examples" / "simicl_demos.json",
-        Path("/Users/hermes/mrna_ai_tools/examples/simicl_demos.json"),
+        Path("/Users/hermes/mrnavax/examples/simicl_demos.json"),
     ]
     env = os.environ.get(ENV_DEMOS)
     if env:

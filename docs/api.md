@@ -12,37 +12,37 @@ specific helpers are documented in the relevant tool page
 
 ## Codon optimization
 
-::: mrna_ai_tools.codon_optimizer
-::: mrna_ai_tools.codon_ribodecode
-::: mrna_ai_tools.codon_lineardesign
+::: mrnavax.codon_optimizer
+::: mrnavax.codon_ribodecode
+::: mrnavax.codon_lineardesign
 
 ## Variant prioritization
 
-::: mrna_ai_tools.variant_scorer
+::: mrnavax.variant_scorer
 
 ## Neoantigen prediction
 
-::: mrna_ai_tools.neoantigen_screener
+::: mrnavax.neoantigen_screener
 
 ## Single-cell RNA-seq
 
-::: mrna_ai_tools.sc_rna_pipeline
-::: mrna_ai_tools.foundation_embedder
+::: mrnavax.sc_rna_pipeline
+::: mrnavax.foundation_embedder
 
 ## Patient-trial matching
 
-::: mrna_ai_tools.trial_matcher
-::: mrna_ai_tools.trial_llm
+::: mrnavax.trial_matcher
+::: mrnavax.trial_llm
 
 ## Manufacturing checks
 
-::: mrna_ai_tools.manufacturability
+::: mrnavax.manufacturability
 
 ## LNP delivery
 
-::: mrna_ai_tools.lnp_advisor
+::: mrnavax.lnp_advisor
 
 ## CLI & shared utilities
 
-::: mrna_ai_tools.cli
-::: mrna_ai_tools.llm
+::: mrnavax.cli
+::: mrnavax.llm

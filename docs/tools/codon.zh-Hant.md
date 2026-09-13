@@ -5,8 +5,8 @@
 ## 用法
 
 ```bash
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta --optimize
+mrnavax codon --sequence mrnavax/examples/cas9.fasta
+mrnavax codon --sequence mrnavax/examples/cas9.fasta --optimize
 ```
 
 ## 輸出 schema

@@ -7,7 +7,7 @@ name: publish
 #   1. Go to https://pypi.org/manage/account/publishing/
 #   2. Register a new pending trusted publisher:
 #        - Owner:       rollroyces
-#        - Repository:  mrna-ai-toolkit
+#        - Repository:  mrnavax
 #        - Workflow:    publish.yml   <-- THIS file
 #        - Environment: pypi
 #   3. Create the matching GitHub Environment in repo Settings → Environments:
@@ -80,7 +80,7 @@ jobs:
     environment:
       # Manual approval gate is configured under repo Settings → Environments → pypi
       name: pypi
-      url: https://pypi.org/project/mrna-ai-toolkit/
+      url: https://pypi.org/project/mrnavax/
 
     steps:
       - uses: actions/download-artifact@v4

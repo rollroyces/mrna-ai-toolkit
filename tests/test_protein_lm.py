@@ -34,7 +34,7 @@ from unittest.mock import MagicMock, patch
 
 class TestEmbeddingRequest(unittest.TestCase):
     def test_minimal_construction(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         req = EmbeddingRequest(sequences=("MKTAY",))
         self.assertEqual(req.sequences, ("MKTAY",))
@@ -43,20 +43,20 @@ class TestEmbeddingRequest(unittest.TestCase):
         self.assertEqual(req.batch_size, 8)
 
     def test_rejects_empty_sequences(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         with self.assertRaises(ValueError):
             EmbeddingRequest(sequences=())
 
     def test_rejects_invalid_pooling(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         for bad in ("max", "min", "avg", "", "MEAN"):
             with self.assertRaises(ValueError, msg=f"pooling={bad!r} should raise"):
                 EmbeddingRequest(sequences=("MKTAY",), pooling=bad)
 
     def test_accepts_all_pooling_modes(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         for ok in ("mean", "cls", "sum"):
             req = EmbeddingRequest(sequences=("MKTAY",), pooling=ok)
@@ -64,7 +64,7 @@ class TestEmbeddingRequest(unittest.TestCase):
 
     def test_rejects_invalid_amino_acid(self) -> None:
         """Sequences must contain only standard 20 amino acids."""
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         with self.assertRaises(ValueError):
             EmbeddingRequest(sequences=("MKTAYX",))  # X is non-standard
@@ -72,7 +72,7 @@ class TestEmbeddingRequest(unittest.TestCase):
             EmbeddingRequest(sequences=("MK7AY",))  # digit is non-standard
 
     def test_accepts_all_20_standard_amino_acids(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         # All 20 standard AAs in one sequence
         req = EmbeddingRequest(sequences=("ACDEFGHIKLMNPQRSTVWY",))
@@ -80,13 +80,13 @@ class TestEmbeddingRequest(unittest.TestCase):
 
     def test_lowercases_input_safely(self) -> None:
         """Lowercase input should be uppercased (ESM2 expects uppercase)."""
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         req = EmbeddingRequest(sequences=("mktay",))
         self.assertEqual(req.sequences[0], "MKTAY")
 
     def test_to_dict(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         req = EmbeddingRequest(sequences=("MKTAY",), model_id="facebook/esm2_t6_8M_UR50D")
         d = req.to_dict()
@@ -96,7 +96,7 @@ class TestEmbeddingRequest(unittest.TestCase):
 
 class TestEmbeddingResult(unittest.TestCase):
     def test_minimal_construction(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingResult
+        from mrnavax.protein_lm_protocols import EmbeddingResult
 
         r = EmbeddingResult(
             embeddings=((0.1, 0.2, 0.3),),
@@ -109,7 +109,7 @@ class TestEmbeddingResult(unittest.TestCase):
         self.assertEqual(r.embeddings[0], (0.1, 0.2, 0.3))
 
     def test_to_dict(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingResult
+        from mrnavax.protein_lm_protocols import EmbeddingResult
 
         r = EmbeddingResult(
             embeddings=((0.1, 0.2, 0.3), (0.4, 0.5, 0.6)),
@@ -126,7 +126,7 @@ class TestEmbeddingResult(unittest.TestCase):
         self.assertEqual(d["notes"], ["test-note"])
 
     def test_dim_matches_embeddings(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingResult
+        from mrnavax.protein_lm_protocols import EmbeddingResult
 
         with self.assertRaises(ValueError):
             EmbeddingResult(
@@ -138,7 +138,7 @@ class TestEmbeddingResult(unittest.TestCase):
             )
 
     def test_rejects_empty_embeddings(self) -> None:
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingResult
+        from mrnavax.protein_lm_protocols import EmbeddingResult
 
         with self.assertRaises(ValueError):
             EmbeddingResult(
@@ -157,15 +157,15 @@ class TestEmbeddingResult(unittest.TestCase):
 
 class TestProteinLMEmbedderProtocol(unittest.TestCase):
     def test_protocol_is_runtime_checkable(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import ProteinLMEmbedder
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import ProteinLMEmbedder
 
         m = MockProteinLMEmbedder()
         self.assertIsInstance(m, ProteinLMEmbedder)
 
     def test_mock_returns_correct_shape(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         req = EmbeddingRequest(sequences=("MKTAY", "ACDE"))
@@ -174,8 +174,8 @@ class TestProteinLMEmbedderProtocol(unittest.TestCase):
         self.assertEqual(len(result.embeddings[0]), m.dim)
 
     def test_mock_dim_is_configurable(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         for d in (8, 64, 480, 640):
             m = MockProteinLMEmbedder(dim=d)
@@ -192,8 +192,8 @@ class TestProteinLMEmbedderProtocol(unittest.TestCase):
 
 class TestMockProteinLMEmbedder(unittest.TestCase):
     def test_backend_name_is_mock(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         req = EmbeddingRequest(sequences=("MKTAY",))
@@ -201,8 +201,8 @@ class TestMockProteinLMEmbedder(unittest.TestCase):
         self.assertEqual(result.backend, "mock")
 
     def test_deterministic(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         req = EmbeddingRequest(sequences=("MKTAY", "ACDEFGHIKLMNPQRSTVWY"))
@@ -211,8 +211,8 @@ class TestMockProteinLMEmbedder(unittest.TestCase):
         self.assertEqual(r1.embeddings, r2.embeddings)
 
     def test_different_sequences_different_embeddings(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         r1 = m.embed(EmbeddingRequest(sequences=("MKTAY",)))
@@ -222,8 +222,8 @@ class TestMockProteinLMEmbedder(unittest.TestCase):
     def test_mean_pooling_doubles_length_produces_distinct(self) -> None:
         """Same AA twice vs once should produce different embeddings
         because the k-mer frequency distribution changes."""
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         r1 = m.embed(EmbeddingRequest(sequences=("MK",)))
@@ -233,8 +233,8 @@ class TestMockProteinLMEmbedder(unittest.TestCase):
     def test_embedding_values_are_normalized(self) -> None:
         """Mock embeddings should be L2-normalized (matching ESM2 convention)."""
         import math
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder()
         result = m.embed(EmbeddingRequest(sequences=("MKTAYIAKLVV",)))
@@ -243,8 +243,8 @@ class TestMockProteinLMEmbedder(unittest.TestCase):
             self.assertAlmostEqual(norm, 1.0, places=4)
 
     def test_model_id_recorded(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         m = MockProteinLMEmbedder(model_id="mock-v1")
         result = m.embed(EmbeddingRequest(sequences=("MK",)))
@@ -260,11 +260,11 @@ class TestESM2Embedder(unittest.TestCase):
     def test_transformers_missing_raises(self) -> None:
         """If transformers/torch aren't installed, the real adapter
         must raise ESM2NotInstalled with a helpful message."""
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder, ESM2NotInstalled
+        from mrnavax.protein_lm_adapter import ESM2Embedder, ESM2NotInstalled
 
         with patch.dict("sys.modules", {"transformers": None}):
             adapter = ESM2Embedder()
-            from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+            from mrnavax.protein_lm_protocols import EmbeddingRequest
 
             with self.assertRaises(ESM2NotInstalled):
                 adapter.embed(EmbeddingRequest(sequences=("MKTAY",)))
@@ -272,8 +272,8 @@ class TestESM2Embedder(unittest.TestCase):
     def test_successful_embedding_calls_transformers(self) -> None:
         """When _embed_batch returns valid embeddings, the result has
         the right backend, dim, and shape."""
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         adapter = ESM2Embedder(model_id="facebook/esm2_t12_35M_UR50D")
         # Pre-inject mocks to bypass _ensure_loaded (which requires
@@ -294,8 +294,8 @@ class TestESM2Embedder(unittest.TestCase):
 
     def test_cls_pooling_passes_to_embed_batch(self) -> None:
         """When pooling='cls', the embedding call uses cls pool."""
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         adapter = ESM2Embedder()
         adapter._tokenizer = MagicMock()
@@ -315,8 +315,8 @@ class TestESM2Embedder(unittest.TestCase):
             self.assertEqual(result.dim, 480)
 
     def test_sum_pooling_passes_to_embed_batch(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         adapter = ESM2Embedder()
         adapter._tokenizer = MagicMock()
@@ -337,8 +337,8 @@ class TestESM2Embedder(unittest.TestCase):
 
     def test_batch_size_respected(self) -> None:
         """Sequences are processed in batches of `batch_size`."""
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         adapter = ESM2Embedder()
         adapter._tokenizer = MagicMock()
@@ -359,7 +359,7 @@ class TestESM2Embedder(unittest.TestCase):
 
     def test_dim_for_known_models(self) -> None:
         """Pre-canned dim lookup covers all standard ESM2 sizes."""
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_adapter import ESM2Embedder
 
         self.assertEqual(
             ESM2Embedder._dim_for_model("facebook/esm2_t6_8M_UR50D"), 320
@@ -372,7 +372,7 @@ class TestESM2Embedder(unittest.TestCase):
         )
 
     def test_dim_for_unknown_model_falls_back(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
+        from mrnavax.protein_lm_adapter import ESM2Embedder
 
         # Unknown model: fallback to ESM2-35M dim (480)
         self.assertEqual(
@@ -391,8 +391,8 @@ class TestApplmStyleClassifier(unittest.TestCase):
     (here: immunogenic vs non-immunogenic peptide)."""
 
     def test_classifier_returns_score_in_zero_one(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import ApplmStyleClassifier
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ApplmStyleClassifier
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         clf = ApplmStyleClassifier()
         emb = clf.embedder.embed(EmbeddingRequest(sequences=("MKTAY",)))
@@ -401,8 +401,8 @@ class TestApplmStyleClassifier(unittest.TestCase):
         self.assertLessEqual(score, 1.0)
 
     def test_classifier_deterministic(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import ApplmStyleClassifier
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import ApplmStyleClassifier
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         clf = ApplmStyleClassifier()
         emb = clf.embedder.embed(EmbeddingRequest(sequences=("MKTAY",)))
@@ -411,11 +411,11 @@ class TestApplmStyleClassifier(unittest.TestCase):
         self.assertEqual(s1, s2)
 
     def test_classifier_with_custom_embedder(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             ApplmStyleClassifier,
             MockProteinLMEmbedder,
         )
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         clf = ApplmStyleClassifier(
             embedder=MockProteinLMEmbedder(dim=128)
@@ -433,7 +433,7 @@ class TestApplmStyleClassifier(unittest.TestCase):
 
 class TestBackendSelector(unittest.TestCase):
     def test_select_mock_forced(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             MockProteinLMEmbedder,
             select_protein_lm_embedder,
         )
@@ -442,7 +442,7 @@ class TestBackendSelector(unittest.TestCase):
         self.assertIsInstance(sel, MockProteinLMEmbedder)
 
     def test_select_real_forced_missing_transformers(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             ESM2NotInstalled,
             select_protein_lm_embedder,
         )
@@ -452,7 +452,7 @@ class TestBackendSelector(unittest.TestCase):
                 select_protein_lm_embedder(prefer="real")
 
     def test_select_auto_falls_back_to_mock(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             MockProteinLMEmbedder,
             select_protein_lm_embedder,
         )
@@ -463,7 +463,7 @@ class TestBackendSelector(unittest.TestCase):
 
     def test_select_auto_with_mock_transformers_uses_real(self) -> None:
         """When transformers is importable AND model loads, prefer real."""
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             ESM2Embedder,
             select_protein_lm_embedder,
         )
@@ -489,11 +489,11 @@ class TestEndToEnd(unittest.TestCase):
 
         The score should be in [0, 1] and deterministic across runs.
         """
-        from mrna_ai_tools.protein_lm_adapter import (
+        from mrnavax.protein_lm_adapter import (
             ApplmStyleClassifier,
             MockProteinLMEmbedder,
         )
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         embedder = MockProteinLMEmbedder(dim=480)
         clf = ApplmStyleClassifier(embedder=embedder)
@@ -508,8 +508,8 @@ class TestEndToEnd(unittest.TestCase):
             self.assertLessEqual(s, 1.0)
 
     def test_embedding_result_json_serializable(self) -> None:
-        from mrna_ai_tools.protein_lm_adapter import MockProteinLMEmbedder
-        from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+        from mrnavax.protein_lm_adapter import MockProteinLMEmbedder
+        from mrnavax.protein_lm_protocols import EmbeddingRequest
 
         embedder = MockProteinLMEmbedder(dim=8)
         req = EmbeddingRequest(sequences=("MKTAY",))

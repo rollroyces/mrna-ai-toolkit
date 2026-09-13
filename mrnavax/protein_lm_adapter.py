@@ -70,7 +70,7 @@ class ESM2NotInstalled(ESM2Error):
     def __init__(self) -> None:
         super().__init__(
             "ESM2 protein-language-model requires 'torch' and 'transformers'. "
-            "Install via: pip install mrna-ai-toolkit[protein-lm] "
+            "Install via: pip install mrnavax[protein-lm] "
             "(which pulls torch + transformers >= 4.40). "
             "For tests and offline use, the mock embedder works "
             "without any installation."
@@ -112,9 +112,9 @@ _ESM2_DIMS: dict[str, int] = {
 class ESM2Embedder:
     """Adapter for the published ESM2 protein-LM family.
 
-    Usage (requires `pip install mrna-ai-toolkit[protein-lm]`):
-        >>> from mrna_ai_tools.protein_lm_adapter import ESM2Embedder
-        >>> from mrna_ai_tools.protein_lm_protocols import EmbeddingRequest
+    Usage (requires `pip install mrnavax[protein-lm]`):
+        >>> from mrnavax.protein_lm_adapter import ESM2Embedder
+        >>> from mrnavax.protein_lm_protocols import EmbeddingRequest
         >>> embedder = ESM2Embedder()
         >>> req = EmbeddingRequest(sequences=("NLVPMVATV", "GILGFVFTL"))
         >>> result = embedder.embed(req)

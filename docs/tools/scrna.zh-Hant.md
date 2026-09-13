@@ -13,14 +13,14 @@
 
 ```bash
 # 僅使用標準函式庫（以合成表現量資料 + k-medoids）
-mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv \
-              --variants mrna_ai_tools/examples/variants_coding.csv \
-              --proteins mrna_ai_tools/examples/proteins.fasta \
+mrnavax scrna --expression mrnavax/examples/cells.csv \
+              --variants mrnavax/examples/variants_coding.csv \
+              --proteins mrnavax/examples/proteins.fasta \
               --tumor-markers GENE_170,GENE_180
 
 # 使用 scanpy（真正的 Leiden 分群）
 pip install -e ".[scrna]"
-mrna-ai scrna --expression path/to/cells.h5ad ...
+mrnavax scrna --expression path/to/cells.h5ad ...
 ```
 
 ## 輸入檔案
@@ -63,7 +63,7 @@ mrna-ai scrna --expression path/to/cells.h5ad ...
 
 ```python
 # 於自訂的整合腳本中：
-from mrna_ai_tools.sc_rna_pipeline import (
+from mrnavax.sc_rna_pipeline import (
     cluster_with_scanpy, embed_with_foundation_model
 )
 import scgpt  # 請使用您已安裝的版本
@@ -91,14 +91,14 @@ labels = cluster_with_scanpy(embeddings, cell_ids, gene_names)
 
 ```bash
 # 1. 將 scRNA-seq 計數進行分群
-mrna-ai scrna \
+mrnavax scrna \
   --expression gastric_primary.h5ad \
   --proteins gastric_peptides.fasta \
   --variants patient_variants.csv \
   --output-dir results/
 
 # 2. 將腫瘤群聚胜肽清單移交給新抗原篩選
-mrna-ai neoantigen \
+mrnavax neoantigen \
   --csv results/tumor_peptides.csv \
   --hla "HLA-A*02:01,HLA-A*24:02" \
   --backend mock
@@ -109,7 +109,7 @@ mrna-ai neoantigen \
 ```bash
 # 3. ESM2 蛋白質語言模型免疫原性評分（凍結 LM + 分類器）
 python -c "
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
 import pandas as pd
 df = pd.read_csv('results/tumor_peptides.csv')
 df['lm_score'] = df['peptide'].apply(

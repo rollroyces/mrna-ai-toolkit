@@ -30,7 +30,7 @@ This module ships:
     that derives translation from codon-pair frequencies. Used in
     tests and offline runs.
   - :class:`MockCodonOptimizer`: wraps the existing stdlib
-    LinearDesign optimizer (``mrna_ai_tools.codon_lineardesign``)
+    LinearDesign optimizer (``mrnavax.codon_lineardesign``)
     and reports the result in the RiboDecode response shape. Used
     in tests and offline runs.
 
@@ -128,7 +128,7 @@ class TranslationModelCLIAdapter:
     """Adapter for the published ``TranslationModel`` package.
 
     Usage:
-        >>> from mrna_ai_tools.codon_translationmodel_adapter import TranslationModelCLIAdapter
+        >>> from mrnavax.codon_translationmodel_adapter import TranslationModelCLIAdapter
         >>> adapter = TranslationModelCLIAdapter()
         >>> pred = adapter.predict("ATGGACGGGTAG", env="HEK293T")
         >>> pred.translation_level
@@ -277,7 +277,7 @@ class RiboDecodeCLIAdapter:
     """Adapter for the published ``ribo-decode`` package.
 
     Usage:
-        >>> from mrna_ai_tools.codon_ribodecode_adapter import RiboDecodeCLIAdapter
+        >>> from mrnavax.codon_ribodecode_adapter import RiboDecodeCLIAdapter
         >>> adapter = RiboDecodeCLIAdapter()
         >>> req = RiboDecodeRequest(cds="ATGGACGGGTAG", env="HEK293T")
         >>> result = adapter.optimize(req)

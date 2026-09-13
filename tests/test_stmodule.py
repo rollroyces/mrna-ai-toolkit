@@ -87,7 +87,7 @@ def _write_locations_with_missing_spot(path: Path) -> None:
 
 class TestSpatialDataDataclass(unittest.TestCase):
     def test_minimal_construction(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -106,7 +106,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
 
     def test_platform_enum(self) -> None:
         """Only ST, Visium, SlideSeqV2, StereoSeq, Other are accepted."""
-        from mrna_ai_tools.spatial_protocols import SpatialData, SpatialPlatform
+        from mrnavax.spatial_protocols import SpatialData, SpatialPlatform
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -120,7 +120,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
                 self.assertEqual(d.platform, SpatialPlatform(plat))
 
     def test_rejects_invalid_platform(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -133,7 +133,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
                 )
 
     def test_rejects_missing_count_file(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with self.assertRaises(FileNotFoundError):
             SpatialData(
@@ -143,7 +143,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
             )
 
     def test_rejects_missing_locations_file(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -156,7 +156,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
                 )
 
     def test_num_modules_must_be_positive(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -173,7 +173,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
                     )
 
     def test_to_dict_serializes_paths_as_strings(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -194,7 +194,7 @@ class TestSpatialDataDataclass(unittest.TestCase):
 
 class TestSpatialModuleDataclass(unittest.TestCase):
     def test_module_construction(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialModule
+        from mrnavax.spatial_protocols import SpatialModule
 
         m = SpatialModule(
             module_id=0,
@@ -206,7 +206,7 @@ class TestSpatialModuleDataclass(unittest.TestCase):
         self.assertEqual(m.top_genes, ("TP53", "KRAS", "BRAF"))
 
     def test_module_to_dict(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialModule
+        from mrnavax.spatial_protocols import SpatialModule
 
         m = SpatialModule(
             module_id=3,
@@ -222,7 +222,7 @@ class TestSpatialModuleDataclass(unittest.TestCase):
 
 class TestSpatialModuleResultDataclass(unittest.TestCase):
     def test_result_construction(self) -> None:
-        from mrna_ai_tools.spatial_protocols import (
+        from mrnavax.spatial_protocols import (
             SpatialModule,
             SpatialModuleResult,
         )
@@ -244,7 +244,7 @@ class TestSpatialModuleResultDataclass(unittest.TestCase):
         self.assertEqual(r.backend, "mock")
 
     def test_result_to_dict(self) -> None:
-        from mrna_ai_tools.spatial_protocols import (
+        from mrnavax.spatial_protocols import (
             SpatialModule,
             SpatialModuleResult,
         )
@@ -270,8 +270,8 @@ class TestSpatialModuleResultDataclass(unittest.TestCase):
 
 class TestSpatialModuleBackendProtocol(unittest.TestCase):
     def test_protocol_is_runtime_checkable(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialModuleBackend
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_protocols import SpatialModuleBackend
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -280,8 +280,8 @@ class TestSpatialModuleBackendProtocol(unittest.TestCase):
 
     def test_protocol_method_signature(self) -> None:
         """All backends must expose .run(data) -> SpatialModuleResult."""
-        from mrna_ai_tools.spatial_protocols import SpatialModuleBackend
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_protocols import SpatialModuleBackend
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -289,11 +289,11 @@ class TestSpatialModuleBackendProtocol(unittest.TestCase):
         self.assertTrue(callable(getattr(m, "run", None)))
 
     def test_mock_backend_run_returns_correct_type(self) -> None:
-        from mrna_ai_tools.spatial_protocols import (
+        from mrnavax.spatial_protocols import (
             SpatialData,
             SpatialModuleResult,
         )
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -317,7 +317,7 @@ class TestSpatialModuleBackendProtocol(unittest.TestCase):
 
 class TestMockSpatialModuleBackend(unittest.TestCase):
     def _make_data(self, platform: str = "ST", n_spots: int = 12):
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         tmp = tempfile.mkdtemp()
         count = Path(tmp) / "counts.tsv"
@@ -330,7 +330,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
 
     def test_returns_correct_num_modules(self) -> None:
         from dataclasses import replace
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -343,7 +343,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
 
     def test_deterministic_across_runs(self) -> None:
         """Same input + no seed passed → identical output."""
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -358,7 +358,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
 
     def test_different_platforms_different_results(self) -> None:
         """Platform affects output (different gene universe in mock)."""
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -371,7 +371,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
         self.assertTrue(st_genes != vis_genes or len(st_genes) > 0)
 
     def test_spot_count_matches_input(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -382,7 +382,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
 
     def test_known_universe_per_platform(self) -> None:
         """Each platform has a different fixed gene universe in the mock."""
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -398,7 +398,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
             self.assertIsInstance(universe, tuple)
 
     def test_module_activities_in_zero_one(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -412,8 +412,8 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
     def test_handles_missing_spot_in_locations(self) -> None:
         """Count matrix has 12 spots, locations have 11 — mock should
         not crash; just use the intersection."""
-        from mrna_ai_tools.spatial_protocols import SpatialData
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_protocols import SpatialData
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -432,7 +432,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
         self.assertLessEqual(result.n_spots, 11)
 
     def test_backend_name_is_mock(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -449,7 +449,7 @@ class TestMockSpatialModuleBackend(unittest.TestCase):
 
 class TestSTModuleCLIAdapter(unittest.TestCase):
     def _make_data(self, platform: str = "ST"):
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         tmp = tempfile.mkdtemp()
         count = Path(tmp) / "counts.tsv"
@@ -461,7 +461,7 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         )
 
     def test_rscript_missing_raises(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             STModuleNotInstalled,
         )
@@ -469,7 +469,7 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         data = self._make_data()
         adapter = STModuleCLIAdapter()
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value=None,
         ):
             with self.assertRaises(STModuleNotInstalled) as ctx:
@@ -480,7 +480,7 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
     def test_successful_subprocess_parses_json(self) -> None:
         """When the subprocess returns a valid JSON SpatialModuleResult
         on stdout, the adapter parses and returns it."""
-        from mrna_ai_tools.spatial_module_adapter import STModuleCLIAdapter
+        from mrnavax.spatial_module_adapter import STModuleCLIAdapter
 
         data = self._make_data()
         adapter = STModuleCLIAdapter()
@@ -506,10 +506,10 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         mock_proc.stdout = mock_stdout
         mock_proc.stderr = ""
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value="/usr/bin/Rscript",
         ), patch(
-            "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+            "mrnavax.spatial_module_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             result = adapter.run(data)
@@ -518,7 +518,7 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         self.assertEqual(result.modules[0].top_genes, ("GENE_1", "GENE_2"))
 
     def test_nonzero_exit_raises_stmodule_error(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             STModuleNotInstalled,
         )
@@ -530,17 +530,17 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         mock_proc.stdout = ""
         mock_proc.stderr = "Error: package 'STModule' not found"
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value="/usr/bin/Rscript",
         ), patch(
-            "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+            "mrnavax.spatial_module_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             with self.assertRaises(STModuleNotInstalled.__bases__[0]):  # STModuleError
                 adapter.run(data)
 
     def test_unparseable_json_raises(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             STModuleNotInstalled,
         )
@@ -552,17 +552,17 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         mock_proc.stdout = "not json at all"
         mock_proc.stderr = ""
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value="/usr/bin/Rscript",
         ), patch(
-            "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+            "mrnavax.spatial_module_adapter.subprocess.run",
             return_value=mock_proc,
         ):
             with self.assertRaises(STModuleNotInstalled.__bases__[0]):
                 adapter.run(data)
 
     def test_timeout_raises_stmodule_error(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             STModuleNotInstalled,
         )
@@ -570,10 +570,10 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         data = self._make_data()
         adapter = STModuleCLIAdapter(timeout_seconds=1)
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value="/usr/bin/Rscript",
         ), patch(
-            "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+            "mrnavax.spatial_module_adapter.subprocess.run",
             side_effect=subprocess.TimeoutExpired(cmd="Rscript", timeout=1),
         ):
             with self.assertRaises(STModuleNotInstalled.__bases__[0]):
@@ -581,7 +581,7 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
 
     def test_command_line_includes_platform_and_paths(self) -> None:
         """Verify the subprocess invocation passes the right args to Rscript."""
-        from mrna_ai_tools.spatial_module_adapter import STModuleCLIAdapter
+        from mrnavax.spatial_module_adapter import STModuleCLIAdapter
 
         data = self._make_data(platform="Visium")
         adapter = STModuleCLIAdapter()
@@ -599,10 +599,10 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
         )
         mock_proc.stderr = ""
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.shutil.which",
+            "mrnavax.spatial_module_adapter.shutil.which",
             return_value="/usr/bin/Rscript",
         ), patch(
-            "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+            "mrnavax.spatial_module_adapter.subprocess.run",
             return_value=mock_proc,
         ) as mock_run:
             adapter.run(data)
@@ -620,33 +620,33 @@ class TestSTModuleCLIAdapter(unittest.TestCase):
 
 class TestBackendSelector(unittest.TestCase):
     def test_select_real_forced_missing_raises(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleNotInstalled,
             select_spatial_module_backend,
         )
 
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.rscript_available",
+            "mrnavax.spatial_module_adapter.rscript_available",
             return_value=False,
         ):
             with self.assertRaises(STModuleNotInstalled):
                 select_spatial_module_backend(prefer="real")
 
     def test_select_real_forced_present(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             select_spatial_module_backend,
         )
 
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.rscript_available",
+            "mrnavax.spatial_module_adapter.rscript_available",
             return_value=True,
         ):
             sel = select_spatial_module_backend(prefer="real")
             self.assertIsInstance(sel, STModuleCLIAdapter)
 
     def test_select_mock_forced(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
             select_spatial_module_backend,
         )
@@ -655,26 +655,26 @@ class TestBackendSelector(unittest.TestCase):
         self.assertIsInstance(sel, MockSpatialModuleBackend)
 
     def test_select_auto_falls_back_to_mock(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
             select_spatial_module_backend,
         )
 
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.rscript_available",
+            "mrnavax.spatial_module_adapter.rscript_available",
             return_value=False,
         ):
             sel = select_spatial_module_backend()
             self.assertIsInstance(sel, MockSpatialModuleBackend)
 
     def test_select_auto_picks_real(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             STModuleCLIAdapter,
             select_spatial_module_backend,
         )
 
         with patch(
-            "mrna_ai_tools.spatial_module_adapter.rscript_available",
+            "mrnavax.spatial_module_adapter.rscript_available",
             return_value=True,
         ):
             sel = select_spatial_module_backend()
@@ -690,7 +690,7 @@ class TestSpatialDataHighResolution(unittest.TestCase):
     """Verify the platform-specific high_resolution flag is wired correctly."""
 
     def test_is_high_resolution_st(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -703,7 +703,7 @@ class TestSpatialDataHighResolution(unittest.TestCase):
             self.assertFalse(data.is_high_resolution)
 
     def test_is_high_resolution_slideseqv2(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -716,7 +716,7 @@ class TestSpatialDataHighResolution(unittest.TestCase):
             self.assertTrue(data.is_high_resolution)
 
     def test_is_high_resolution_stereoseq(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
@@ -732,14 +732,14 @@ class TestSpatialDataHighResolution(unittest.TestCase):
         """When platform is SlideSeqV2, the subprocess invocation should
         include --high-resolution and --max-iter 100 per upstream
         tutorial recommendation."""
-        from mrna_ai_tools.spatial_module_adapter import STModuleCLIAdapter
+        from mrnavax.spatial_module_adapter import STModuleCLIAdapter
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
             loc = Path(tmp) / "locs.tsv"
             _write_count_matrix(count)
             _write_locations(loc)
-            from mrna_ai_tools.spatial_protocols import SpatialData
+            from mrnavax.spatial_protocols import SpatialData
 
             data = SpatialData(
                 count_file=count,
@@ -762,10 +762,10 @@ class TestSpatialDataHighResolution(unittest.TestCase):
             )
             mock_proc.stderr = ""
             with patch(
-                "mrna_ai_tools.spatial_module_adapter.shutil.which",
+                "mrnavax.spatial_module_adapter.shutil.which",
                 return_value="/usr/bin/Rscript",
             ), patch(
-                "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+                "mrnavax.spatial_module_adapter.subprocess.run",
                 return_value=mock_proc,
             ) as mock_run:
                 adapter.run(data)
@@ -778,14 +778,14 @@ class TestSpatialDataHighResolution(unittest.TestCase):
     def test_cli_args_omit_high_resolution_for_st(self) -> None:
         """When platform is ST, --high-resolution should NOT be in the
         subprocess args (per upstream tutorial: ST data uses defaults)."""
-        from mrna_ai_tools.spatial_module_adapter import STModuleCLIAdapter
+        from mrnavax.spatial_module_adapter import STModuleCLIAdapter
 
         with tempfile.TemporaryDirectory() as tmp:
             count = Path(tmp) / "counts.tsv"
             loc = Path(tmp) / "locs.tsv"
             _write_count_matrix(count)
             _write_locations(loc)
-            from mrna_ai_tools.spatial_protocols import SpatialData
+            from mrnavax.spatial_protocols import SpatialData
 
             data = SpatialData(
                 count_file=count, locations_file=loc, platform="ST"
@@ -805,10 +805,10 @@ class TestSpatialDataHighResolution(unittest.TestCase):
             )
             mock_proc.stderr = ""
             with patch(
-                "mrna_ai_tools.spatial_module_adapter.shutil.which",
+                "mrnavax.spatial_module_adapter.shutil.which",
                 return_value="/usr/bin/Rscript",
             ), patch(
-                "mrna_ai_tools.spatial_module_adapter.subprocess.run",
+                "mrnavax.spatial_module_adapter.subprocess.run",
                 return_value=mock_proc,
             ) as mock_run:
                 adapter.run(data)
@@ -820,7 +820,7 @@ class TestParsePayload(unittest.TestCase):
     """Logic validation: _parse_payload handles edge cases."""
 
     def test_empty_modules_list(self) -> None:
-        from mrna_ai_tools.spatial_module_adapter import _parse_payload
+        from mrnavax.spatial_module_adapter import _parse_payload
 
         result = _parse_payload(
             {
@@ -842,7 +842,7 @@ class TestParsePayload(unittest.TestCase):
         """When subprocess reports elapsed=0.1, we use it (subprocess
         wall-clock time includes R startup overhead). The payload's
         elapsed_seconds is only used when subprocess elapsed is 0."""
-        from mrna_ai_tools.spatial_module_adapter import _parse_payload
+        from mrnavax.spatial_module_adapter import _parse_payload
 
         result = _parse_payload(
             {
@@ -861,7 +861,7 @@ class TestParsePayload(unittest.TestCase):
         """When subprocess reports elapsed=0 (the rare case where the
         adapter is called without timing), fall back to the payload's
         elapsed_seconds (which the R shim reports)."""
-        from mrna_ai_tools.spatial_module_adapter import _parse_payload
+        from mrnavax.spatial_module_adapter import _parse_payload
 
         result = _parse_payload(
             {
@@ -878,7 +878,7 @@ class TestParsePayload(unittest.TestCase):
 
     def test_notes_default_to_empty(self) -> None:
         """Missing 'notes' field should default to empty tuple, not error."""
-        from mrna_ai_tools.spatial_module_adapter import _parse_payload
+        from mrnavax.spatial_module_adapter import _parse_payload
 
         result = _parse_payload(
             {
@@ -897,8 +897,8 @@ class TestMockBackendZeroSpots(unittest.TestCase):
     """Edge case: empty count matrix should not crash."""
 
     def test_empty_count_matrix(self) -> None:
-        from mrna_ai_tools.spatial_protocols import SpatialData
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_protocols import SpatialData
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -920,8 +920,8 @@ class TestMockBackendZeroSpots(unittest.TestCase):
     def test_malformed_count_matrix_graceful(self) -> None:
         """A completely garbage file should still produce a result, not
         raise. The mock's _read_first_column swallows I/O errors."""
-        from mrna_ai_tools.spatial_protocols import SpatialData
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_protocols import SpatialData
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
 
@@ -942,10 +942,10 @@ class TestMockBackendZeroSpots(unittest.TestCase):
 class TestEndToEnd(unittest.TestCase):
     def test_mock_backend_result_is_serializable(self) -> None:
         """SpatialModuleResult.to_dict() must be JSON-serializable."""
-        from mrna_ai_tools.spatial_module_adapter import (
+        from mrnavax.spatial_module_adapter import (
             MockSpatialModuleBackend,
         )
-        from mrna_ai_tools.spatial_protocols import SpatialData
+        from mrnavax.spatial_protocols import SpatialData
 
         tmp = tempfile.mkdtemp()
         count = Path(tmp) / "counts.tsv"

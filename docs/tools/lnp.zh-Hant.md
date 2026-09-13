@@ -6,13 +6,13 @@
 
 ```bash
 # 癌症疫苗，肺部遞送，saRNA 貨物
-mrna-ai lnp --target lung --cargo saRNA --intent "cancer vaccine"
+mrnavax lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # 肝臟基因編輯，Cas9 mRNA
-mrna-ai lnp --target liver --cargo Cas9 --intent "gene editing"
+mrnavax lnp --target liver --cargo Cas9 --intent "gene editing"
 
 # 瘤內注射（TRAIL-mRNA 範例）
-mrna-ai lnp --target tumor --cargo mRNA --intent "cancer vaccine"
+mrnavax lnp --target tumor --cargo mRNA --intent "cancer vaccine"
 ```
 
 ## 輸出 schema

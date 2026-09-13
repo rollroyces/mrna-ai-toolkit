@@ -1,4 +1,4 @@
-# mRNA × AI 工具包
+# mrnavax
 
 > mRNA 癌症治疗中 AI 加杠杆层的实用 Python 工具。
 > 纯标准库核心，七个可执行工具，八个真实模型适配器置于
@@ -37,47 +37,47 @@ CLI 子命令执行，也可干净地作为 Python 模块导入。
 ## 快速开始
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e .                   # 纯标准库核心
 
 # 1. 密码子分析（CAI、GC%、罕见密码子、GC 窗口标准差）
-python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta
-python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta \
+python -m mrnavax.cli codon --sequence mrnavax/examples/cas9.fasta
+python -m mrnavax.cli codon --sequence mrnavax/examples/cas9.fasta \
     --optimize --backend lineardesign
 
 # 2. 新抗原筛选（启发式锚矩阵 + LLM 免疫原性）
-python -m mrna_ai_tools.cli neoantigen \
-    --variants mrna_ai_tools/examples/tp53_variants.csv \
+python -m mrnavax.cli neoantigen \
+    --variants mrnavax/examples/tp53_variants.csv \
     --hla HLA-A*02:01
 
 # 3. 患者-试验配对（TrialGPT 风格，可选择 Sim-ICL）
-python -m mrna_ai_tools.cli trial \
-    --patient mrna_ai_tools/examples/patient_summary.txt \
-    --trials mrna_ai_tools/examples/trials.jsonl --top-k 5 \
+python -m mrnavax.cli trial \
+    --patient mrnavax/examples/patient_summary.txt \
+    --trials mrnavax/examples/trials.jsonl --top-k 5 \
     --matcher trialgpt-simicl
 
 # 4. LNP 组成建议
-python -m mrna_ai_tools.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
+python -m mrnavax.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
 
 # 5. scRNA-seq → 新抗原交接
-python -m mrna_ai_tools.cli scrna \
-    --expression mrna_ai_tools/examples/cells.csv \
-    --variants mrna_ai_tools/examples/variants_coding.csv \
-    --proteins mrna_ai_tools/examples/proteins.fasta \
+python -m mrnavax.cli scrna \
+    --expression mrnavax/examples/cells.csv \
+    --variants mrnavax/examples/variants_coding.csv \
+    --proteins mrnavax/examples/proteins.fasta \
     --tumor-markers TP53,KRAS,BRAF
 
 # 6. mRNA 可制造性评分
-python -m mrna_ai_tools.cli manufacture --cds mrna_ai_tools/examples/cds_gfp.json
+python -m mrnavax.cli manufacture --cds mrnavax/examples/cds_gfp.json
 
 # 7. 空间转录组学组织模块
-python -m mrna_ai_tools.cli spatial \
-    --count-file mrna_ai_tools/examples/st_bc2_count_matrix.tsv \
-    --locations-file mrna_ai_tools/examples/st_bc2_locations.tsv \
+python -m mrnavax.cli spatial \
+    --count-file mrnavax/examples/st_bc2_count_matrix.tsv \
+    --locations-file mrnavax/examples/st_bc2_locations.tsv \
     --platform ST --num-modules 10
 ```
 
-执行 `pip install -e .` 后，同样的 CLI 也会以 `mrna-ai` 控制台脚本形式安装。
+执行 `pip install -e .` 后，同样的 CLI 也会以 `mrnavax` 控制台脚本形式安装。
 
 所有工具的示例输出皆提交于 `examples/sample_outputs/`。
 
@@ -100,9 +100,9 @@ pip install -e ".[all]"                       # 上述全部
 ```bash
 export OPENAI_API_KEY=sk-...
 export OPENAI_MODEL=gpt-4o-mini               # 默认
-python -m mrna_ai_tools.cli trial \
-    --patient mrna_ai_tools/examples/patient_summary.txt \
-    --trials mrna_ai_tools/examples/trials.jsonl --backend openai
+python -m mrnavax.cli trial \
+    --patient mrnavax/examples/patient_summary.txt \
+    --trials mrnavax/examples/trials.jsonl --backend openai
 ```
 
 重型依赖后端（RiboDecode、STModule、ESM2、MedCPT、scGPT）会以
@@ -111,13 +111,13 @@ python -m mrna_ai_tools.cli trial \
 
 ## 文档
 
-完整 MkDocs 站点：<https://rollroyces.github.io/mrna-ai-toolkit/>
+完整 MkDocs 站点：<https://rollroyces.github.io/mrnavax/>
 
 提供三种语言版本：
 
-- 🇺🇸 English — <https://rollroyces.github.io/mrna-ai-toolkit/>
-- 🇹🇼 繁體中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hant/>
-- 🇨🇳 简体中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hans/>
+- 🇺🇸 English — <https://rollroyces.github.io/mrnavax/>
+- 🇹🇼 繁體中文 — <https://rollroyces.github.io/mrnavax/zh-Hant/>
+- 🇨🇳 简体中文 — <https://rollroyces.github.io/mrnavax/zh-Hans/>
 
 后续推送至 `main` 会通过 GitHub Pages 自动部署三种语种。
 
@@ -142,11 +142,11 @@ mkdocs serve
 
 ```bash
 # 真实：已安装 ribo-decode + Rscript 在 $PATH
-mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode-real \
+mrnavax codon --sequence gfp.fasta --optimize --backend ribodecode-real \
     --env HEK293T --env-csv custom_env.csv --mfe-weight 0.3 --optim-epoch 10
 
 # Mock：相同形状，仅标准库
-mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode
+mrnavax codon --sequence gfp.fasta --optimize --backend ribodecode
 ```
 
 ### `STModule`（Wang et al., *Genome Medicine* 17, 2025）
@@ -157,11 +157,11 @@ mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode
 
 ```bash
 # 真实：已安装 R + STModule
-mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+mrnavax spatial --count-file counts.tsv --locations-file locs.tsv \
     --platform SlideSeqV2 --num-modules 10
 
 # Mock：相同形状，仅标准库
-mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+mrnavax spatial --count-file counts.tsv --locations-file locs.tsv \
     --platform ST --num-modules 10
 ```
 
@@ -171,7 +171,7 @@ mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
 （torch + transformers），以延迟加载适配器形式封装。
 
 ```python
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
 r = lm_immunogenicity_score("NLVPMVATV")  # CMV pp65 表位
 print(r["score"])  # 0.0–1.0
 ```
@@ -183,7 +183,7 @@ print(r["score"])  # 0.0–1.0
 示范例子表现优于随机 few-shot。
 
 ```bash
-mrna-ai trial --patient patient.txt --trials trials.jsonl \
+mrnavax trial --patient patient.txt --trials trials.jsonl \
     --matcher trialgpt-simicl --top-k 10
 ```
 
@@ -246,7 +246,7 @@ mRNA 癌症治疗研究正处于一个转折点：**序列设计**、**变异优
 
 ```bash
 # 运行所有后端完整性检查（对应 CI）
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # 运行单元测试套件
 python -m unittest discover tests
@@ -273,7 +273,7 @@ mkdocs serve
 
 1. 于 <https://pypi.org/manage/account/publishing/> 注册待处理信任发布者：
    - 所有者：`rollroyces`
-   - 仓库：`mrna-ai-toolkit`
+   - 仓库：`mrnavax`
    - 工作流文件：`publish.yml`
    - 环境：`pypi`
 2. 于 GitHub 仓库的 **Settings → Environments** 建立 `pypi` 环境
@@ -282,7 +282,7 @@ mkdocs serve
 ### 发布流程
 
 ```bash
-# 1. 在 mrna_ai_tools/__init__.py + pyproject.toml 调整版本号
+# 1. 在 mrnavax/__init__.py + pyproject.toml 调整版本号
 # 2. 提交并标记
 git commit -am "release: v0.14.0"
 git tag v0.14.0
@@ -304,7 +304,7 @@ PEP 740 证明由 `pypa/gh-action-pypi-publish@release/v1` 自动生成。
 python -m pip install --upgrade build twine
 python -m build --sdist --wheel
 TWINE_USERNAME=__token__ TWINE_PASSWORD=pypi-... \
-    python -m twine upload dist/mrna_ai_toolkit-*
+    python -m twine upload dist/mrnavax-*
 ```
 
 你会需要 PyPI token——至 <https://pypi.org/manage/account/token/>
@@ -315,9 +315,9 @@ TWINE_USERNAME=__token__ TWINE_PASSWORD=pypi-... \
 
 欢迎提交 Pull Request。默认依赖面为**纯 Python 标准库**——重型
 模型集成必须通过现有的 Protocol 适配器模式接入后端选择器（参考
-`mrna_ai_tools/codon_ribodecode_adapter.py`、
-`mrna_ai_tools/spatial_module_adapter.py`、
-`mrna_ai_tools/protein_lm_adapter.py`）。
+`mrnavax/codon_ribodecode_adapter.py`、
+`mrnavax/spatial_module_adapter.py`、
+`mrnavax/protein_lm_adapter.py`）。
 
 每个新工具应随附：
 

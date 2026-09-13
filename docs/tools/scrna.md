@@ -13,14 +13,14 @@ Closes the loop from tissue to vaccine design:
 
 ```bash
 # Stdlib-only (uses synthetic expression data + k-medoids)
-mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv \
-              --variants mrna_ai_tools/examples/variants_coding.csv \
-              --proteins mrna_ai_tools/examples/proteins.fasta \
+mrnavax scrna --expression mrnavax/examples/cells.csv \
+              --variants mrnavax/examples/variants_coding.csv \
+              --proteins mrnavax/examples/proteins.fasta \
               --tumor-markers GENE_170,GENE_180
 
 # With scanpy (real Leiden clustering)
 pip install -e ".[scrna]"
-mrna-ai scrna --expression path/to/cells.h5ad ...
+mrnavax scrna --expression path/to/cells.h5ad ...
 ```
 
 ## Input files
@@ -67,7 +67,7 @@ To wire scGPT:
 
 ```python
 # In a custom integration script:
-from mrna_ai_tools.sc_rna_pipeline import (
+from mrnavax.sc_rna_pipeline import (
     cluster_with_scanpy, embed_with_foundation_model
 )
 import scgpt  # your installed version
@@ -101,14 +101,14 @@ The toolkit's `scrna` module closes exactly this loop:
 
 ```bash
 # 1. Cluster the scRNA-seq counts
-mrna-ai scrna \
+mrnavax scrna \
   --expression gastric_primary.h5ad \
   --proteins gastric_peptides.fasta \
   --variants patient_variants.csv \
   --output-dir results/
 
 # 2. Hand off the tumor-cluster peptide list to neoantigen screening
-mrna-ai neoantigen \
+mrnavax neoantigen \
   --csv results/tumor_peptides.csv \
   --hla "HLA-A*02:01,HLA-A*24:02" \
   --backend mock
@@ -119,7 +119,7 @@ The same peptide list can then be processed through:
 ```bash
 # 3. ESM2 protein-LM immunogenicity scoring (frozen LM + classifier)
 python -c "
-from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+from mrnavax.neoantigen_screener import lm_immunogenicity_score
 import pandas as pd
 df = pd.read_csv('results/tumor_peptides.csv')
 df['lm_score'] = df['peptide'].apply(
@@ -183,7 +183,7 @@ The paper's key empirical finding:
 ```bash
 # Conceptual pipeline — actual Chow et al. model is paper-released;
 # the toolkit provides the downstream handoff via neoantigen.
-mrna-ai neoantigen \
+mrnavax neoantigen \
   --csv junction_peptides.csv \
   --hla "HLA-A*02:01,HLA-B*07:02" \
   --backend mock

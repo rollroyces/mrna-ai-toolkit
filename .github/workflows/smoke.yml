@@ -25,39 +25,39 @@ jobs:
 
       - name: CLI help (sanity)
         run: |
-          python -m mrna_ai_tools.cli --help
+          python -m mrnavax.cli --help
           for tool in codon neoantigen trial lnp scrna; do
-            python -m mrna_ai_tools.cli $tool --help
+            python -m mrnavax.cli $tool --help
           done
 
       - name: Codon analyze
         run: |
-          python -m mrna_ai_tools.cli codon \
-            --sequence mrna_ai_tools/examples/cas9.fasta \
+          python -m mrnavax.cli codon \
+            --sequence mrnavax/examples/cas9.fasta \
             --out /tmp/cas9_analysis.json
           test -s /tmp/cas9_analysis.json
           python -c "import json; d=json.load(open('/tmp/cas9_analysis.json')); assert d['n_codons']>0; assert 0<=d['cai']<=1; print('codon OK:', d['cai'])"
 
       - name: Codon optimize
         run: |
-          python -m mrna_ai_tools.cli codon \
-            --sequence mrna_ai_tools/examples/cas9.fasta --optimize \
+          python -m mrnavax.cli codon \
+            --sequence mrnavax/examples/cas9.fasta --optimize \
             --out /tmp/cas9_optimized.json
           python -c "import json; d=json.load(open('/tmp/cas9_optimized.json')); assert d['after']['cai']>d['before']['cai']; print('optimize OK:', d['before']['cai'],'->',d['after']['cai'])"
 
       - name: Neoantigen screen (mock)
         run: |
-          python -m mrna_ai_tools.cli neoantigen \
-            --variants mrna_ai_tools/examples/tp53_variants.csv \
+          python -m mrnavax.cli neoantigen \
+            --variants mrnavax/examples/tp53_variants.csv \
             --hla HLA-A*02:01 --backend mock \
             --out /tmp/tp53_screen.json
           python -c "import json; d=json.load(open('/tmp/tp53_screen.json')); assert len(d['candidates'])>=5; print('neoantigen OK:', len(d['candidates']),'calls')"
 
       - name: Trial match (mock)
         run: |
-          python -m mrna_ai_tools.cli trial \
-            --patient mrna_ai_tools/examples/patient_summary.txt \
-            --trials mrna_ai_tools/examples/trials.jsonl --top-k 5 \
+          python -m mrnavax.cli trial \
+            --patient mrnavax/examples/patient_summary.txt \
+            --trials mrnavax/examples/trials.jsonl --top-k 5 \
             --backend mock \
             --out /tmp/trial_match.json
           python -c "import json; d=json.load(open('/tmp/trial_match.json')); assert len(d['ranked'])>=1; print('trial OK:', d['ranked'][0]['nct_id'])"
@@ -65,17 +65,17 @@ jobs:
       - name: LNP advise
         run: |
           for target in liver lung tumor; do
-            python -m mrna_ai_tools.cli lnp --target $target --cargo mRNA \
+            python -m mrnavax.cli lnp --target $target --cargo mRNA \
               --intent "cancer vaccine" --out /tmp/lnp_$target.json
           done
           python -c "import json; d=json.load(open('/tmp/lnp_lung.json')); assert d['shortlist']; print('lnp OK:', len(d['shortlist']),'candidates')"
 
       - name: scRNA pipeline
         run: |
-          python -m mrna_ai_tools.cli scrna \
-            --expression mrna_ai_tools/examples/cells.csv \
-            --variants mrna_ai_tools/examples/variants_coding.csv \
-            --proteins mrna_ai_tools/examples/proteins.fasta \
+          python -m mrnavax.cli scrna \
+            --expression mrnavax/examples/cells.csv \
+            --variants mrnavax/examples/variants_coding.csv \
+            --proteins mrnavax/examples/proteins.fasta \
             --tumor-markers TP53,KRAS,BRAF \
             --out /tmp/scrna.json
           python -c "import json; d=json.load(open('/tmp/scrna.json')); assert d['n_cells']>0; assert d['n_candidate_peptides']>0; assert 'tumor_cluster' in d; print('scrna OK:', d['n_candidate_peptides'],'peptides from cluster', d['tumor_cluster'])"
@@ -85,14 +85,14 @@ jobs:
           MRNA_AI_FORCE_MOCK: "1"
           MRNA_AI_SKIP_MEDCPT_CHECK: "1"
         run: |
-          python -m mrna_ai_tools.backends --check-all
+          python -m mrnavax.backends --check-all
           # Also install-validate each optional extra's import path (without invoking models).
           python -c "
           # Stdlib-only core must work
-          from mrna_ai_tools import codon_optimizer, neoantigen_screener, trial_matcher, lnp_advisor, sc_rna_pipeline, llm, backends
+          from mrnavax import codon_optimizer, neoantigen_screener, trial_matcher, lnp_advisor, sc_rna_pipeline, llm, backends
           print('core imports: OK')
 
           # Optional: confirm mhcflurry is callable as a function even when not installed
-          from mrna_ai_tools.neoantigen_screener import _mhcflurry_available
+          from mrnavax.neoantigen_screener import _mhcflurry_available
           print('mhcflurry_available():', _mhcflurry_available())
           "

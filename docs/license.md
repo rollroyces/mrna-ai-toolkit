@@ -18,5 +18,5 @@ this toolkit, or any use where AGPL's copyleft terms are unacceptable — a
 separate commercial license is available.
 
 Contact: open an issue on the
-[GitHub repository](https://github.com/rollroyces/mrna-ai-toolkit/issues) with
+[GitHub repository](https://github.com/rollroyces/mrnavax/issues) with
 the tag `commercial-license`.

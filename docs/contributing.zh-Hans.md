@@ -16,22 +16,22 @@
 - **基于 Protocol 的可插拔性。** 重型模型集成（RiboDecode、STModule、
   ESM2、scGPT、mhcflurry）必须置于 `runtime_checkable` Protocol 或抽象
   适配器类之后，通过可选 extras 安装（例如
-  `pip install mrna-ai-toolkit[sota]`）。参考
-  `mrna_ai_tools/codon_ribodecode_adapter.py`、
-  `mrna_ai_tools/spatial_module_adapter.py`、
-  `mrna_ai_tools/protein_lm_adapter.py`。
+  `pip install mrnavax[sota]`）。参考
+  `mrnavax/codon_ribodecode_adapter.py`、
+  `mrnavax/spatial_module_adapter.py`、
+  `mrnavax/protein_lm_adapter.py`。
 - **新功能采用 TDD。** 每个新的公开函数必须在实现前先写测试
   （见下方 *开发* 段落）。
 
 ## 开发
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e ".[dev,llm]"
 
 # 运行 25 项后端完整性检查
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # 运行单元测试套件（167 个测试）
 python -m unittest discover tests
@@ -58,7 +58,7 @@ mkdocs serve
 4. 在 `backends.py` 中为任何新后端新增 `register()` 条目。
 5. CI 必须在 Python 3.11–3.14 上保持绿灯才能合并。
 6. 当 `bash scripts/smoke.sh` +
-   `python -m mrna_ai_tools.backends --check-all` +
+   `python -m mrnavax.backends --check-all` +
    `python -m unittest discover tests` 全部通过后，使用 `[verified]`
    commit 信息进行 squash-merge。
 

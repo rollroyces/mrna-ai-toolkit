@@ -21,7 +21,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from mrna_ai_tools.trial_similar import (
+from mrnavax.trial_similar import (
     DEFAULT_TOPK,
     ENV_DEMOS,
     ENV_ENABLED,
@@ -454,7 +454,7 @@ class TestScoreTrialWithLLMSimICL(unittest.TestCase):
     """Verify Sim-ICL plumbing in score_trial_with_llm."""
 
     def setUp(self) -> None:
-        from mrna_ai_tools.trial_llm import score_trial_with_llm
+        from mrnavax.trial_llm import score_trial_with_llm
 
         self.score = score_trial_with_llm
         os.environ[ENV_ENABLED] = "1"
@@ -468,7 +468,7 @@ class TestScoreTrialWithLLMSimICL(unittest.TestCase):
 
     def test_simicl_off_no_demos_in_notes(self) -> None:
         """When use_simicl=False, no simicl-k notes appear."""
-        from mrna_ai_tools.trial_similar import DemoStore
+        from mrnavax.trial_similar import DemoStore
 
         empty = DemoStore(demos=[])
         r = self.score(
@@ -485,7 +485,7 @@ class TestScoreTrialWithLLMSimICL(unittest.TestCase):
 
     def test_simicl_on_with_demos_appears_in_notes(self) -> None:
         """When Sim-ICL is on and demos exist, 'simicl-kN' appears in notes."""
-        from mrna_ai_tools.trial_similar import DemoStore
+        from mrnavax.trial_similar import DemoStore
 
         store = DemoStore(
             demos=[
@@ -508,7 +508,7 @@ class TestScoreTrialWithLLMSimICL(unittest.TestCase):
 
     def test_simicl_on_empty_store_no_simicl_in_notes(self) -> None:
         """Empty store + simicl on = no simicl in notes (nothing to inject)."""
-        from mrna_ai_tools.trial_similar import DemoStore
+        from mrnavax.trial_similar import DemoStore
 
         empty = DemoStore(demos=[])
         r = self.score(
@@ -525,7 +525,7 @@ class TestScoreTrialWithLLMSimICL(unittest.TestCase):
 
     def test_simicl_disabled_via_env_no_demos_in_notes(self) -> None:
         """MRNA_AI_SIMICL_ENABLED=0 disables even with non-empty store."""
-        from mrna_ai_tools.trial_similar import DemoStore
+        from mrnavax.trial_similar import DemoStore
 
         store = DemoStore(demos=[make_demo("demo_a")])
         os.environ[ENV_ENABLED] = "0"

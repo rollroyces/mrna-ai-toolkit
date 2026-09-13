@@ -8,12 +8,12 @@ to run `codon`, `neoantigen` (with the heuristic backend), `trial`,
 (mock backend).
 
 ```bash
-git clone https://github.com/rollroyces/mrna-ai-toolkit.git
-cd mrna-ai-toolkit
+git clone https://github.com/rollroyces/mrnavax.git
+cd mrnavax
 pip install -e .
 ```
 
-This installs a single console script, `mrna-ai`, plus the `mrna_ai_tools`
+This installs a single console script, `mrnavax`, plus the `mrnavax`
 Python package.
 
 ## Optional extras
@@ -49,7 +49,7 @@ See [Backends](backends.md) for the per-tool details.
 
 ```bash
 # Run the 25 backend integrity checks
-python -m mrna_ai_tools.backends --check-all
+python -m mrnavax.backends --check-all
 
 # Run the unit test suite (167 tests)
 python -m unittest discover tests

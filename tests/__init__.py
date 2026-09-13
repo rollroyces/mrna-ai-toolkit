@@ -1,1 +1,1 @@
-"""Test suite for mrna-ai-toolkit RiboDecode adapter integration."""
+"""Test suite for mrnavax RiboDecode adapter integration."""
