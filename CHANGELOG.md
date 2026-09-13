@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-09-13
+
+### Added
+- **ESM2 protein-language-model Protocol adapter**
+  (`mrna_ai_tools.protein_lm_protocols` + `mrna_ai_tools.protein_lm_adapter`).
+  Implements the Applm pattern from Wong et al. 2025
+  (arXiv 2508.10541): use a **frozen** protein-LM to embed candidate
+  peptides, then a lightweight downstream classifier scores them
+  for the task at hand (here: neoantigen immunogenicity).
+- **`ProteinLMEmbedder` Protocol** (runtime_checkable) + 2 typed
+  dataclasses: `EmbeddingRequest` (input) and `EmbeddingResult`
+  (output). Request validates AA alphabet (20 standard AAs),
+  lowercase normalization, pooling mode ∈ {mean, cls, sum},
+  batch_size ≥ 1 — at construction time.
+- **`ESM2Embedder`** real adapter: shells into
+  `transformers.AutoModel.from_pretrained` for the ESM2 family
+  (verified model IDs: esm2_t6_8M_UR50D=320-dim, esm2_t12_35M_UR50D
+  =480-dim, esm2_t30_150M_UR50D=640-dim, esm2_t33_650M_UR50D
+  =1280-dim). Lazy-loads on first call; supports mean/cls/sum
+  pooling; respects batch_size. Heavy deps (torch + transformers)
+  are opt-in via `pip install mrna-ai-toolkit[protein-lm]`.
+- **`MockProteinLMEmbedder`** stdlib stub: deterministic k-mer (k=3)
+  frequency vectors, L2-normalized. Different sequences → different
+  embeddings; same sequence → same embedding (no RNG).
+- **`ApplmStyleClassifier`**: frozen-LM + downstream scoring
+  (sigmoid-like combination of mean + variance). Real users can
+  replace `score()` with `sklearn.linear_model.LogisticRegression`
+  or `xgboost.XGBClassifier` once they have labelled data.
+- **`lm_immunogenicity_score(peptide, embedder=...)`** integration
+  in `neoantigen_screener`: takes a peptide, embeds via ESM2 or
+  mock, scores via ApplmStyleClassifier, returns `{score, dim,
+  model_id, backend, elapsed_seconds, notes}`.
+- **25th backend integrity check** (`neoantigen.esm2_protein_lm_embedder`):
+  validates dataclass edge cases, Protocol conformance, mock
+  L2-normalization + determinism, classifier score range,
+  lm_immunogenicity_score integration, ESM2 dim lookup for all
+  3 standard sizes, backend selector dispatch when transformers
+  missing.
+- **`tests/test_protein_lm.py`**: 37 tests in 9 classes covering:
+  dataclass validation (AA alphabet, pooling modes, lowercase
+  normalization, dim matching, empty embeddings), Protocol
+  runtime_checkable, mock embedder (correct shape, deterministic,
+  L2-normalized, different sequences produce different vectors),
+  ESM2Embedder (transformers-missing error path, batch-size
+  batching, pooling mode routing, dim lookup for known/unknown
+  models), ApplmStyleClassifier (score in [0,1], deterministic,
+  custom embedder), backend selector (4 modes), end-to-end
+  peptide → embedding → score workflow, JSON serialization.
+
+### Reference
+Wong B.S.H., Kim J.M., Fung S.H., et al. (2025). *Driving Accurate
+Allergen Prediction with Protein Language Models and
+Generalization-Focused Evaluation.* arXiv 2508.10541.
+DOI: 10.48550/arXiv.2508.10541
+
+ESM-2: Lin, Z., Akin, H., Rao, R., et al. (2023). *Evolutionary-scale
+prediction of atomic-level protein structure with a language
+model.* Science 379(6637): 1123-1130.
+
 ## [0.12.0] - 2026-09-13
 
 ### Added

@@ -253,6 +253,70 @@ def screen_csv(
     return report
 
 
+# ---------- Protein-LM immunogenicity scoring ------------------------------
+
+
+def lm_immunogenicity_score(
+    peptide: str,
+    *,
+    embedder: object | None = None,
+    model_id: str = "facebook/esm2_t12_35M_UR50D",
+) -> dict:
+    """Score peptide immunogenicity via frozen protein-LM embeddings.
+
+    Implements the Wong et al. 2025 Applm pattern
+    (arXiv 2508.10541): use a frozen protein LM to embed the
+    candidate peptide, then a lightweight downstream classifier
+    scores it for immunogenicity.
+
+    Default backend is the stdlib mock embedder (no torch dep).
+    Pass ``embedder=ESM2Embedder(model_id=...)`` to use the real
+    ESM2 model.
+
+    Parameters
+    ----------
+    peptide
+        Amino-acid sequence (9-11 mer typical for MHC-I epitopes).
+    embedder
+        Optional :class:`ProteinLMEmbedder`. When None, loads via
+        :func:`select_protein_lm_embedder` which picks mock when
+        transformers is unavailable.
+    model_id
+        HuggingFace model identifier. Ignored when ``embedder`` is
+        supplied.
+
+    Returns
+    -------
+    dict with keys:
+        - ``score``: float in [0, 1], higher = more immunogenic
+        - ``dim``: embedding dimension used
+        - ``model_id``: model that produced the embedding
+        - ``backend``: ``"transformers"`` or ``"mock"``
+        - ``elapsed_seconds``: wall-clock time
+        - ``notes``: tuple of debug notes
+    """
+    from .protein_lm_adapter import (
+        ApplmStyleClassifier,
+        select_protein_lm_embedder,
+    )
+    from .protein_lm_protocols import EmbeddingRequest
+
+    if embedder is None:
+        embedder = select_protein_lm_embedder(model_id=model_id)
+    req = EmbeddingRequest(sequences=(peptide,), model_id=model_id)
+    emb = embedder.embed(req)
+    clf = ApplmStyleClassifier(embedder=embedder)
+    score = clf.score(emb.embeddings[0])
+    return {
+        "score": score,
+        "dim": emb.dim,
+        "model_id": emb.model_id,
+        "backend": emb.backend,
+        "elapsed_seconds": emb.elapsed_seconds,
+        "notes": emb.notes,
+    }
+
+
 # ---------- CLI ------------------------------------------------------------
 
 
