@@ -4,10 +4,27 @@ Pull requests welcome.
 
 ## Constraints
 
-- **Stdlib-only core.** Tools that ship in the default install (`pip install -e .`) must depend only on the Python standard library. New deps go behind an `optional-dependencies` extra in `pyproject.toml`.
-- **Determinism.** Tools must produce the same output for the same input (no timestamps in default outputs). Mock backends are always deterministic.
-- **Schema validation.** LLM-backed tools must validate the response shape and fall back to the heuristic if the LLM returns malformed JSON.
-- **Small CLI surface.** Each tool's `_run_cli` should accept `--out` and print to stdout if unset.
+- **Stdlib-only core.** Tools that ship in the default install
+  (`pip install -e .`) must depend only on the Python standard
+  library. New deps go behind an `optional-dependencies` extra in
+  `pyproject.toml`.
+- **Determinism.** Tools must produce the same output for the same
+  input (no timestamps in default outputs). Mock backends are always
+  deterministic.
+- **Schema validation.** LLM-backed tools must validate the response
+  shape and fall back to the heuristic if the LLM returns malformed
+  JSON.
+- **Small CLI surface.** Each tool's `_run_cli` should accept `--out`
+  and print to stdout if unset.
+- **Protocol-based pluggability.** Heavy model integrations
+  (RiboDecode, STModule, ESM2, scGPT, mhcflurry) must live behind a
+  `runtime_checkable` Protocol or abstract adapter class installed
+  via optional extras (e.g. `pip install mrna-ai-toolkit[sota]`).
+  See `mrna_ai_tools/codon_ribodecode_adapter.py`,
+  `mrna_ai_tools/spatial_module_adapter.py`,
+  `mrna_ai_tools/protein_lm_adapter.py` for reference.
+- **TDD for new features.** Every new public function must have a test
+  written before implementation (see *Development* below).
 
 ## Development
 
@@ -16,10 +33,16 @@ git clone https://github.com/rollroyces/mrna-ai-toolkit.git
 cd mrna-ai-toolkit
 pip install -e ".[dev,llm]"
 
-# smoke test
+# Run the 25 backend integrity checks
+python -m mrna_ai_tools.backends --check-all
+
+# Run the unit test suite (167 tests)
+python -m unittest discover tests
+
+# Smoke test
 bash scripts/smoke.sh
 
-# docs locally
+# Docs locally
 pip install -e ".[docs]"
 mkdocs serve
 ```
@@ -27,6 +50,32 @@ mkdocs serve
 ## Pull request process
 
 1. Open an issue first for non-trivial changes.
-2. Fork, branch, commit with `[verified]` prefix once `bash scripts/smoke.sh` passes.
-3. CI must be green on Python 3.11–3.14 before merge.
-4. Squash-merge.
+2. **TDD cycle** for new features (per the `test-driven-development`
+   skill):
+   - **RED**: write a failing test that exercises the wished-for API.
+     Run it and confirm it fails for the right reason.
+   - **GREEN**: write the minimal implementation to pass.
+   - **REFACTOR**: clean up duplication, names, helpers.
+3. Follow the **api-integration-verify** discipline when wrapping a
+   third-party model: probe the upstream docs / GitHub first, verify
+   parameter names + return shapes from real URLs, then design the
+   Protocol adapter.
+4. Add a `register()` entry in `backends.py` for any new backend.
+5. CI must be green on Python 3.11–3.14 before merge.
+6. Squash-merge with a `[verified]` commit message once
+   `bash scripts/smoke.sh` + `python -m mrna_ai_tools.backends --check-all`
+   + `python -m unittest discover tests` all pass.
+
+## Adding a new tool
+
+Every new tool should ship with:
+
+1. A typed `dataclass` for input + output (frozen, validated at
+   construction).
+2. A `runtime_checkable` Protocol for the backend interface.
+3. A real adapter that shells out / lazy-loads the upstream model.
+4. A stdlib-only mock that satisfies the same Protocol.
+5. A `register()` entry in `backends.py` for CI integrity.
+6. Tests in `tests/` following strict TDD.
+7. A `docs/tools/<name>.{md,zh-Hant.md,zh-Hans.md}` page describing
+   the tool, CLI usage, backend matrix, and reference paper.

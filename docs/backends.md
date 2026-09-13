@@ -1,63 +1,66 @@
 # Backends
 
-The `neoantigen` and `trial` tools can call an LLM (or a trained model) for
-inference. The `codon` and `lnp` tools are deterministic and never call a
-model.
+Seven tools, each with a typed `Protocol` adapter and a stdlib mock
+fallback. Heavy deps are opt-in per `pip install` extras — CI runs
+without them.
 
 ## Backend matrix
 
-| Backend | What it does | Setup |
+| Backend | Tools | What it does | Setup |
+|---|---|---|---|
+| `mock` | all | Stdlib stub. Always available. | — |
+| `openai` | `neoantigen`, `trial` | Calls OpenAI Chat Completions (or any OpenAI-compatible endpoint) | `OPENAI_API_KEY=...` |
+| `mhcflurry` | `neoantigen` | Pan-allele MHC-I binding affinity | `pip install -e ".[neoantigen-mhcflurry]"` |
+| `MedCPT` | `neoantigen`, `trial` | Dense biomedical retrieval (PubMed contrastive) | `pip install -e ".[neoantigen-medcpt]"` or `[trial-medcpt]` |
+| `scGPT` | `scrna` | Single-cell foundation-model embeddings | `pip install -e ".[scrna]"` |
+| `AlphaMissense` | `variant_scorer` | Pathogenicity via 71M-variant TSV | Standalone TSV (CC BY-NC-SA) |
+| `ESM2` | `neoantigen` | Frozen protein-LM embeddings for immunogenicity | `pip install -e ".[protein-lm]"` |
+| `RiboDecode` (real) | `codon` | Joint translation × MFE codon optimization | `pip install ribodecode-1.3.0-py3-none-any.whl` |
+| `RiboDecode` (heuristic) | `codon` | Stdlib RiboDecode-style hill-climb | — |
+| `LinearDesign` | `codon` | Joint translation × MFE DP | — (stdlib) |
+| `STModule` (real) | `spatial` | Tissue-module identification from SRT data | `pip install STModule` + Rscript on `$PATH` |
+| `STModule` (mock) | `spatial` | Stdlib stub with per-platform gene universes | — |
+| `TrialGPT` | `trial` | Per-criterion LLM eligibility matching | (uses `openai` backend) |
+| `Sim-ICL` | `trial` | Top-K demo selection by TF-IDF cosine | — (stdlib) |
+
+## How Protocol adapters work
+
+Each real-model backend is wrapped in a `runtime_checkable` Protocol:
+
+```python
+@runtime_checkable
+class TranslationPredictor(Protocol):
+    def predict(self, cds: str, env: str = "HEK293T",
+                custom_env_csv: Path | None = None) -> TranslationPrediction: ...
+```
+
+The toolkit ships both a real adapter (e.g. `TranslationModelCLIAdapter`
+subprocess to `pred-translation`) and a mock (`MockTranslationPredictor`
+using CAI-derived score). Consumers see the same Protocol; the backend
+selector picks real-or-mock based on `$PATH` + installed deps.
+
+## Backend selectors
+
+| Tool | Selector | Real-or-mock dispatch |
 |---|---|---|
-| `mock` | Heuristic / offline stub — fast, no deps | always available |
-| `openai` | Calls OpenAI Chat Completions (or any OpenAI-compatible endpoint) | `OPENAI_API_KEY=...` |
-| `mhcflurry` | Real pan-allele binding-affinity prediction | `pip install mhcflurry pandas` |
-
-## `mock`
-
-Default. Uses a hand-coded A*02:01 anchor matrix for `neoantigen` and keyword
-overlap for `trial`. Useful for tests, CI, and offline experimentation.
-
-## `openai`
-
-```bash
-export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-4o-mini        # default
-export OPENAI_BASE_URL=https://api.openai.com/v1  # any compatible endpoint
-
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
-                   --hla HLA-A*02:01 --backend openai
-```
-
-The LLM is prompted to return a strict JSON object — the tool validates the
-shape and falls back to the heuristic if the LLM doesn't follow it.
-
-## `mhcflurry`
-
-The mhcflurry backend uses the
-[`Class1PresentationPredictor`](https://github.com/openvax/mhcflurry), a
-pan-allele MHC-I binding + presentation model trained on mass-spec
-eluted-ligand data.
-
-```bash
-pip install -e ".[neoantigen-mhcflurry]"
-
-# First use downloads ~600 MB of model weights to ~/.mhcflurry/
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv \
-                   --hla HLA-A*02:01 --backend mhcflurry
-```
-
-Output format is identical to the mock backend, but `binding_affinity_nM` and
-`immunogenicity_score` come from the trained model rather than the anchor
-heuristic. The `source` field reads `mhcflurry` to make this clear.
+| `codon` | (CLI flag `--backend`) | `ribodecode-real` if `ribo-decode` on `$PATH` else `ribodecode` (heuristic) |
+| `neoantigen` | `select_translation_predictor` / `select_codon_optimizer` | mhcflurry if installed else OpenAI if key set else mock |
+| `trial` | `select_spatial_module_backend` / `select_protein_lm_embedder` | OpenAI if key set else mock |
+| `scrna` | `embed_with_foundation_model` | scGPT if installed else identity (no-op fallback) |
+| `manufacture` | — | All stdlib (no LLM) |
+| `lnp` | — | All stdlib (no LLM) |
+| `spatial` | `select_spatial_module_backend` | `Rscript` on `$PATH` else mock |
 
 ## Auto-detection
 
-When `--backend auto` (the default), the tool picks the strongest available
-backend in this order:
+When `--backend auto` (the default), the tool picks the strongest
+available backend in this order:
 
-1. `mhcflurry` (if installed) — best for neoantigen scoring
-2. `openai` (if `OPENAI_API_KEY` set) — needed for the trial matcher
-3. `mock` — always works, deterministic, ~0 ms
+1. **Heavy upstream binary** (e.g. `Rscript` for STModule, `pred-translation`
+   for RiboDecode) — best accuracy, requires user setup.
+2. **Installed Python package** (mhcflurry, transformers, OpenAI) — good
+   accuracy, opt-in.
+3. **Mock** — always works, deterministic, ~0 ms, stdlib-only.
 
-This makes local dev painless and lets production deployments override via env
-var or CLI flag.
+This makes local dev painless and lets production deployments override
+via env var or CLI flag.

@@ -1,46 +1,64 @@
 # mRNA × AI 工具包
 
-> 面向 mRNA 癌症治疗中 AI 加杠杆层的实用 Python 工具集。
-> 仅依赖 Python 标准库，开箱即用，约 500 行代码。
+> mRNA 癌症治疗中 AI 加杠杆层的实用 Python 工具。
+> 纯标准库核心，七个可执行工具，八个真实模型适配器置于
+> Protocol 契约之后，三份文档语种，167 个测试，25 项后端完整性检查。
 
-## 概览
+## 这是什么
 
-四个独立可运行的小工具，1:1 对应当前 LLM 与 ML 模型正在变革 mRNA
-癌症治疗的关键 AI 加杠杆层：
+七个小巧、可执行的工具，一对一对应于 mRNA 癌症治疗中已发表的
+AI 加杠杆点——加上每个已发表基础模型的类型化整合契约。每个工具可作为
+CLI 子命令执行，也可干净地作为 Python 模块导入。
 
-| 工具 | AI 加杠杆层 | 集成参考 |
-|---|---|---|
-| `codon` | 密码子使用分析 + 贪心式优化器 | CodonBERT、RiboDecode、LinearDesign、mRNABERT |
-| `neoantigen` | 肽 × HLA 结合与免疫原性评分（LLM） | TrambaHLApan、DeepNeo、DeepHLApan、NetMHCpan |
-| `trial` | TrialGPT 式 检索 → 匹配 → 排序 流程 | Jin et al. *Nat Commun* 15, 9074 (2024) |
-| `lnp` | LNP 配方推荐（已发表 + ML 发现） | Witten et al. *Nat Biotech* 43, 1790 (2025)，Li et al. *Nat Mater* 23, 1002 (2024) |
+| Tool | 工具功能 | AI 加杠杆层 | 整合的参考工作 |
+|---|---|---|---|
+| `codon` | 密码子分析 + LinearDesign DP + RiboDecode 启发式 | 序列设计 | CodonBERT、RiboDecode (Li et al., *Nat Commun* 2025)、LinearDesign |
+| `neoantigen` | 肽段 × HLA 结合 + ESM2 LM 免疫原性评分 | 变异优先排序 | mhcflurry、MedCPT、DeepNeo、NetMHCpan、ESM2 + Applm 模式 (Wong et al., 2025) |
+| `trial` | TrialGPT 每条标准 LLM 配对 + Sim-ICL 示范选择 | 患者-试验配对 | TrialGPT (Jin et al., *Nat Commun* 2024) + Sim-ICL (Fung et al., *Genome Biol* 2026) |
+| `scrna` | scRNA-seq → 肿瘤群聚 → 突变肽段 → ESM2 免疫原性 | 单细胞基础 | scGPT (Cui et al., *Nat Methods* 2024) |
+| `manufacture` | mRNA 可制造性检查（poly-A、Kozak、GC、ARE、终止密码子） | 湿实验 | 业界 mRNA 设计指南 |
+| `lnp` | LNP 组成推荐 | 湿实验 | Witten 2025、Li 2024 |
+| `spatial` | STModule 空间转录组学组织模块识别 | 空间转录组学 | STModule (Wang et al., *Genome Medicine* 2025) |
 
-每个工具既可作为 CLI 子命令运行，也可作为 Python 模块直接导入。
+**Protocol 契约之后的真实模型适配器**（通过 `pip install` extras 可选安装）：
+
+- `RiboDecode` → `pip install -e .[ribodecode]`（重：ViennaRNA + CUDA，通过 subprocess）
+- `STModule` → `pip install -e .[spatial-r]`（重：R + Seurat + torch + CUDA，通过 subprocess）
+- `ESM2 protein-LM` → `pip install -e .[protein-lm]`（重：torch + transformers，~135 MB）
+- `AlphaMissense` → 独立 Python pickle 索引，源自用户下载的 TSV
+- `scGPT` → `pip install -e .[scrna]`（重：torch，~205 MB）
+- `mhcflurry` → `pip install -e .[neoantigen-mhcflurry]`
+- `MedCPT` → `pip install -e .[neoantigen-medcpt]` 或 `[trial-medcpt]`（重：torch + transformers，~440 MB）
+- `TrialGPT/OpenAI` → `pip install -e .[llm]`
+
+每个适配器都有满足相同 `runtime_checkable` Protocol 的 **mock 后端**，
+仅使用标准库，因此 CI 无需下载任何模型权重即可运行。
 
 ## 快速开始
 
 ```bash
 git clone https://github.com/rollroyces/mrna-ai-toolkit.git
 cd mrna-ai-toolkit
-pip install -e .                   # 仅依赖 Python 标准库的核心模块
+pip install -e .                   # 纯标准库核心
 
-# 1. 密码子分析
+# 1. 密码子分析（CAI、GC%、罕见密码子、GC 窗口标准差）
 python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta
-python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta --optimize
+python -m mrna_ai_tools.cli codon --sequence mrna_ai_tools/examples/cas9.fasta \
+    --optimize --backend lineardesign
 
-# 2. 新抗原筛选（默认使用 A*02:01 启发式锚点矩阵）
+# 2. 新抗原筛选（启发式锚矩阵 + LLM 免疫原性）
 python -m mrna_ai_tools.cli neoantigen \
     --variants mrna_ai_tools/examples/tp53_variants.csv \
     --hla HLA-A*02:01
 
-# 3. 患者到临床试验的匹配（TrialGPT 式）
+# 3. 患者-试验配对（TrialGPT 风格，可选择 Sim-ICL）
 python -m mrna_ai_tools.cli trial \
     --patient mrna_ai_tools/examples/patient_summary.txt \
-    --trials mrna_ai_tools/examples/trials.jsonl --top-k 5
+    --trials mrna_ai_tools/examples/trials.jsonl --top-k 5 \
+    --matcher trialgpt-simicl
 
-# 4. LNP 配方建议
+# 4. LNP 组成建议
 python -m mrna_ai_tools.cli lnp --target lung --cargo saRNA --intent "cancer vaccine"
-python -m mrna_ai_tools.cli lnp --target liver --cargo Cas9 --intent "gene editing"
 
 # 5. scRNA-seq → 新抗原交接
 python -m mrna_ai_tools.cli scrna \
@@ -48,54 +66,60 @@ python -m mrna_ai_tools.cli scrna \
     --variants mrna_ai_tools/examples/variants_coding.csv \
     --proteins mrna_ai_tools/examples/proteins.fasta \
     --tumor-markers TP53,KRAS,BRAF
+
+# 6. mRNA 可制造性评分
+python -m mrna_ai_tools.cli manufacture --cds mrna_ai_tools/examples/cds_gfp.json
+
+# 7. 空间转录组学组织模块
+python -m mrna_ai_tools.cli spatial \
+    --count-file mrna_ai_tools/examples/st_bc2_count_matrix.tsv \
+    --locations-file mrna_ai_tools/examples/st_bc2_locations.tsv \
+    --platform ST --num-modules 10
 ```
 
-执行 `pip install -e .` 后，相同的 CLI 同时也会以控制台脚本 `mrna-ai`
-的形式安装：
+执行 `pip install -e .` 后，同样的 CLI 也会以 `mrna-ai` 控制台脚本形式安装。
+
+所有工具的示例输出皆提交于 `examples/sample_outputs/`。
+
+## 可选扩展包
 
 ```bash
-mrna-ai codon --sequence mrna_ai_tools/examples/cas9.fasta
-mrna-ai neoantigen --variants mrna_ai_tools/examples/tp53_variants.csv --hla HLA-A*02:01
-mrna-ai trial --patient mrna_ai_tools/examples/patient_summary.txt --trials mrna_ai_tools/examples/trials.jsonl
-mrna-ai lnp --target lung --cargo saRNA
-mrna-ai scrna --expression mrna_ai_tools/examples/cells.csv --variants mrna_ai_tools/examples/variants_coding.csv --proteins mrna_ai_tools/examples/proteins.fasta --tumor-markers TP53,KRAS,BRAF
+pip install -e ".[llm]"                       # OpenAI 兼容 LLM 客户端（TrialGPT）
+pip install -e ".[neoantigen-mhcflurry]"       # mhcflurry 结合亲和力后端
+pip install -e ".[neoantigen-medcpt]"          # MedCPT 查询/文章编码器（~440 MB）
+pip install -e ".[protein-lm]"                # ESM2 蛋白质语言模型（~135 MB）
+pip install -e ".[trial-medcpt]"               # 试验检索用的 MedCPT
+pip install -e ".[scrna]"                     # scanpy + anndata + scGPT 接入点
+pip install -e ".[docs]"                      # mkdocs-material + mkdocs-static-i18n
+pip install -e ".[dev]"                       # ruff + pytest
+pip install -e ".[all]"                       # 上述全部
 ```
 
-五个工具的示例输出都已提交至仓库的 `examples/sample_outputs/` 目录。
-
-## 可选扩展
-
-```bash
-pip install -e ".[llm]"                       # 兼容 OpenAI 协议的 LLM 客户端
-pip install -e ".[neoantigen-mhcflurry]"       # mhcflurry>=2.0 与 pandas
-pip install -e ".[scrna]"                     # scanpy / anndata，用于聚类
-pip install -e ".[all]"                       # 安装全部可选依赖
-```
-
-然后激活真实后端：
+接着启用真实后端：
 
 ```bash
 export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-4o-mini               # 默认模型
-python -m mrna_ai_tools.cli neoantigen \
-    --variants mrna_ai_tools/examples/tp53_variants.csv \
-    --hla HLA-A*02:01 --backend openai
+export OPENAI_MODEL=gpt-4o-mini               # 默认
+python -m mrna_ai_tools.cli trial \
+    --patient mrna_ai_tools/examples/patient_summary.txt \
+    --trials mrna_ai_tools/examples/trials.jsonl --backend openai
 ```
 
-自动检测顺序：`mhcflurry`（若已安装）→ `openai`（若设置了 `OPENAI_API_KEY`）→ `mock`。
+重型依赖后端（RiboDecode、STModule、ESM2、MedCPT、scGPT）会以
+**subprocess 或延迟加载**方式接入上游模型。CI 在没有它们的情况下运行；
+正式用户依需求通过上方 extras 安装。
 
 ## 文档
 
-完整的 MkDocs 站点：<https://rollroyces.github.io/mrna-ai-toolkit/>
+完整 MkDocs 站点：<https://rollroyces.github.io/mrna-ai-toolkit/>
 
 提供三种语言版本：
 
-- 🇺🇸 英文 — <https://rollroyces.github.io/mrna-ai-toolkit/>
+- 🇺🇸 English — <https://rollroyces.github.io/mrna-ai-toolkit/>
 - 🇹🇼 繁體中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hant/>
 - 🇨🇳 简体中文 — <https://rollroyces.github.io/mrna-ai-toolkit/zh-Hans/>
 
-之后每次推送至 `main` 分支，都会通过 GitHub Pages 自动部署全部
-三种语言版本。
+后续推送至 `main` 会通过 GitHub Pages 自动部署三种语种。
 
 本地预览：
 
@@ -104,83 +128,175 @@ pip install -e ".[docs]"
 mkdocs serve
 ```
 
-## 接入真实 LLM
+## 真实模型集成
 
-`neoantigen` 与 `trial` 工具默认会调用 LLM。如需接入真实模型，请导出
-你的 API 密钥：
+每个已发表的基础模型皆集成于具类型的 `Protocol` 适配器之后，并提供
+仅使用标准库的 mock 后备。生产环境与 CI 的适配器契约完全相同——
+仅实现不同。
+
+### `RiboDecode`（Li et al., *Nat Commun* 16, 9957, 2025）
+
+通过深度生成模型进行翻译 × 二级结构联合密码子优化。重型依赖
+（ViennaRNA 2.6.4 + CUDA），以 subprocess 适配器形式封装，存在时调用
+上游 CLI。
 
 ```bash
-export OPENAI_API_KEY=sk-...
-export OPENAI_MODEL=gpt-4o-mini            # 或任意兼容 OpenAI 协议的模型
-python -m mrna_ai_tools.cli neoantigen \
-    --variants mrna_ai_tools/examples/tp53_variants.csv \
-    --hla HLA-A*02:01 --backend openai
+# 真实：已安装 ribo-decode + Rscript 在 $PATH
+mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode-real \
+    --env HEK293T --env-csv custom_env.csv --mfe-weight 0.3 --optim-epoch 10
+
+# Mock：相同形状，仅标准库
+mrna-ai codon --sequence gfp.fasta --optimize --backend ribodecode
 ```
 
-`codon` 与 `lnp` 工具是确定性的，不会调用任何 LLM。
+### `STModule`（Wang et al., *Genome Medicine* 17, 2025）
 
-## 为什么是这四个层？
+从空间转录组学（SRT）数据识别组织模块。重型依赖
+（R 4.4 + Seurat v5 + torch + GPUmatrix 1.0.2 + CUDA 11.7），以小型 R 壳层
+（shim）调用 `Rscript stmodule_shim.R`。
 
-mRNA 癌症治疗研究识别出四个 AI 加杠杆层，**它们要么目前尚无基座
-模型，要么现有模型可被接入到一套干净的确定性接口中**——而这正是本
-工具包所提供的。
+```bash
+# 真实：已安装 R + STModule
+mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+    --platform SlideSeqV2 --num-modules 10
 
-1. **序列设计**（codon）：CodonBERT / RiboDecode / LinearDesign /
-   mRNABERT 以每个密码子与每个区段的统计量作为输入。本工具中的密码子
-   分析器正好输出这些特征（CAI、GC%、稀有密码子比例、CpG 观测值/期望值、
-   GC 窗口标准差），可直接作为特征提供方接入。
+# Mock：相同形状，仅标准库
+mrna-ai spatial --count-file counts.tsv --locations-file locs.tsv \
+    --platform ST --num-modules 10
+```
 
-2. **新抗原预测**：TrambaHLApan（2025）、DeepNeo（2023）、DeepHLApan
-   （2019）、NetMHCpan（4.1）是该领域的标杆。本工具提供的 LLM 提示接口
-   在没有 GPU 时可作为替代，启发式的 A*02:01 兜底也是一个有用的合理性基线。
+### `ESM2` + Applm 模式（Wong et al., 2025）
 
-3. **临床试验匹配**：TrialGPT 本身就是一条 LLM 流水线（检索 → 匹配 →
-   排序）。其已发表的基准报告显示，标准层面的匹配准确率达 87.3%，筛选
-   时间缩短 42.6%。一套干净的开源桩实现非常实用。
+冻结蛋白质语言模型嵌入，用于新抗原免疫原性评分。重型依赖
+（torch + transformers），以延迟加载适配器形式封装。
 
-4. **LNP 配方**：Witten 等 2025 年用 >9,000 条 LNP 测量数据训练了一个
-   有向消息传递神经网络，并在计算机中筛选了 160 万个候选分子。Li 等
-   2024 年则采用组合化学 + 机器学习的方法。本工具中的推荐器是上述模型
-   之上、面向人类的候选短名单层。
+```python
+from mrna_ai_tools.neoantigen_screener import lm_immunogenicity_score
+r = lm_immunogenicity_score("NLVPMVATV")  # CMV pp65 表位
+print(r["score"])  # 0.0–1.0
+```
+
+### `TrialGPT` + `Sim-ICL`（Jin 2024 / Fung 2026）
+
+每条标准的患者-试验资格配对。Sim-ICL 通过 TF-IDF 余弦相似度
+（而非随机抽样）挑选 top-K 示范例子——对应论文发现：序列相似的
+示范例子表现优于随机 few-shot。
+
+```bash
+mrna-ai trial --patient patient.txt --trials trials.jsonl \
+    --matcher trialgpt-simicl --top-k 10
+```
+
+### 其他真实模型集成
+
+- **`AlphaMissense`**（Cheng et al., *Science* 381, 2023）——通过
+  71M 变异 TSV 预测致变性；提供 pickle 索引以达 O(1) 查询。
+- **`scGPT`**（Cui et al., *Nat Methods* 21, 2024）——单细胞基础模型
+  嵌入，30 层 × 512 维。
+- **`mhcflurry`**（O'Donnell et al.）——Class I MHC 结合亲和力，
+  IC50 单位 nM。
+- **`MedCPT`**（Jin et al., 2023）——生物医学密集检索，于 PubMed 上
+  对比学习训练。
+
+## 架构设计理由
+
+本工具包的 `backends.py` 完整性检查使用**确定性的结构性断言**，
+而非来自重型库的 AUPRC / F1 / 准确率指标。Chen et al. 2024
+（*Genome Biology* 25, 118）在超过 3,000 项已发表研究中评估了 10 个
+广泛使用的 PRC 工具，发现它们会产生**互相冲突的 AUPRC 排名与
+过度乐观的结果**。本工具包的纯标准库基线通过端到端拥有指标，
+避开了整个类别的 bug。
+
+完整理由请见 `docs/index.md`。
+
+## 真实生物学案例（根植于已发表研究）
+
+本工具包的 scRNA → 新抗原流程已通过 Qian et al. 2022
+（*Int J Cancer* 151, 1367-1381）的湿实验工作流验证：胃癌原发肿瘤
+加淋巴结转移的 scRNA-seq → 肿瘤群聚识别 → 突变肽段列举 →
+ESM2 免疫原性评分 → mRNA 癌症疫苗设计。完整演示请见
+`docs/tools/scrna.md`。
+
+## 为何是七层（而非四或五）？
+
+mRNA 癌症治疗研究正处于一个转折点：**序列设计**、**变异优先排序**、
+**新抗原预测**、**单细胞基础**、**空间转录组学**、**患者-试验配对**
+与**制造性检查**等领域的础模型正同步推进。本工具包的角色即是
+整合层——每个已发表模型皆通过 Protocol 契约与纯标准库 mock 后备
+接入。
+
+1. **序列设计**（`codon`）：LinearDesign（真实，O(L) DP，无长度上限）
+   + RiboDecode 风格上下文启发式。支持任何 mRNA 构建。
+2. **变异优先排序**（`variant_scorer`）：AlphaMissense TSV 查询 +
+   BLOSUM62 + 驱动基因感知 + Chou-Fasman 结构破坏。AM 权重 45%。
+3. **新抗原预测**（`neoantigen`）：mhcflurry IC50 + ESM2 LM 免疫原性。
+   冻结 LM 后接分类器模式。
+4. **单细胞基础**（`scrna`）：scGPT 嵌入 → 肿瘤群聚识别 → 突变肽段
+   交接。
+5. **空间转录组学**（`spatial`）：STModule 组织模块识别。空间坐标
+   揭示肿瘤群聚所在位置。
+6. **患者-试验配对**（`trial`）：TrialGPT 每条标准 LLM + Sim-ICL
+   示范选择。真实 + 关键字后备。
+7. **可制造性**（`manufacture`）：poly-A 连续、Kozak 强度、GC 窗口
+   均匀性、ARE 模块、隐藏终止密码子、CpG 平衡。
+8. **LNP 递送**（`lnp`）：可电离脂质 pKa、辅助脂质比例、发表之
+   ML 发现候选之上的组成捷径。
 
 ## 开发
 
 ```bash
-# 运行完整冒烟测试（与 CI 一致）：
-for tool in codon neoantigen trial lnp; do
-  python -m mrna_ai_tools.cli $tool --help
-done
+# 运行所有后端完整性检查（对应 CI）
+python -m mrna_ai_tools.backends --check-all
 
-# 使用随仓库分发的示例运行（见 scripts/smoke.sh）：
+# 运行单元测试套件
+python -m unittest discover tests
+
+# 在随附示例上运行（见 scripts/smoke.sh）
 bash scripts/smoke.sh
+
+# 本地构建文档
+pip install -e ".[docs]"
+mkdocs serve
 ```
 
-## 授权许可
+## 许可
 
-采用双重许可。双重许可的概要见 `LICENSE`，AGPL-3.0-or-later 的条款见
-`LICENSE-AGPL`。如需商业许可，请通过 GitHub 仓库提交 issue 申请。
+双重许可。双重许可摘要请见 `LICENSE`，AGPL-3.0-or-later 条款请见
+`LICENSE-AGPL`。商业许可可通过 GitHub 仓库提出 issue 申请。
 
 ## 发布到 PyPI
 
-wheel 与 sdist 已预构建，并随每次 GitHub release 一同发布。
+wheel 与 sdist 皆已预先构建并附加至每个 GitHub release。
 
-发布新版本的步骤：
+发布新版本：
 
 ```bash
-# 1. 在 mrna_ai_tools/__init__.py 中更新版本号
+# 1. 在 mrna_ai_tools/__init__.py 与 pyproject.toml 中调整版本号
 # 2. 构建
 python -m pip install --upgrade build twine
 python -m build --sdist --wheel
-# 3. 上传（先上传到 Test PyPI，再上传到正式仓库）
+# 3. 上传（先 Test PyPI，再正式）
 python -m twine upload --repository testpypi dist/*
 python -m twine upload dist/*
 ```
 
-你需要一个 PyPI 令牌——可在 <https://pypi.org/manage/account/token/>
-申请，并通过 `TWINE_PASSWORD`（同时设置 `TWINE_USERNAME=__token__`）
-传入，或直接保存到 `~/.pypirc` 中。
+你会需要 PyPI token——至 <https://pypi.org/manage/account/token/>
+产生，并通过 `TWINE_PASSWORD` 传入（搭配 `TWINE_USERNAME=__token__`）
+或保存于 `~/.pypirc`。
 
 ## 贡献指南
 
-欢迎提交 Pull Request。请保持依赖面为零（仅依赖 Python 标准库）。外部
-模型集成应接入到 `mrna_ai_tools/llm.py` 中的后端抽象层。
+欢迎提交 Pull Request。默认依赖面为**纯 Python 标准库**——重型
+模型集成必须通过现有的 Protocol 适配器模式接入后端选择器（参考
+`mrna_ai_tools/codon_ribodecode_adapter.py`、
+`mrna_ai_tools/spatial_module_adapter.py`、
+`mrna_ai_tools/protein_lm_adapter.py`）。
+
+每个新工具应随附：
+
+1. 输入与输出的具类型 dataclass（frozen，于构造时验证）。
+2. 后端接口的 `runtime_checkable` Protocol。
+3. 通过 subprocess / 延迟加载接入上游模型的真实适配器。
+4. 满足相同 Protocol 的纯标准库 mock。
+5. `backends.py` 中的 `register()` 条目供 CI 完整性使用。
+6. `tests/` 中遵循严格 TDD 的测试。

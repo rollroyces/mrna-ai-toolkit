@@ -82,6 +82,13 @@ plugins:
             Contributing: 貢獻指南
             Changelog: 更新日誌
             License: 授權
+            codon: codon
+            neoantigen: neoantigen
+            trial: trial
+            lnp: lnp
+            scrna: scrna
+            manufacture: manufacture
+            spatial: spatial
         - locale: zh-Hans
           name: 简体中文
           build: true
@@ -97,6 +104,13 @@ plugins:
             Contributing: 贡献指南
             Changelog: 更新日志
             License: 授权
+            codon: codon
+            neoantigen: neoantigen
+            trial: trial
+            lnp: lnp
+            scrna: scrna
+            manufacture: manufacture
+            spatial: spatial
 
 nav:
   - Home: index.md
@@ -108,12 +122,12 @@ nav:
       - lnp: tools/lnp.md
       - scrna: tools/scrna.md
       - manufacture: tools/manufacture.md
+      - spatial: tools/spatial.md
   - Backends: backends.md
   - API reference: api.md
   - Contributing: contributing.md
   - Changelog: changelog.md
   - License: license.md
-
 extra:
   social:
     - icon: fontawesome/brands/github

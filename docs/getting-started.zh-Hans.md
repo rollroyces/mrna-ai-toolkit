@@ -2,8 +2,9 @@
 
 ## 安装
 
-核心工具包**仅依赖 Python 标准库** —— 要运行 `codon`、`neoantigen`（使用启发式后端）、
-`trial`、`lnp`，以及 `scrna`（使用标准库 k-medoids 兜底实现），无需任何额外安装。
+工具包核心为**纯 Python 标准库**——无需任何安装即可运行
+`codon`、`neoantigen`（含启发式后端）、`trial`、`manufacture`、
+`lnp`、`scrna`（标准库 k-medoids 后备）或 `spatial`（mock 后端）。
 
 ```bash
 git clone https://github.com/rollroyces/mrna-ai-toolkit.git
@@ -11,34 +12,49 @@ cd mrna-ai-toolkit
 pip install -e .
 ```
 
-该命令会同时安装一个控制台脚本 `mrna-ai` 以及 Python 包 `mrna_ai_tools`。
+这会安装单一控制台脚本 `mrna-ai`，以及 `mrna_ai_tools` Python 包。
 
-## 可选扩展
+## 可选扩展包
 
-如需使用生产级后端，请安装相应的可选依赖：
+为生产级别的后端安装扩展包：
 
 ```bash
-pip install -e ".[llm]"              # 兼容 OpenAI 协议的 LLM 客户端
-pip install -e ".[neoantigen-mhcflurry]"  # 真实的结合亲和力预测
-pip install -e ".[scrna]"            # 用于聚类的 scanpy / anndata
-pip install -e ".[all]"              # 安装全部可选依赖
+pip install -e ".[llm]"                       # OpenAI 兼容 LLM 客户端（TrialGPT）
+pip install -e ".[neoantigen-mhcflurry]"       # mhcflurry 结合亲和力
+pip install -e ".[neoantigen-medcpt]"          # 用于新抗原检索的 MedCPT
+pip install -e ".[protein-lm]"                # ESM2 蛋白质语言模型（免疫原性）
+pip install -e ".[trial-medcpt]"               # 用于试验检索的 MedCPT
+pip install -e ".[scrna]"                     # scanpy / anndata / scGPT 接入点
+pip install -e ".[docs]"                      # mkdocs-material + mkdocs-static-i18n
+pip install -e ".[dev]"                       # ruff + pytest
+pip install -e ".[all]"                       # 上述全部
 ```
 
-## 后端解析顺序
+## 后端解析
 
-对于会调用 LLM 或 ML 模型的工具，按以下顺序选择后端：
+对于会调用 LLM 或重型模型的工具，后端依下列顺序选择：
 
-1. `--backend <name>` 命令行参数（最高优先级）
-2. 环境变量 `MRNA_AI_LLM_BACKEND`
-3. 自动检测：已安装 `mhcflurry` → 已设置 `OPENAI_API_KEY` 时的 `openai` → `mock`
+1. `--backend <name>` CLI 标志（最高优先）
+2. 工具专用环境变量（如 `MRNA_AI_LLM_BACKEND`、`MRNA_AI_SIMICL_TOPK`）
+3. 自动检测：上游二进制在 `$PATH`（例如 STModule 用 `Rscript`、
+   RiboDecode 用 `pred-translation`）→ 已安装的 Python 依赖
+   （ESM2 用 transformers、结合亲和力用 mhcflurry、LLM 用 OpenAI）
+   → mock
 
-各工具后端的详细说明见 [后端](backends.md)。
+各工具的详细说明请见 [Backends](backends.md)。
 
 ## 验证
 
 ```bash
+# 运行 25 项后端完整性检查
+python -m mrna_ai_tools.backends --check-all
+
+# 运行单元测试套件（167 个测试）
+python -m unittest discover tests
+
+# 运行随附示例脚本（见 scripts/smoke.sh）
 bash scripts/smoke.sh
 ```
 
-该脚本会使用随仓库分发的示例输入运行四个确定性工具，并打印示例输出。
-冷缓存下应在 2 秒内完成。
+smoke 脚本会在随附示例输入上运行每个确定性工具并打印示例输出。
+冷启动缓存下应于 2 秒内完成。
