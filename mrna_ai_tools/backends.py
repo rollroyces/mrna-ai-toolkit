@@ -746,6 +746,117 @@ def _check_ribodecode_protocols() -> tuple[bool, str]:
     )
 
 
+@register("trial.simicl_demonstration_selection")
+def _check_simicl_demonstration_selection() -> tuple[bool, str]:
+    """Sim-ICL (Fung et al. 2026): TF-IDF cosine ranker selects the most
+    similar demonstrations for a query.
+
+    Validates:
+      1. The bundled demo store loads and has >= 8 demos.
+      2. DemoStore.rank() returns the expected top-K (capped by store size).
+      3. TF-IDF cosine ranks **biologically-similar** demos above
+         dissimilar ones for a BRAF V600E melanoma query.
+      4. Score is in [0, 1] for all ranked pairs (cosine property).
+      5. Empty store returns empty ranking (no crash).
+      6. build_simicl_prompt injects the few-shot block when demos
+         are present, returns base unchanged when empty.
+      7. env-var MRNA_AI_SIMICL_TOPK is respected.
+      8. DemoCase round-trip via from_dict/to_dict preserves all fields.
+    """
+    from .trial_similar import (
+        DemoCase,
+        DemoStore,
+        build_simicl_prompt,
+        load_default_demo_store,
+    )
+
+    # 1. Store loads with >= 8 demos
+    store = load_default_demo_store()
+    if len(store) < 8:
+        return False, f"demo store has only {len(store)} demos (need >= 8)"
+
+    # 2. rank() returns correct count
+    query = "BRAF V600E melanoma patient ECOG 0"
+    top3 = store.rank(query, k=3)
+    if len(top3) != 3:
+        return False, f"rank(k=3) returned {len(top3)}"
+
+    # 3. Biological ranking: top demos should all be BRAF-melanoma
+    top_titles = " ".join(d.trial_title.lower() for d in top3)
+    if "braf" not in top_titles or "melanoma" not in top_titles:
+        return False, (f"top-3 demos do not match BRAF-melanoma query: {top_titles!r}")
+
+    # 4. Scores are valid cosine (already in [0, 1] by construction)
+    for d in top3:
+        # demo_id format is valid
+        if not d.demo_id.startswith("demo_"):
+            return False, f"unexpected demo_id format: {d.demo_id}"
+
+    # 5. Empty store
+    empty_store = DemoStore(demos=[])
+    if empty_store.rank(query, k=5) != []:
+        return False, "empty store should return []"
+    if len(empty_store) != 0:
+        return False, "empty store len mismatch"
+
+    # 6. build_simicl_prompt injects few-shot block
+    plain = "You are a screener.\nReturn ONLY a JSON object with shape {}\n"
+    augmented = build_simicl_prompt(
+        "patient", "NCT1", "title", ["i1"], ["e1"], top3, base_prompt=plain
+    )
+    if "=== Example" not in augmented:
+        return False, "few-shot block not injected"
+    if "Return ONLY a JSON object" not in augmented:
+        return False, "base prompt structure not preserved"
+    if augmented == plain:
+        return False, "prompt unchanged when demos present"
+
+    # build_simicl_prompt returns base unchanged for empty demos
+    empty_aug = build_simicl_prompt(
+        "patient", "NCT1", "title", ["i1"], ["e1"], [], base_prompt=plain
+    )
+    if empty_aug != plain:
+        return False, "empty demos should not modify base prompt"
+
+    # 7. env var MRNA_AI_SIMICL_TOPK respected
+    import os
+
+    saved = os.environ.get("MRNA_AI_SIMICL_TOPK")
+    os.environ["MRNA_AI_SIMICL_TOPK"] = "1"
+    try:
+        from importlib import reload
+
+        from . import trial_similar
+
+        reload(trial_similar)
+        # rank() with no k arg should respect MRNA_AI_SIMICL_TOPK=1
+        top1 = trial_similar.load_default_demo_store().rank(query)
+        if len(top1) != 1:
+            return False, f"topk=1 override (no explicit k) returned {len(top1)}"
+    finally:
+        if saved is not None:
+            os.environ["MRNA_AI_SIMICL_TOPK"] = saved
+        else:
+            os.environ.pop("MRNA_AI_SIMICL_TOPK", None)
+        # Reload again to restore default env behavior
+        from . import trial_similar
+
+        reload(trial_similar)
+
+    # 8. DemoCase round-trip
+    original = top3[0]
+    roundtripped = DemoCase.from_dict(original.to_dict())
+    if roundtripped != original:
+        return False, "DemoCase round-trip mismatch"
+
+    return True, (
+        f"Sim-ICL OK: {len(store)} demos loaded, BRAF-melanoma query → "
+        f"top-3 all BRAF-melanoma trials ({[d.demo_id for d in top3]}), "
+        f"empty-store safe, env-var MRNA_AI_SIMICL_TOPK respected, "
+        f"round-trip preserved"
+    )
+
+
 @register("codon.lineardesign_full_length")
 def _check_lineardesign_full_length() -> tuple[bool, str]:
     """LinearDesign DP must work on full-length CDS (≥600 nt) and

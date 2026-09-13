@@ -1,0 +1,191 @@
+[
+  {
+    "demo_id": "demo_001",
+    "patient_text": "55-year-old male with metastatic melanoma, BRAF V600E mutation positive, ECOG 0, no prior systemic therapy, normal organ function.",
+    "trial_nct": "NCT00000001",
+    "trial_title": "Phase II dabrafenib plus trametinib in BRAF V600E melanoma",
+    "inclusion": [
+      "Histologically confirmed metastatic melanoma",
+      "BRAF V600E mutation",
+      "ECOG performance status 0-1",
+      "No prior systemic therapy for metastatic disease"
+    ],
+    "exclusion": [
+      "Active brain metastases",
+      "Prior anti-PD-1 therapy"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 4, "n_total": 4}
+  },
+  {
+    "demo_id": "demo_002",
+    "patient_text": "62-year-old female with stage IV NSCLC, EGFR L858R mutation, ECOG 1, prior platinum chemotherapy, progressing disease.",
+    "trial_nct": "NCT00000002",
+    "trial_title": "Phase III osimertinib in EGFR-mutant NSCLC",
+    "inclusion": [
+      "Stage IV NSCLC",
+      "EGFR-activating mutation",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Active CNS metastases",
+      "Prior EGFR-TKI therapy"
+    ],
+    "ground_truth_verdicts": {"eligible": false, "n_met": 2, "n_total": 3}
+  },
+  {
+    "demo_id": "demo_003",
+    "patient_text": "48-year-old female with metastatic pancreatic adenocarcinoma, KRAS G12D mutation, BRCA2 germline positive, ECOG 1, prior gemcitabine+abraxane, progressing.",
+    "trial_nct": "NCT00000003",
+    "trial_title": "Phase II BNT122 individualized mRNA vaccine in KRAS-mutant pancreatic cancer",
+    "inclusion": [
+      "Metastatic pancreatic adenocarcinoma",
+      "KRAS G12D or G12V mutation",
+      "ECOG 0-1",
+      "Prior first-line chemotherapy"
+    ],
+    "exclusion": [
+      "Active autoimmune disease",
+      "Prior cancer immunotherapy"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 4, "n_total": 4}
+  },
+  {
+    "demo_id": "demo_004",
+    "patient_text": "70-year-old male with metastatic melanoma, BRAF V600E mutation positive, ECOG 2, prior ipilimumab+nivolumab with progression.",
+    "trial_nct": "NCT00000004",
+    "trial_title": "Phase II encorafenib+binimetinib in BRAF V600E melanoma after prior immunotherapy",
+    "inclusion": [
+      "Metastatic melanoma",
+      "BRAF V600E mutation",
+      "Prior anti-PD-1 or anti-CTLA-4 therapy"
+    ],
+    "exclusion": [
+      "ECOG performance status > 2"
+    ],
+    "ground_truth_verdicts": {"eligible": false, "n_met": 2, "n_total": 4}
+  },
+  {
+    "demo_id": "demo_005",
+    "patient_text": "53-year-old female with hormone-receptor positive HER2-negative metastatic breast cancer, PIK3CA H1047R mutation, prior CDK4/6 inhibitor, progressing.",
+    "trial_nct": "NCT00000005",
+    "trial_title": "Phase III alpelisib in PIK3CA-mutant breast cancer",
+    "inclusion": [
+      "HR+ HER2- metastatic breast cancer",
+      "PIK3CA mutation",
+      "Prior endocrine therapy"
+    ],
+    "exclusion": [
+      "Type 1 diabetes mellitus"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 3, "n_total": 3}
+  },
+  {
+    "demo_id": "demo_006",
+    "patient_text": "60-year-old male with metastatic colorectal cancer, KRAS G12C mutation, MSS, prior oxaliplatin+irinotecan, ECOG 1.",
+    "trial_nct": "NCT00000006",
+    "trial_title": "Phase II sotorasib in KRAS G12C colorectal cancer",
+    "inclusion": [
+      "Metastatic colorectal adenocarcinoma",
+      "KRAS G12C mutation",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Microsatellite instability high",
+      "Prior KRAS-targeted therapy"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 3, "n_total": 3}
+  },
+  {
+    "demo_id": "demo_007",
+    "patient_text": "45-year-old male with metastatic melanoma, BRAF V600E mutation positive, ECOG 0, no prior systemic therapy, active brain metastases requiring steroids.",
+    "trial_nct": "NCT00000007",
+    "trial_title": "Phase II vemurafenib+cobimetinib in BRAF V600E melanoma",
+    "inclusion": [
+      "Metastatic melanoma",
+      "BRAF V600E mutation",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Active symptomatic brain metastases"
+    ],
+    "ground_truth_verdicts": {"eligible": false, "n_met": 3, "n_total": 4}
+  },
+  {
+    "demo_id": "demo_008",
+    "patient_text": "57-year-old female with newly diagnosed metastatic pancreatic adenocarcinoma, KRAS G12D mutation, ECOG 1, no prior therapy.",
+    "trial_nct": "NCT00000008",
+    "trial_title": "Phase I BNT122 individualized mRNA cancer vaccine",
+    "inclusion": [
+      "Metastatic pancreatic adenocarcinoma",
+      "KRAS G12D or G12V mutation",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Prior systemic therapy",
+      "Active autoimmune disease"
+    ],
+    "ground_truth_verdicts": {"eligible": false, "n_met": 3, "n_total": 5}
+  },
+  {
+    "demo_id": "demo_009",
+    "patient_text": "50-year-old female with metastatic NSCLC, EGFR exon 19 deletion, ECOG 0, prior osimertinib with resistance, T790M negative.",
+    "trial_nct": "NCT00000009",
+    "trial_title": "Phase I patritumab deruxtecan in EGFR-resistant NSCLC",
+    "inclusion": [
+      "Metastatic NSCLC",
+      "EGFR mutation",
+      "Prior EGFR-TKI therapy",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Interstitial lung disease"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 4, "n_total": 4}
+  },
+  {
+    "demo_id": "demo_010",
+    "patient_text": "65-year-old male with metastatic castration-resistant prostate cancer, BRCA2 germline mutation, ECOG 1, prior enzalutamide, progressing.",
+    "trial_nct": "NCT00000010",
+    "trial_title": "Phase II olaparib in BRCA-mutant prostate cancer",
+    "inclusion": [
+      "Metastatic castration-resistant prostate cancer",
+      "BRCA1 or BRCA2 mutation",
+      "ECOG 0-2"
+    ],
+    "exclusion": [
+      "Prior PARP inhibitor therapy"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 3, "n_total": 3}
+  },
+  {
+    "demo_id": "demo_011",
+    "patient_text": "40-year-old female with metastatic melanoma, BRAF V600E mutation, ECOG 0, no prior systemic therapy, no brain metastases.",
+    "trial_nct": "NCT00000011",
+    "trial_title": "Phase III neoadjuvant pembrolizumab in resectable melanoma",
+    "inclusion": [
+      "Resectable stage III melanoma",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Prior immunotherapy",
+      "Active autoimmune disease"
+    ],
+    "ground_truth_verdicts": {"eligible": false, "n_met": 1, "n_total": 3}
+  },
+  {
+    "demo_id": "demo_012",
+    "patient_text": "58-year-old male with stage IV pancreatic adenocarcinoma, KRAS G12D mutation, ECOG 0, BRCA wild-type, prior FOLFIRINOX, progressing.",
+    "trial_nct": "NCT00000012",
+    "trial_title": "Phase II individualized neoantigen mRNA vaccine in pancreatic cancer",
+    "inclusion": [
+      "Stage IV pancreatic adenocarcinoma",
+      "KRAS or other targetable mutation",
+      "Prior first-line chemotherapy",
+      "ECOG 0-1"
+    ],
+    "exclusion": [
+      "Active autoimmune disease"
+    ],
+    "ground_truth_verdicts": {"eligible": true, "n_met": 4, "n_total": 4}
+  }
+]

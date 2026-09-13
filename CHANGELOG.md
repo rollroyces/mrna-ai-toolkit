@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-09-12
+
+### Added
+- **Sim-ICL demonstration selection** (`mrna_ai_tools.trial_similar`).
+  Implements the Sim-ICL strategy from Fung et al. 2026 (Genome
+  Biology, in press): when a downstream task is solved by
+  in-context learning, **selecting demonstrations by similarity to
+  the query** (rather than random sampling) yields competitive
+  performance with protein-LM classifiers in low-shot regimes.
+- **DemoCase + DemoStore dataclasses** for typed
+  `{patient_text, trial, ground_truth_verdicts}` triples. Ships with
+  12 synthetic demos covering BRAF-melanoma, EGFR-NSCLC,
+  KRAS-pancreatic, BRCA-prostate, PIK3CA-breast, and other mRNA
+  cancer-therapy archetypes (`examples/simicl_demos.json`).
+- **TF-IDF cosine ranker** (stdlib-only, ~50 LOC) that ranks demos
+  by `(patient + trial)` text similarity. For a BRAF V600E
+  melanoma query, the top-3 demos are all BRAF-melanoma trials —
+  perfect biological ranking.
+- **`build_simicl_prompt()`** splices the few-shot block into the
+  TrialGPT prompt before the JSON-shape reminder, preserving
+  schema clarity.
+- **`score_trial_with_llm(..., demo_store=..., use_simicl=...)`**
+  integration: when Sim-ICL is on and a non-empty demo store is
+  available, top-K demos are prepended; `simicl-kN` and
+  `simicl-demo-ids=...` appear in result notes for auditability.
+- **CLI wiring**: `mrna-ai trial --matcher trialgpt-simicl`. Falls
+  back gracefully when the demo store is empty.
+- **Env-var knobs**: `MRNA_AI_SIMICL_TOPK` (default 32), `MRNA_AI_SIMICL_ENABLED`
+  (default True), `MRNA_AI_SIMICL_DEMOS` (override JSON path).
+- **23rd backend integrity check** (`trial.simicl_demonstration_selection`):
+  validates store load, TF-IDF ranking of BRAF-melanoma demos,
+  empty-store safety, env-var topk override, DemoCase round-trip.
+- **`tests/test_simicl.py`** — 39 tests in 8 classes covering:
+  dataclass construction/round-trip, TF-IDF ranker ordering
+  + determinism, JSON loading + malformed-file handling,
+  prompt construction with/without demos, env-var helpers,
+  bundled store loading, and full `score_trial_with_llm`
+  integration including `simicl-k` notes.
+
+### Reference
+Fung S.H., Zhang Z., Wang R., Miao C., Wong B.S.H., Li K.Y.,
+Hong C., Zhou J., Yip K.Y.#, Tsui S.K.W.#, and Cao Q.#. (2026) A
+Systematic Evaluation of In-Context Learning in Large Language
+Models for Antibody Characterization. *Genome Biology* (in press).
+
 ## [0.10.0] - 2026-09-11
 
 ### Added

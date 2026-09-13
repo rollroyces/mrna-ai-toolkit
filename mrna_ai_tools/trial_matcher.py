@@ -254,8 +254,12 @@ def match(
     debug: list[dict] = []
     # Determine matcher backend
     use_trialgpt = False
+    use_simicl = False
     if matcher == "trialgpt":
         use_trialgpt = True
+    elif matcher == "trialgpt-simicl":
+        use_trialgpt = True
+        use_simicl = True
     elif matcher == "auto":
         # Use TrialGPT when an OpenAI key is present or when caller
         # explicitly forced an LLM backend. Otherwise fall back to
@@ -276,6 +280,7 @@ def match(
                     list(t.inclusion),
                     list(t.exclusion),
                     backend=backend,
+                    use_simicl=use_simicl,
                 )
                 match_result = llm_result.to_dict()
                 # Trim to the shape that rank() expects
@@ -355,9 +360,12 @@ def _run_cli(argv: list[str]) -> int:
     )
     p.add_argument(
         "--matcher",
-        choices=["auto", "trialgpt", "keyword"],
+        choices=["auto", "trialgpt", "trialgpt-simicl", "keyword"],
         default="auto",
-        help="matching method: trialgpt (per-criterion LLM) or keyword (no LLM)",
+        help="matching method: trialgpt (per-criterion LLM), "
+        "trialgpt-simicl (per-criterion LLM + Sim-ICL few-shot demos "
+        "from $MRNA_AI_SIMICL_DEMOS or examples/simicl_demos.json), "
+        "or keyword (no LLM)",
     )
     p.add_argument("--out")
     args = p.parse_args(argv)

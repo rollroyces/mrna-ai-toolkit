@@ -227,6 +227,8 @@ def score_trial_with_llm(
     exclusion: list[str],
     *,
     backend: str | None = None,
+    demo_store: Any | None = None,
+    use_simicl: bool | None = None,
 ) -> TrialMatchResult:
     """Run TrialGPT-style per-criterion LLM matching.
 
@@ -246,19 +248,69 @@ def score_trial_with_llm(
     backend
         Optional LLM backend override. ``None`` = auto-detect from
         ``OPENAI_API_KEY`` (uses real OpenAI) or fall back to ``mock``.
+    demo_store
+        Optional :class:`~mrna_ai_tools.trial_similar.DemoStore`. When
+        ``None``, loads the bundled store from
+        ``examples/simicl_demos.json`` via
+        :func:`~mrna_ai_tools.trial_similar.load_default_demo_store`.
+        Pass an explicit ``DemoStore(demos=[])`` to disable.
+    use_simicl
+        Override ``$MRNA_AI_SIMICL_ENABLED``. When ``True``, the top-K
+        demos (per ``$MRNA_AI_SIMICL_TOPK``, default 32) are injected
+        into the prompt as few-shot examples before asking the LLM
+        for verdicts. When ``False``, behaves as plain TrialGPT.
 
     Returns
     -------
     TrialMatchResult with per-criterion verdicts and aggregate score.
     On any failure, all verdicts are set to ``"uncertain"`` and a note
     is added.
+
+    Notes
+    -----
+    Sim-ICL integration: this function implements the **Sim-ICL**
+    demonstration-selection strategy from Fung et al. 2026 (Genome
+    Biology, in press). The few-shot examples are chosen by TF-IDF
+    cosine similarity between (patient+trial) query and the demo
+    store, rather than random sampling. This matches the paper's
+    finding that sequence-similar demonstrations yield competitive
+    performance with protein-LM classifiers in low-shot regimes.
     """
     from .llm import llm_json  # late import to avoid circular deps
+    from .trial_similar import (
+        _get_enabled,
+        build_simicl_prompt,
+        load_default_demo_store,
+    )
+
+    # Sim-ICL: resolve config + load demos
+    if demo_store is None:
+        demo_store = load_default_demo_store()
+    simicl_on = _get_enabled() if use_simicl is None else bool(use_simicl)
 
     prompt = build_match_prompt(patient_text, nct_id, title, inclusion, exclusion)
     notes: list[str] = []
     raw = ""
     parsed: dict[str, Any] = {}
+
+    if simicl_on and len(demo_store) > 0:
+        query_text = "\n".join(
+            [patient_text, nct_id, title, " ".join(inclusion), " ".join(exclusion)]
+        )
+        top_demos = demo_store.rank(query_text)
+        prompt = build_simicl_prompt(
+            patient_text,
+            nct_id,
+            title,
+            inclusion,
+            exclusion,
+            top_demos,
+            base_prompt=prompt,
+        )
+        notes.append(f"simicl-k{len(top_demos)}")
+        # Record which demos were used, for auditability
+        notes.append("simicl-demo-ids=" + ",".join(d.demo_id for d in top_demos))
+
     try:
         parsed = llm_json(prompt, backend=backend)
         raw = json.dumps(parsed)
