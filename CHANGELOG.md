@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-09-13
+
+### Added
+- **STModule spatial-transcriptomics Protocol adapter**
+  (`mrna_ai_tools.spatial_protocols` + `mrna_ai_tools.spatial_module_adapter`).
+  Implements the STModule method from Wang et al. 2025 (Genome
+  Medicine 17, 18): identifying tissue modules from spatially
+  resolved transcriptomics (SRT) data — recurrent cellular
+  communities spatially organized to exert specific biological
+  functions.
+- **`SpatialModuleBackend` Protocol** (runtime_checkable) + 3
+  typed dataclasses: `SpatialData` (input), `SpatialModule`
+  (per-module output), `SpatialModuleResult` (aggregate).
+  `SpatialData` validates platform enum, file existence, and
+  `num_modules >= 1` at construction time.
+- **`SpatialPlatform` enum** mapping to STModule's `high_resolution`
+  flag: ST/Visium use defaults; SlideSeqV2/StereoSeq require
+  `--high-resolution --max-iter 100` per the upstream tutorial.
+- **`STModuleCLIAdapter`**: shells out to a small R shim
+  (`scripts/stmodule_shim.R`) that calls the published R functions
+  in order — `data_preprocessing()` → `run_STModule()` →
+  `get_assocaited_genes()` (sic, typo in upstream) — and emits
+  JSON to stdout matching `SpatialModuleResult.to_dict()`.
+  Heavy deps (R 4.4+, Seurat v5, torch, GPUmatrix 1.0.2, CUDA 11.7)
+  are only required on the user's machine.
+- **`MockSpatialModuleBackend`**: deterministic stdlib stub. Uses
+  spot-ID intersection (count ∩ locations) for graceful handling
+  of mismatched input. Different gene universe per platform —
+  ST has GAPDH/USP4/MAPKAPK2, Visium has CDH1/VIM/KRT8, etc.
+- **Backend selector** `select_spatial_module_backend()` chooses
+  real-or-mock via `prefer=` override or $PATH detection of Rscript.
+- **24th backend integrity check** (`spatial.stmodule_module_identification`):
+  validates dataclass construction + validation, Protocol
+  runtime_checkable, mock run produces correct n_modules,
+  determinism, JSON-serializable, spot/location mismatch handling,
+  backend selector dispatches correctly when Rscript missing.
+- **R shim** (`mrna_ai_tools/scripts/stmodule_shim.R`): ~150 lines
+  with proper CLI parsing (optparse), 5-stage exit codes (0=ok,
+  1=bad args, 2=missing pkg, 3=run failed, 4=JSON failed),
+  structured error messages, JSON output via jsonlite.
+- **`tests/test_stmodule.py`**: 45 tests in 11 classes covering:
+  dataclass validation, Protocol conformance, mock run correctness,
+  determinism, platform-specific gene universes, activity range,
+  spot/location mismatch handling, CLI subprocess paths (success /
+  nonzero exit / unparseable JSON / timeout), backend selector in
+  4 modes, end-to-end JSON serialization, high-resolution CLI
+  args wiring, payload parsing edge cases, empty/malformed input
+  graceful degradation.
+
+### Reference
+Wang R., Qian Y., Guo X., Song F., Xiong Z., Cai S., Bian X., Wong M.H.,
+Cao Q.#, Cheng L.#, Lu G.#, and Leung K.S.#. (2025) STModule:
+identifying tissue modules to uncover spatial components and
+characteristics of transcriptomic landscapes. *Genome Medicine*
+17(1): 18.
+
 ## [0.11.0] - 2026-09-12
 
 ### Added
