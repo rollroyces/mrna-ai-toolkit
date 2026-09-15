@@ -8,7 +8,7 @@
 [![PyPI](https://img.shields.io/badge/PyPI-mrnavax%200.14.0-blue?logo=pypi&logoColor=white)](https://pypi.org/project/mrnavax/)
 [![Python](https://img.shields.io/badge/Python-3.11–3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--or--later%20%2F%20commercial-orange)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=materialformmkdocs&logoColor=white)](https://rollroyces.github.io/mrnavax/zh-Hans/)
+[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=readthedocs&logoColor=white)](https://rollroyces.github.io/mrnavax/zh-Hans/)
 [![Protocol adapters](https://img.shields.io/badge/adapters-8%20real%20models-purple)](https://github.com/rollroyces/mrnavax/tree/main/mrnavax)
 
 ![mrnavax 管线：密码子 → 变异 → 新抗原 → 试验 → LNP → 制造](./docs/assets/pipeline.svg)

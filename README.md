@@ -9,7 +9,7 @@
 [![PyPI](https://img.shields.io/badge/PyPI-mrnavax%200.14.0-blue?logo=pypi&logoColor=white)](https://pypi.org/project/mrnavax/)
 [![Python](https://img.shields.io/badge/Python-3.11–3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-AGPL--3.0--or--later%20%2F%20commercial-orange)](LICENSE)
-[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=materialformkdocs&logoColor=white)](https://rollroyces.github.io/mrnavax/)
+[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=readthedocs&logoColor=white)](https://rollroyces.github.io/mrnavax/)
 [![Protocol adapters](https://img.shields.io/badge/adapters-8%20real%20models-purple)](https://github.com/rollroyces/mrnavax/tree/main/mrnavax)
 
 ![mrnavax pipeline — codon → variant → neoantigen → trial → LNP → manufacture](./docs/assets/pipeline.svg)
@@ -256,7 +256,7 @@ mrnavax trial --patient patient.txt --trials trials.jsonl \
 
 ## Architecture
 
-The toolkit is built on three orthogonal layers — CLI / integration / adapters
+The toolkit is built on three orthogonal layers — CLI / core / adapters
 — and every published foundation model plugs in through the same `Protocol`
 contract with a stdlib-only mock fallback.
 
@@ -274,19 +274,18 @@ flowchart TB
         CK["25 backend integrity checks<br/>(deterministic structural)"]
     end
 
-    subgraph PROTOCOL["typing.Protocol contracts"]
+    subgraph PROTOCOL["typing.Protocol contracts (4 actually defined)"]
         direction TB
         P1["CodonOptimizer"]
-        P2["NeoantigenScorer"]
-        P3["TrialMatcher"]
-        P4["scRNAPipeline"]
-        P5["SpatialModuleFinder"]
+        P2["TranslationPredictor"]
+        P3["ProteinLMEmbedder"]
+        P4["SpatialModuleBackend"]
     end
 
     subgraph ADAPTERS["Real-model adapters (opt-in extras)"]
         direction TB
         A1["LinearDesign DP<br/>RiboDecode subprocess<br/>CodonBERT"]
-        A2["mhcflurry<br/>MedCPT<br/>ESM2"]
+        A2["mhcflurry<br/>MedCPT<br/>ESM2 (Applm pattern)"]
         A3["TrialGPT OpenAI<br/>Sim-ICL"]
         A4["scGPT"]
         A5["STModule R shim"]
@@ -295,10 +294,9 @@ flowchart TB
     subgraph MOCKS["Mock adapters (always present)"]
         direction TB
         M1["MockCodonOptimizer"]
-        M2["MockNeoantigenScorer"]
-        M3["MockTrialMatcher"]
-        M4["MockscRNAPipeline"]
-        M5["MockSpatialModuleFinder"]
+        M2["MockTranslationPredictor"]
+        M3["MockProteinLMEmbedder"]
+        M4["MockSpatialModuleBackend"]
     end
 
     CLI --> TOOLS
@@ -308,31 +306,35 @@ flowchart TB
     SELECT --> P2
     SELECT --> P3
     SELECT --> P4
-    SELECT --> P5
 
     P1 -.implemented by.-> A1
-    P2 -.implemented by.-> A2
-    P3 -.implemented by.-> A3
-    P4 -.implemented by.-> A4
-    P5 -.implemented by.-> A5
+    P2 -.implemented by.-> A1
+    P3 -.implemented by.-> A2
+    P4 -.implemented by.-> A5
 
     P1 -.always available.-> M1
     P2 -.always available.-> M2
     P3 -.always available.-> M3
     P4 -.always available.-> M4
-    P5 -.always available.-> M5
 
     CK -.verifies.-> SELECT
     CK -.verifies.-> M1
     CK -.verifies.-> M2
     CK -.verifies.-> M3
     CK -.verifies.-> M4
-    CK -.verifies.-> M5
 
     style PROTOCOL fill:#f9f,stroke:#333,stroke-width:2px
     style MOCKS fill:#cfc,stroke:#333
     style ADAPTERS fill:#fcf,stroke:#333
 ```
+
+**Note:** the `neoantigen`, `trial`, `scrna`, `manufacture`, and `lnp`
+tools expose module-level functions rather than a `Protocol` class, so
+they are wired through `backends.py`'s `@register(name)` decorators and
+verified by the same 25 structural integrity checks. The Protocol
+contract pattern is applied where multiple interchangeable
+implementations exist (codon optimizers, protein-LM embedders,
+spatial-module finders).
 
 **Why this matters:** the CI matrix (Python 3.11–3.14) runs without
 downloading any model weights. Production users opt in per-extras
@@ -416,12 +418,12 @@ flowchart LR
     SMOKE -.on failure.-> FAIL[❌ red ✋<br/>fix + push again]
     DOCS -.on failure.-> FAIL
 
-    TAG["git tag v0.14.0<br/>git push --tags"] --> PUB[publish.yml]
-    PUB --> BUILD["build job<br/>sdist + wheel<br/>version check"]
+    TAG["git tag vX.Y.Z<br/>git push --tags"] --> PUB[publish.yml]
+    PUB --> BUILD["build job<br/>sdist + wheel<br/>version matches tag"]
     BUILD --> ART["dist/<br/>artifact"]
     ART --> PYP["publish-to-pypi job<br/>OIDC trusted publisher"]
     PYP -.manual approval.-> REVIEW["pypi environment<br/>reviewer gate"]
-    REVIEW --> LIVE[("PyPI<br/>mrnavax 0.14.0<br/>live")]
+    REVIEW --> LIVE[("PyPI<br/>mrnavax X.Y.Z<br/>live")]
     LIVE --> PAGES[GitHub Pages<br/>rollroyces.github.io/mrnavax]
 
     style SMOKE fill:#cfc
