@@ -2,8 +2,17 @@
 
 > Practical Python tools for the AI-leverage layers in mRNA cancer therapy.
 > Stdlib-only core, seven runnable tools, eight real-model adapters behind
-> Protocol contracts, three documentation locales, 167 tests, 25 backend
+> Protocol contracts, three documentation locales, 174 tests, 25 backend
 > integrity checks.
+
+[![CI](https://img.shields.io/badge/CI-passing-brightgreen?logo=githubactions&logoColor=white)](https://github.com/rollroyces/mrnavax/actions)
+[![PyPI](https://img.shields.io/badge/PyPI-mrnavax%200.14.0-blue?logo=pypi&logoColor=white)](https://pypi.org/project/mrnavax/)
+[![Python](https://img.shields.io/badge/Python-3.11–3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-AGPL--3.0--or--later%20%2F%20commercial-orange)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=materialformkdocs&logoColor=white)](https://rollroyces.github.io/mrnavax/)
+[![Protocol adapters](https://img.shields.io/badge/adapters-8%20real%20models-purple)](https://github.com/rollroyces/mrnavax/tree/main/mrnavax)
+
+![mrnavax pipeline — codon → variant → neoantigen → trial → LNP → manufacture](./docs/assets/pipeline.svg)
 
 ## What this is
 
@@ -11,6 +20,47 @@ Seven small, runnable tools that map 1-to-1 onto the published AI leverage
 points in mRNA cancer therapeutics — plus a typed integration contract for
 every published foundation model in the field. Each tool runs as a CLI
 subcommand and imports cleanly as a Python module.
+
+```mermaid
+flowchart LR
+    subgraph DESIGN["Sequence design"]
+        DNA[DNA sequence<br/>FASTA] --> CAI[codon<br/>CAI / GC / rare]
+        DNA --> LD[LinearDesign DP<br/>O(L) Pareto]
+        DNA --> RD[RiboDecode<br/>Li 2025]
+    end
+    subgraph VARIANT["Variant prioritization"]
+        V[VCF / coding<br/>variants] --> AM[AlphaMissense<br/>Cheng 2023]
+        V --> BF[BLOSUM62 +<br/>Chou-Fasman]
+    end
+    subgraph NEO["Neoantigen prediction"]
+        P[Mutant peptides] --> MF[mhcflurry<br/>IC50 nM]
+        P --> ESM[ESM2 frozen LM<br/>Wong 2025]
+    end
+    subgraph CELL["Single-cell foundation"]
+        SC[scRNA-seq<br/>count matrix] --> SCG[scGPT<br/>Cui 2024]
+        SCG --> TM[Tumor cluster<br/>→ mutant peptides]
+    end
+    subgraph SPATIAL["Spatial transcriptomics"]
+        ST[SRT counts +<br/>locations] --> ST2[STModule<br/>Wang 2025]
+    end
+    subgraph TRIAL["Patient-trial matching"]
+        PT[Patient summary] --> TG[TrialGPT<br/>Jin 2024]
+        PT --> SIM[Sim-ICL<br/>Fung 2026]
+    end
+    subgraph WET["Wet-lab"]
+        LNP2[LNP composition<br/>Witten 2025] --> FINAL[Manufactured<br/>mRNA vaccine]
+        MAN[mRNA checks<br/>poly-A / Kozak / GC] --> FINAL
+    end
+
+    RD --> P
+    AM --> P
+    TM --> P
+    ST2 -.informs.-> TM
+    P --> FINAL
+    TRIAL -.eligibility.-> PT
+```
+
+## The seven tools
 
 | Tool | What it does | AI leverage layer | Reference work integrated |
 |---|---|---|---|
@@ -204,6 +254,91 @@ mrnavax trial --patient patient.txt --trials trials.jsonl \
 - **`MedCPT`** (Jin et al., 2023) — biomedical dense retrieval,
   contrastively trained on PubMed.
 
+## Architecture
+
+The toolkit is built on three orthogonal layers — CLI / integration / adapters
+— and every published foundation model plugs in through the same `Protocol`
+contract with a stdlib-only mock fallback.
+
+```mermaid
+flowchart TB
+    subgraph USER["User interface"]
+        CLI["mrnavax CLI<br/>(7 subcommands)"]
+        PY["import mrnavax<br/>as Python module"]
+    end
+
+    subgraph CORE["Core layer (stdlib only, ships in pip wheel)"]
+        direction TB
+        TOOLS["Typed dataclass tools<br/>codon / neoantigen / trial<br/>scrna / spatial / manufacture / lnp"]
+        SELECT["Backend selector<br/>backends.py"]
+        CK["25 backend integrity checks<br/>(deterministic structural)"]
+    end
+
+    subgraph PROTOCOL["typing.Protocol contracts"]
+        direction TB
+        P1["CodonOptimizer"]
+        P2["NeoantigenScorer"]
+        P3["TrialMatcher"]
+        P4["scRNAPipeline"]
+        P5["SpatialModuleFinder"]
+    end
+
+    subgraph ADAPTERS["Real-model adapters (opt-in extras)"]
+        direction TB
+        A1["LinearDesign DP<br/>RiboDecode subprocess<br/>CodonBERT"]
+        A2["mhcflurry<br/>MedCPT<br/>ESM2"]
+        A3["TrialGPT OpenAI<br/>Sim-ICL"]
+        A4["scGPT"]
+        A5["STModule R shim"]
+    end
+
+    subgraph MOCKS["Mock adapters (always present)"]
+        direction TB
+        M1["MockCodonOptimizer"]
+        M2["MockNeoantigenScorer"]
+        M3["MockTrialMatcher"]
+        M4["MockscRNAPipeline"]
+        M5["MockSpatialModuleFinder"]
+    end
+
+    CLI --> TOOLS
+    PY --> TOOLS
+    TOOLS --> SELECT
+    SELECT --> P1
+    SELECT --> P2
+    SELECT --> P3
+    SELECT --> P4
+    SELECT --> P5
+
+    P1 -.implemented by.-> A1
+    P2 -.implemented by.-> A2
+    P3 -.implemented by.-> A3
+    P4 -.implemented by.-> A4
+    P5 -.implemented by.-> A5
+
+    P1 -.always available.-> M1
+    P2 -.always available.-> M2
+    P3 -.always available.-> M3
+    P4 -.always available.-> M4
+    P5 -.always available.-> M5
+
+    CK -.verifies.-> SELECT
+    CK -.verifies.-> M1
+    CK -.verifies.-> M2
+    CK -.verifies.-> M3
+    CK -.verifies.-> M4
+    CK -.verifies.-> M5
+
+    style PROTOCOL fill:#f9f,stroke:#333,stroke-width:2px
+    style MOCKS fill:#cfc,stroke:#333
+    style ADAPTERS fill:#fcf,stroke:#333
+```
+
+**Why this matters:** the CI matrix (Python 3.11–3.14) runs without
+downloading any model weights. Production users opt in per-extras
+(`pip install -e ".[neoantigen-mhcflurry]"`). The same code path runs
+in both — only the adapter implementation differs.
+
 ## Architecture rationale
 
 The toolkit's `backends.py` integrity checks use **deterministic
@@ -271,6 +406,34 @@ bash scripts/smoke.sh
 pip install -e ".[docs]"
 mkdocs serve
 ```
+
+### CI / publish pipeline
+
+```mermaid
+flowchart LR
+    DEV["git push<br/>to main"] --> SMOKE[smoke.yml<br/>Python 3.11–3.14<br/>174 tests + 25 checks]
+    DEV --> DOCS[docs.yml<br/>mkdocs strict<br/>3 locales]
+    SMOKE -.on failure.-> FAIL[❌ red ✋<br/>fix + push again]
+    DOCS -.on failure.-> FAIL
+
+    TAG["git tag v0.14.0<br/>git push --tags"] --> PUB[publish.yml]
+    PUB --> BUILD["build job<br/>sdist + wheel<br/>version check"]
+    BUILD --> ART["dist/<br/>artifact"]
+    ART --> PYP["publish-to-pypi job<br/>OIDC trusted publisher"]
+    PYP -.manual approval.-> REVIEW["pypi environment<br/>reviewer gate"]
+    REVIEW --> LIVE[("PyPI<br/>mrnavax 0.14.0<br/>live")]
+    LIVE --> PAGES[GitHub Pages<br/>rollroyces.github.io/mrnavax]
+
+    style SMOKE fill:#cfc
+    style DOCS fill:#cfc
+    style BUILD fill:#cff
+    style LIVE fill:#fc9
+    style FAIL fill:#fcc,stroke:#c33,stroke-width:2px
+```
+
+All three workflows use Node 24-native action majors
+(`actions/checkout@v6`, `actions/setup-python@v7`, etc.) — zero
+deprecation warnings on the latest runs.
 
 ## License
 

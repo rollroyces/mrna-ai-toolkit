@@ -2,13 +2,63 @@
 
 > mRNA 癌症治疗中 AI 加杠杆层的实用 Python 工具。
 > 纯标准库核心，七个可执行工具，八个真实模型适配器置于
-> Protocol 契约之后，三份文档语种，167 个测试，25 项后端完整性检查。
+> Protocol 契约之后，三份文档语种，174 个测试，25 项后端完整性检查。
+
+[![CI](https://img.shields.io/badge/CI-passing-brightgreen?logo=githubactions&logoColor=white)](https://github.com/rollroyces/mrnavax/actions)
+[![PyPI](https://img.shields.io/badge/PyPI-mrnavax%200.14.0-blue?logo=pypi&logoColor=white)](https://pypi.org/project/mrnavax/)
+[![Python](https://img.shields.io/badge/Python-3.11–3.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-AGPL--3.0--or--later%20%2F%20commercial-orange)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-mrnavax.github.io-9cf?logo=materialformmkdocs&logoColor=white)](https://rollroyces.github.io/mrnavax/zh-Hans/)
+[![Protocol adapters](https://img.shields.io/badge/adapters-8%20real%20models-purple)](https://github.com/rollroyces/mrnavax/tree/main/mrnavax)
+
+![mrnavax 管线：密码子 → 变异 → 新抗原 → 试验 → LNP → 制造](./docs/assets/pipeline.svg)
 
 ## 这是什么
 
 七个小巧、可执行的工具，一对一对应于 mRNA 癌症治疗中已发表的
 AI 加杠杆点——加上每个已发表基础模型的类型化整合契约。每个工具可作为
 CLI 子命令执行，也可干净地作为 Python 模块导入。
+
+```mermaid
+flowchart LR
+    subgraph DESIGN["序列设计"]
+        DNA[DNA 序列<br/>FASTA] --> CAI[codon<br/>CAI / GC / 罕见]
+        DNA --> LD[LinearDesign DP<br/>O(L) 帕累托]
+        DNA --> RD[RiboDecode<br/>Li 2025]
+    end
+    subgraph VARIANT["变异优先排序"]
+        V[VCF / 编码<br/>变异] --> AM[AlphaMissense<br/>Cheng 2023]
+        V --> BF[BLOSUM62 +<br/>Chou-Fasman]
+    end
+    subgraph NEO["新抗原预测"]
+        P[突变肽段] --> MF[mhcflurry<br/>IC50 nM]
+        P --> ESM[ESM2 冻结 LM<br/>Wong 2025]
+    end
+    subgraph CELL["单细胞基础"]
+        SC[scRNA-seq<br/>计数矩阵] --> SCG[scGPT<br/>Cui 2024]
+        SCG --> TM[肿瘤群聚<br/>→ 突变肽段]
+    end
+    subgraph SPATIAL["空间转录组学"]
+        ST[SRT 计数 +<br/>位置] --> ST2[STModule<br/>Wang 2025]
+    end
+    subgraph TRIAL["患者-试验配对"]
+        PT[患者摘要] --> TG[TrialGPT<br/>Jin 2024]
+        PT --> SIM[Sim-ICL<br/>Fung 2026]
+    end
+    subgraph WET["湿实验"]
+        LNP2[LNP 组成<br/>Witten 2025] --> FINAL[已制造<br/>mRNA 疫苗]
+        MAN[mRNA 检查<br/>poly-A / Kozak / GC] --> FINAL
+    end
+
+    RD --> P
+    AM --> P
+    TM --> P
+    ST2 -.告知.-> TM
+    P --> FINAL
+    TRIAL -.资格.-> PT
+```
+
+## 七个工具
 
 | Tool | 工具功能 | AI 加杠杆层 | 整合的参考工作 |
 |---|---|---|---|

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 540" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#101a2e"/>
+    </linearGradient>
+
+    <!-- DNA helix gradient -->
+    <linearGradient id="dnaA" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5dd0ff"/>
+      <stop offset="100%" stop-color="#9b8cff"/>
+    </linearGradient>
+    <linearGradient id="dnaB" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#9b8cff"/>
+      <stop offset="100%" stop-color="#5dd0ff"/>
+    </linearGradient>
+
+    <!-- Arrow marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+
+    <!-- Soft shadow -->
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="540" fill="url(#bg)"/>
+
+  <!-- Decorative dot grid -->
+  <g fill="#1e293b" opacity="0.55">
+    <circle cx="40"   cy="40"  r="1.2"/>
+    <circle cx="120"  cy="40"  r="1.2"/>
+    <circle cx="200"  cy="40"  r="1.2"/>
+    <circle cx="1480" cy="500" r="1.2"/>
+    <circle cx="1560" cy="500" r="1.2"/>
+  </g>
+
+  <!-- Title -->
+  <text x="800" y="50" text-anchor="middle" fill="#e2e8f0" font-size="26" font-weight="700" letter-spacing="0.5">
+    mrnavax — the mRNA cancer therapy AI pipeline
+  </text>
+  <text x="800" y="78" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="400">
+    DNA → optimized codon → variant → neoantigen → patient-trial match → LNP → manufactured mRNA vaccine
+  </text>
+
+  <!-- ============================== STAGES ============================== -->
+
+  <!-- Stage 1: DNA -->
+  <g transform="translate(60, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#5dd0ff" font-size="13" font-weight="700" letter-spacing="1">DNA</text>
+
+    <!-- DNA helix -->
+    <g transform="translate(20, 50)">
+      <!-- Base pairs (rungs) -->
+      <line x1="10"  y1="20" x2="120" y2="20" stroke="#475569" stroke-width="2"/>
+      <line x1="15"  y1="35" x2="115" y2="35" stroke="#475569" stroke-width="2"/>
+      <line x1="10"  y1="50" x2="120" y2="50" stroke="#475569" stroke-width="2"/>
+      <line x1="15"  y1="65" x2="115" y2="65" stroke="#475569" stroke-width="2"/>
+      <line x1="10"  y1="80" x2="120" y2="80" stroke="#475569" stroke-width="2"/>
+      <line x1="15"  y1="95" x2="115" y2="95" stroke="#475569" stroke-width="2"/>
+      <line x1="10"  y1="110" x2="120" y2="110" stroke="#475569" stroke-width="2"/>
+
+      <!-- Helix strand A -->
+      <path d="M 5 20 Q 60 5 125 20 Q 60 35 5 50 Q 60 65 125 80 Q 60 95 5 110 Q 60 125 125 110"
+            fill="none" stroke="url(#dnaA)" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Helix strand B -->
+      <path d="M 5 35 Q 60 50 125 35 Q 60 20 5 35 Q 60 50 125 65 Q 60 80 5 95 Q 60 110 125 95"
+            fill="none" stroke="url(#dnaB)" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">FASTA input</text>
+  </g>
+
+  <!-- Arrow 1 -->
+  <path d="M 240 290 L 290 290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Stage 2: codon -->
+  <g transform="translate(300, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700" letter-spacing="1">CODON</text>
+
+    <!-- Codon table glyph -->
+    <g transform="translate(30, 60)">
+      <rect x="0"  y="0"  width="30" height="30" rx="4" fill="#334155"/>
+      <text x="15" y="22" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">ATG</text>
+      <rect x="36" y="0"  width="30" height="30" rx="4" fill="#334155"/>
+      <text x="51" y="22" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">GCT</text>
+      <rect x="72" y="0"  width="30" height="30" rx="4" fill="#334155"/>
+      <text x="87" y="22" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">TGG</text>
+
+      <rect x="0"  y="36" width="30" height="30" rx="4" fill="#334155"/>
+      <text x="15" y="58" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">CCA</text>
+      <rect x="36" y="36" width="30" height="30" rx="4" fill="#475569"/>
+      <text x="51" y="58" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">AAG</text>
+      <rect x="72" y="36" width="30" height="30" rx="4" fill="#334155"/>
+      <text x="87" y="58" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">GTA</text>
+
+      <rect x="0"  y="72" width="30" height="30" rx="4" fill="#334155"/>
+      <text x="15" y="94" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">TTA</text>
+      <rect x="36" y="72" width="30" height="30" rx="4" fill="#334155"/>
+      <text x="51" y="94" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">CGT</text>
+      <rect x="72" y="72" width="30" height="30" rx="4" fill="#475569"/>
+      <text x="87" y="94" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">GAG</text>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">LinearDesign DP</text>
+  </g>
+
+  <!-- Arrow 2 -->
+  <path d="M 480 290 L 530 290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Stage 3: variant -->
+  <g transform="translate(540, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#f472b6" font-size="13" font-weight="700" letter-spacing="1">VARIANT</text>
+
+    <!-- Variant list -->
+    <g transform="translate(20, 60)" font-family="ui-monospace, monospace">
+      <rect x="0" y="0"   width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="14" fill="#f472b6" font-size="10">BRAF V600E</text>
+      <text x="100" y="14" fill="#fda4af" font-size="10" text-anchor="end">0.83</text>
+
+      <rect x="0" y="26"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="40" fill="#f472b6" font-size="10">KRAS G12D</text>
+      <text x="100" y="40" fill="#fda4af" font-size="10" text-anchor="end">0.83</text>
+
+      <rect x="0" y="52"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="66" fill="#f472b6" font-size="10">TP53 R175H</text>
+      <text x="100" y="66" fill="#fda4af" font-size="10" text-anchor="end">0.79</text>
+
+      <rect x="0" y="78"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="92" fill="#f472b6" font-size="10">EGFR L858R</text>
+      <text x="100" y="92" fill="#fda4af" font-size="10" text-anchor="end">0.76</text>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">AlphaMissense</text>
+  </g>
+
+  <!-- Arrow 3 -->
+  <path d="M 720 290 L 770 290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Stage 4: neoantigen -->
+  <g transform="translate(780, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700" letter-spacing="1">PEPTIDE × HLA</text>
+
+    <!-- Peptide-HLA binding glyph -->
+    <g transform="translate(30, 60)">
+      <!-- HLA groove -->
+      <path d="M 10 30 Q 55 10 100 30 L 100 60 Q 55 80 10 60 Z"
+            fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+      <path d="M 25 35 Q 55 25 85 35" stroke="#34d399" stroke-width="2" fill="none"/>
+
+      <!-- Peptide -->
+      <rect x="20" y="32" width="70" height="6" rx="2" fill="#34d399"/>
+      <rect x="20" y="40" width="70" height="6" rx="2" fill="#22c55e"/>
+      <rect x="20" y="48" width="70" height="6" rx="2" fill="#34d399"/>
+
+      <!-- HLA alpha helices -->
+      <ellipse cx="55" cy="15" rx="55" ry="6" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+      <ellipse cx="55" cy="78" rx="55" ry="6" fill="#0f172a" stroke="#475569" stroke-width="1.5"/>
+
+      <!-- TCR tag -->
+      <text x="55" y="98" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">TCR recognition</text>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">mhcflurry + ESM2</text>
+  </g>
+
+  <!-- Arrow 4 -->
+  <path d="M 960 290 L 1010 290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Stage 5: trial -->
+  <g transform="translate(1020, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700" letter-spacing="1">TRIAL</text>
+
+    <!-- Match score -->
+    <g transform="translate(20, 60)">
+      <rect x="0"  y="0"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="14" fill="#a78bfa" font-size="10">NCT04042525</text>
+      <rect x="100" y="4" width="25" height="12" rx="2" fill="#a78bfa"/>
+      <text x="112" y="13" fill="#0b1020" font-size="9" text-anchor="middle" font-weight="700">.75</text>
+
+      <rect x="0" y="26"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="40" fill="#a78bfa" font-size="10">NCT03830917</text>
+      <rect x="100" y="30" width="25" height="12" rx="2" fill="#a78bfa"/>
+      <text x="112" y="39" fill="#0b1020" font-size="9" text-anchor="middle" font-weight="700">.62</text>
+
+      <rect x="0" y="52"  width="130" height="20" rx="3" fill="#0f172a" stroke="#334155"/>
+      <text x="8" y="66" fill="#a78bfa" font-size="10">NCT04111458</text>
+      <rect x="100" y="56" width="25" height="12" rx="2" fill="#7c3aed"/>
+      <text x="112" y="65" fill="#0b1020" font-size="9" text-anchor="middle" font-weight="700">.55</text>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">TrialGPT + Sim-ICL</text>
+  </g>
+
+  <!-- Arrow 5 -->
+  <path d="M 1200 290 L 1250 290" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)" fill="none"/>
+
+  <!-- Stage 6: LNP -->
+  <g transform="translate(1260, 180)" filter="url(#soft)">
+    <rect width="170" height="220" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="85" y="30" text-anchor="middle" fill="#fb923c" font-size="13" font-weight="700" letter-spacing="1">LNP</text>
+
+    <!-- Lipid nanoparticle glyph -->
+    <g transform="translate(55, 95)">
+      <!-- Outer circle -->
+      <circle cx="30" cy="0" r="32" fill="#0f172a" stroke="#fb923c" stroke-width="2"/>
+      <!-- Lipid tails (toward center) -->
+      <line x1="30" y1="-22" x2="30" y2="-6"  stroke="#fb923c" stroke-width="2"/>
+      <line x1="50" y1="-15" x2="38" y2="-4"  stroke="#fb923c" stroke-width="2"/>
+      <line x1="60" y1="0"  x2="42" y2="0"   stroke="#fb923c" stroke-width="2"/>
+      <line x1="50" y1="15"  x2="38" y2="4"   stroke="#fb923c" stroke-width="2"/>
+      <line x1="30" y1="22"  x2="30" y2="6"   stroke="#fb923c" stroke-width="2"/>
+      <line x1="10" y1="15"  x2="22" y2="4"   stroke="#fb923c" stroke-width="2"/>
+      <line x1="0"  y1="0"   x2="18" y2="0"   stroke="#fb923c" stroke-width="2"/>
+      <line x1="10" y1="-15" x2="22" y2="-4"  stroke="#fb923c" stroke-width="2"/>
+
+      <!-- mRNA payload -->
+      <rect x="22" y="-3" width="16" height="6" rx="2" fill="#5dd0ff"/>
+    </g>
+    <text x="85" y="195" text-anchor="middle" fill="#cbd5e1" font-size="11">ionizable lipid</text>
+  </g>
+
+  <!-- Stage 7: mRNA vaccine (final, larger) -->
+  <g transform="translate(60, 430)" filter="url(#soft)">
+    <rect width="1480" height="60" rx="10" fill="#1e293b" stroke="#fb923c" stroke-width="1.5" stroke-dasharray="6 3"/>
+    <text x="20" y="38" fill="#fb923c" font-size="14" font-weight="700" letter-spacing="1">MANUFACTURED mRNA CANCER VACCINE</text>
+
+    <!-- 5' UTR -->
+    <rect x="280" y="20" width="80"  height="20" rx="3" fill="#0f172a" stroke="#94a3b8"/>
+    <text x="320" y="34" text-anchor="middle" fill="#cbd5e1" font-size="10">5' UTR</text>
+
+    <!-- poly-A -->
+    <rect x="370" y="20" width="60"  height="20" rx="3" fill="#0f172a" stroke="#94a3b8"/>
+    <text x="400" y="34" text-anchor="middle" fill="#cbd5e1" font-size="10">poly-A</text>
+
+    <!-- Kozak + CDS -->
+    <rect x="440" y="20" width="40"  height="20" rx="3" fill="#0f172a" stroke="#fb923c"/>
+    <text x="460" y="34" text-anchor="middle" fill="#fb923c" font-size="9">Kozak</text>
+    <rect x="490" y="20" width="380" height="20" rx="3" fill="#fb923c"/>
+    <text x="680" y="34" text-anchor="middle" fill="#0b1020" font-size="10" font-weight="700">CDS — neoantigen cassette (LinearDesign-optimized)</text>
+
+    <!-- 3' UTR -->
+    <rect x="880" y="20" width="80"  height="20" rx="3" fill="#0f172a" stroke="#94a3b8"/>
+    <text x="920" y="34" text-anchor="middle" fill="#cbd5e1" font-size="10">3' UTR</text>
+
+    <!-- poly-A tail -->
+    <rect x="970" y="20" width="100" height="20" rx="3" fill="#0f172a" stroke="#94a3b8"/>
+    <text x="1020" y="34" text-anchor="middle" fill="#cbd5e1" font-size="10">poly-A₁₂₀</text>
+
+    <!-- Cap analog -->
+    <text x="270" y="35" fill="#fb923c" font-size="16" font-weight="700">m⁷G</text>
+    <text x="1080" y="35" fill="#fb923c" font-size="16" font-weight="700">···</text>
+
+    <!-- Manufacturability score -->
+    <text x="1120" y="34" fill="#34d399" font-size="11" font-weight="700">clean CDS 0.84</text>
+    <text x="1240" y="34" fill="#94a3b8" font-size="11">manufacture check ✓</text>
+  </g>
+
+  <!-- Caption -->
+  <text x="800" y="520" text-anchor="middle" fill="#64748b" font-size="12" font-style="italic">
+    Every box is a CLI subcommand. Every glyph is a Protocol adapter. Real-model weights never enter the core wheel.
+  </text>
+</svg>
