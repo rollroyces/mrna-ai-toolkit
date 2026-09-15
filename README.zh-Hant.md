@@ -22,32 +22,32 @@ CLI 子指令執行，也可乾淨地作為 Python 模組匯入。
 ```mermaid
 flowchart LR
     subgraph DESIGN["序列設計"]
-        DNA[DNA 序列<br/>FASTA] --> CAI[codon<br/>CAI / GC / 罕見]
-        DNA --> LD[LinearDesign DP<br/>O(L) 帕雷托]
-        DNA --> RD[RiboDecode<br/>Li 2025]
+        DNA["DNA 序列<br/>FASTA"] --> CAI["codon<br/>CAI / GC / 罕見"]
+        DNA --> LD["LinearDesign DP<br/>O(L) 帕雷托"]
+        DNA --> RD["RiboDecode<br/>Li 2025"]
     end
     subgraph VARIANT["變異優先排序"]
-        V[VCF / 編碼<br/>變異] --> AM[AlphaMissense<br/>Cheng 2023]
-        V --> BF[BLOSUM62 +<br/>Chou-Fasman]
+        V["VCF / 編碼<br/>變異"] --> AM["AlphaMissense<br/>Cheng 2023"]
+        V --> BF["BLOSUM62 +<br/>Chou-Fasman"]
     end
     subgraph NEO["新抗原預測"]
-        P[突變胜肽] --> MF[mhcflurry<br/>IC50 nM]
-        P --> ESM[ESM2 凍結 LM<br/>Wong 2025]
+        P["突變胜肽"] --> MF["mhcflurry<br/>IC50 nM"]
+        P --> ESM["ESM2 凍結 LM<br/>Wong 2025"]
     end
     subgraph CELL["單細胞基礎"]
-        SC[scRNA-seq<br/>計數矩陣] --> SCG[scGPT<br/>Cui 2024]
-        SCG --> TM[腫瘤群聚<br/>→ 突變胜肽]
+        SC["scRNA-seq<br/>計數矩陣"] --> SCG["scGPT<br/>Cui 2024"]
+        SCG --> TM["腫瘤群聚<br/>→ 突變胜肽"]
     end
     subgraph SPATIAL["空間轉錄組學"]
-        ST[SRT 計數 +<br/>位置] --> ST2[STModule<br/>Wang 2025]
+        ST["SRT 計數 +<br/>位置"] --> ST2["STModule<br/>Wang 2025"]
     end
     subgraph TRIAL["患者-試驗配對"]
-        PT[患者摘要] --> TG[TrialGPT<br/>Jin 2024]
-        PT --> SIM[Sim-ICL<br/>Fung 2026]
+        PT["患者摘要"] --> TG["TrialGPT<br/>Jin 2024"]
+        PT --> SIM["Sim-ICL<br/>Fung 2026"]
     end
     subgraph WET["濕實驗"]
-        LNP2[LNP 組成<br/>Witten 2025] --> FINAL[已製造<br/>mRNA 疫苗]
-        MAN[mRNA 檢查<br/>poly-A / Kozak / GC] --> FINAL
+        LNP2["LNP 組成<br/>Witten 2025"] --> FINAL["已製造<br/>mRNA 疫苗"]
+        MAN["mRNA 檢查<br/>poly-A / Kozak / GC"] --> FINAL
     end
 
     RD --> P

@@ -24,32 +24,32 @@ subcommand and imports cleanly as a Python module.
 ```mermaid
 flowchart LR
     subgraph DESIGN["Sequence design"]
-        DNA[DNA sequence<br/>FASTA] --> CAI[codon<br/>CAI / GC / rare]
-        DNA --> LD[LinearDesign DP<br/>O(L) Pareto]
-        DNA --> RD[RiboDecode<br/>Li 2025]
+        DNA["DNA sequence<br/>FASTA"] --> CAI["codon<br/>CAI / GC / rare"]
+        DNA --> LD["LinearDesign DP<br/>O(L) Pareto"]
+        DNA --> RD["RiboDecode<br/>Li 2025"]
     end
     subgraph VARIANT["Variant prioritization"]
-        V[VCF / coding<br/>variants] --> AM[AlphaMissense<br/>Cheng 2023]
-        V --> BF[BLOSUM62 +<br/>Chou-Fasman]
+        V["VCF / coding<br/>variants"] --> AM["AlphaMissense<br/>Cheng 2023"]
+        V --> BF["BLOSUM62 +<br/>Chou-Fasman"]
     end
     subgraph NEO["Neoantigen prediction"]
-        P[Mutant peptides] --> MF[mhcflurry<br/>IC50 nM]
-        P --> ESM[ESM2 frozen LM<br/>Wong 2025]
+        P["Mutant peptides"] --> MF["mhcflurry<br/>IC50 nM"]
+        P --> ESM["ESM2 frozen LM<br/>Wong 2025"]
     end
     subgraph CELL["Single-cell foundation"]
-        SC[scRNA-seq<br/>count matrix] --> SCG[scGPT<br/>Cui 2024]
-        SCG --> TM[Tumor cluster<br/>→ mutant peptides]
+        SC["scRNA-seq<br/>count matrix"] --> SCG["scGPT<br/>Cui 2024"]
+        SCG --> TM["Tumor cluster<br/>→ mutant peptides"]
     end
     subgraph SPATIAL["Spatial transcriptomics"]
-        ST[SRT counts +<br/>locations] --> ST2[STModule<br/>Wang 2025]
+        ST["SRT counts +<br/>locations"] --> ST2["STModule<br/>Wang 2025"]
     end
     subgraph TRIAL["Patient-trial matching"]
-        PT[Patient summary] --> TG[TrialGPT<br/>Jin 2024]
-        PT --> SIM[Sim-ICL<br/>Fung 2026]
+        PT["Patient summary"] --> TG["TrialGPT<br/>Jin 2024"]
+        PT --> SIM["Sim-ICL<br/>Fung 2026"]
     end
     subgraph WET["Wet-lab"]
-        LNP2[LNP composition<br/>Witten 2025] --> FINAL[Manufactured<br/>mRNA vaccine]
-        MAN[mRNA checks<br/>poly-A / Kozak / GC] --> FINAL
+        LNP2["LNP composition<br/>Witten 2025"] --> FINAL["Manufactured<br/>mRNA vaccine"]
+        MAN["mRNA checks<br/>poly-A / Kozak / GC"] --> FINAL
     end
 
     RD --> P
@@ -413,18 +413,18 @@ mkdocs serve
 
 ```mermaid
 flowchart LR
-    DEV["git push<br/>to main"] --> SMOKE[smoke.yml<br/>Python 3.11–3.14<br/>174 tests + 25 checks]
-    DEV --> DOCS[docs.yml<br/>mkdocs strict<br/>3 locales]
-    SMOKE -.on failure.-> FAIL[❌ red ✋<br/>fix + push again]
+    DEV["git push<br/>to main"] --> SMOKE["smoke.yml<br/>Python 3.11–3.14<br/>174 tests + 25 checks"]
+    DEV --> DOCS["docs.yml<br/>mkdocs strict<br/>3 locales"]
+    SMOKE -.on failure.-> FAIL["❌ red ✋<br/>fix + push again"]
     DOCS -.on failure.-> FAIL
 
-    TAG["git tag vX.Y.Z<br/>git push --tags"] --> PUB[publish.yml]
+    TAG["git tag vX.Y.Z<br/>git push --tags"] --> PUB["publish.yml"]
     PUB --> BUILD["build job<br/>sdist + wheel<br/>version matches tag"]
     BUILD --> ART["dist/<br/>artifact"]
     ART --> PYP["publish-to-pypi job<br/>OIDC trusted publisher"]
     PYP -.manual approval.-> REVIEW["pypi environment<br/>reviewer gate"]
     REVIEW --> LIVE[("PyPI<br/>mrnavax X.Y.Z<br/>live")]
-    LIVE --> PAGES[GitHub Pages<br/>rollroyces.github.io/mrnavax]
+    LIVE --> PAGES["GitHub Pages<br/>rollroyces.github.io/mrnavax"]
 
     style SMOKE fill:#cfc
     style DOCS fill:#cfc
